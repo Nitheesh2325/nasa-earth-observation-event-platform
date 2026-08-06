@@ -30,3 +30,9 @@ All meaningful project changes will be recorded here.
 - Verified that Spark 4.0.2 launches with Temurin JDK 17 and Scala 2.13.16.
 - Documented the blocked native Windows Parquet smoke test without claiming success.
 - Deferred NASA 10,000-record acquisition until an official Linux Spark container passes Parquet reconciliation.
+- Pinned the official Apache Spark 4.0.2 Python image by immutable digest.
+- Passed a resource-limited Linux-container DataFrame and Parquet write/read reconciliation smoke test.
+- Extracted 44,292 fixed-date global `VIIRS_SNPP_SP` original NASA records.
+- Reconciled all 44,292 canonical events with zero rejections and zero duplicates.
+- Added a governed deterministic scale-gate selector and three automated tests.
+- Produced exactly 10,000 original NASA events and verified byte-identical repeat selection.

@@ -2,7 +2,7 @@
 
 ## Current milestone
 
-Phase 3B - Pinned Spark installed; native Windows Parquet compatibility blocked pending official Linux container approval.
+Phase 3B - Spark environment and deterministic 10,000-record NASA input complete.
 
 ## Current status
 
@@ -21,14 +21,18 @@ Phase 3B - Pinned Spark installed; native Windows Parquet compatibility blocked 
 - Twenty automated extraction and canonicalization tests pass.
 - All 21 verified NASA rows canonicalized successfully with unique stable identities.
 - A repeat canonicalization produced byte-identical canonical event output.
-- No dependencies have been installed.
 - Local NASA source and generated event data remain excluded from Git.
 - No AWS resources have been created.
 - Spark dependency research selected PySpark 4.0.2 for parity with the target `emr-spark-8.0.0` runtime.
 - The deterministic Standard Processing acquisition and exact 10,000-record selection contract is documented.
 - PySpark 4.0.2 and Py4J 0.10.9.9 are installed in the ignored project-local virtual environment.
 - Spark 4.0.2 starts with Java 17, but native Windows Parquet output fails because Hadoop requires unavailable Windows filesystem support.
-- The 10,000-record NASA acquisition was not started after the compatibility failure.
+- The official Spark 4.0.2 Python image is pinned to digest `sha256:87e5d6062e955a045b68376bbf97487d5057ecd8f4f896fb0590339981645de3`.
+- A resource-limited Linux container wrote and read Parquet with exact two-row reconciliation.
+- A fixed 2026-04-01 global `VIIRS_SNPP_SP` request produced 44,292 original NASA records.
+- All 44,292 records canonicalized successfully with zero rejections and zero duplicates.
+- The deterministic selector produced exactly 10,000 original NASA events and an independent repeat produced an identical checksum.
+- Twenty-three automated tests pass.
 
 ## Approved mission
 
@@ -36,11 +40,11 @@ Build a professional batch and streaming data-engineering platform that processe
 
 ## Current gate
 
-The dependency installation succeeded, but the native Windows Parquet smoke test did not pass. Owner approval is required before pulling and testing the official `apache/spark:4.0.2-python3` Linux image. NASA acquisition remains prohibited until Parquet write/read reconciliation succeeds.
+The Spark environment and exact 10,000-record input gate are complete. Owner approval is required before implementing the Spark Bronze-to-Silver batch job.
 
 ## Next proposed milestone
 
-Phase 3B continuation - pull the official Spark 4.0.2 Python image, pin its digest, and pass a bounded Linux-container DataFrame and Parquet write/read smoke test. If it passes, acquire and deterministically select the 10,000-record NASA input, then stop for evidence review.
+Phase 3C - implement the explicit-schema Spark Bronze-to-Silver batch slice, add validation and deduplication tests, run the 10,000-record gate in the pinned container, and record quality, runtime, throughput, and limitations.
 
 ## Known constraints
 
