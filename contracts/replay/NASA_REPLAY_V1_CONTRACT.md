@@ -127,10 +127,9 @@ Output JSON Lines in ascending `replay_sequence_number`. A repeated generation m
 
 ```text
 data/local/bronze/replay_events/
-  source_type=NASA_REPLAY/
-    replay_plan_version=1/
-      replay_run_id_sha256=<deterministic-id-digest>/
-        events.jsonl
+  plan=<deterministic-replay-id-digest>/
+    run=<execution-run-id>/
+      events.jsonl
 
 data/local/manifests/replay/
   run_date=<yyyy-mm-dd>/

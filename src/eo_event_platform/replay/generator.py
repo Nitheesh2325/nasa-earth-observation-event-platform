@@ -155,10 +155,8 @@ def generate_replay(
     run_date = started_at.date().isoformat()
     run_directory = (
         output_root
-        / "source_type=NASA_REPLAY"
-        / "replay_plan_version=1"
-        / f"replay_run_id_sha256={replay_run_id_sha256}"
-        / f"execution_run_id={execution_run_id}"
+        / f"plan={replay_run_id_sha256}"
+        / f"run={execution_run_id}"
     )
     events_path = run_directory / "events.jsonl"
     temporary_path = events_path.with_suffix(".jsonl.part")
