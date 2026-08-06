@@ -13,6 +13,7 @@ Phase 1B - Local readiness and data-contract finalization in progress.
 - Eclipse Temurin OpenJDK 17.0.20 is installed and `JAVA_HOME` is configured.
 - Docker Desktop 4.84.0 and Docker Engine 29.6.2 are operational.
 - Docker Compose 5.3.1 and the WSL2 Linux backend are available.
+- A NASA FIRMS API key has been obtained; the secret remains outside Git.
 - No application code has been written.
 - No dependencies have been installed.
 - No NASA data has been downloaded.
