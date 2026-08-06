@@ -12,3 +12,5 @@ All meaningful project changes will be recorded here.
 - Added the initial project state and truthful project overview.
 - Verified the local Python, Java, Docker, Docker Compose, and WSL2 prerequisites.
 - Added the secret-free NASA FIRMS configuration variable name.
+- Added the version 1 NASA FIRMS source, canonical event, and Bronze data contracts.
+- Added the initial governed data dictionary.

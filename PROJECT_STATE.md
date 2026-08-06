@@ -25,7 +25,7 @@ Build a professional batch and streaming data-engineering platform that processe
 
 ## Current gate
 
-Local prerequisites are verified. The canonical event, NASA source, and Bronze contracts must be finalized before extraction implementation begins.
+Local prerequisites and the private NASA credential are verified. Version 1 of the canonical event, NASA source, and Bronze contracts has been drafted and must pass repository review before Phase 1B closes.
 
 ## Next proposed milestone
 
