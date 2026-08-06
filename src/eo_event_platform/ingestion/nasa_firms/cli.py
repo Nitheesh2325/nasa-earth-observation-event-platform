@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import argparse
 import os
-import subprocess
 from pathlib import Path
 
 from .extractor import ExtractionRequest, FirmsExtractor, load_map_key
@@ -39,21 +38,33 @@ def build_parser() -> argparse.ArgumentParser:
     return parser
 
 
-def detect_pipeline_version() -> str:
-    """Return a Git revision without failing extraction outside a Git checkout."""
+def detect_pipeline_version(repository_root: Path | None = None) -> str:
+    """Return a Git revision without requiring the Git executable on PATH."""
     configured = os.environ.get("PIPELINE_VERSION", "").strip()
     if configured:
         return configured
+
+    root = repository_root or Path.cwd()
+    head_path = root / ".git" / "HEAD"
     try:
-        completed = subprocess.run(
-            ["git", "rev-parse", "--short", "HEAD"],
-            check=True,
-            capture_output=True,
-            text=True,
-        )
-        return completed.stdout.strip()
-    except (OSError, subprocess.CalledProcessError):
-        return "unversioned"
+        head_value = head_path.read_text(encoding="utf-8").strip()
+        if not head_value.startswith("ref: "):
+            return head_value[:12]
+        reference = head_value.removeprefix("ref: ")
+        reference_path = root / ".git" / reference
+        if reference_path.exists():
+            return reference_path.read_text(encoding="utf-8").strip()[:12]
+        packed_refs_path = root / ".git" / "packed-refs"
+        if packed_refs_path.exists():
+            for line in packed_refs_path.read_text(encoding="utf-8").splitlines():
+                if line.startswith("#") or line.startswith("^"):
+                    continue
+                revision, packed_reference = line.split(" ", 1)
+                if packed_reference == reference:
+                    return revision[:12]
+    except (OSError, ValueError):
+        pass
+    return "unversioned"
 
 
 def main() -> int:
@@ -85,4 +96,3 @@ def main() -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
-
