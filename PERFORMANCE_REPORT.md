@@ -75,5 +75,24 @@ This result proves correctness at the first scale gate. It is not a cloud benchm
 
 ## Next Measurement
 
-The 100,000-record gate requires a separately approved replay or synthetic generation contract, truthfully labeled records, tests, count reconciliation, and the same performance evidence. Configuration changes must be justified by comparative measurements rather than intuition.
+## 100,000-Message Replay Generation Gate
 
+**Status:** Passed
+
+Two independent standard-library generations produced byte-identical 184,078,310-byte JSONL artifacts with SHA-256 `9380341108650b2a5b536f9245148abf572883eb7b13ba0c332d0583fb5e0b0a`.
+
+| Metric | Execution 1 | Execution 2 |
+|---|---:|---:|
+| Replay messages | 100,000 | 100,000 |
+| Unique NASA detections represented | 10,000 | 10,000 |
+| Duration | 5.064 seconds | 5.025 seconds |
+| Throughput | 19,745.49 records/second | 19,900.14 records/second |
+| Output bytes | 184,078,310 | 184,078,310 |
+
+This measures local JSON replay generation and hashing only. It is not Spark processing throughput, Kafka producer throughput, or NASA source throughput. The generator loads and sorts 10,000 admitted originals, then streams 100,000 output messages to the mechanical D: drive.
+
+The measured size fell within the planned 170-190 MB range. Physical run identifiers and wall-clock manifest fields differ; governed event bytes remain identical.
+
+## Next Measurement
+
+The 100,000-message Spark gate requires separate approval and must use the admitted replay checksum. It must record accepted, rejected, duplicate, and Parquet read-back counts under the same bounded container before any Kafka deployment.

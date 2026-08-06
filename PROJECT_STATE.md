@@ -2,7 +2,7 @@
 
 ## Current milestone
 
-Phase 4A - deterministic 100,000-record controlled replay architecture complete; implementation approval pending.
+Phase 4B - deterministic 100,000-message replay generation gate complete.
 
 ## Current status
 
@@ -42,7 +42,14 @@ Phase 4A - deterministic 100,000-record controlled replay architecture complete;
 - The version 1 controlled replay contract defines 100,000 replay messages derived from 10,000 unique original NASA detections.
 - Deterministic replay run identity, event identity, ordering, scheduling, lineage, and reconciliation rules are documented.
 - The future Kafka replay, rejected, and dead-letter topics and stable `lineage_root_id` message key are documented.
-- No replay dataset has been generated and no Kafka dependency or service has been added.
+- The dependency-free `nasa-replay-v1` identity and streaming JSONL generator are implemented.
+- The explicit Spark schema and replay validation rules include scheduled timestamp, replay iteration, and replay sequence fields.
+- Thirty-two automated tests pass.
+- Two independent generation executions each produced exactly 100,000 `NASA_REPLAY` messages and byte-identical output.
+- The replay artifact represents 10,000 unique original NASA detections exactly ten times each and contains zero synthetic messages.
+- The admitted replay artifact is 184,078,310 bytes with SHA-256 `9380341108650b2a5b536f9245148abf572883eb7b13ba0c332d0583fb5e0b0a`.
+- Independent scanning verified identity uniqueness, lineage resolution, classification, sequence completeness, detection frequency, and scheduled timestamp boundaries.
+- Kafka has not been started and no Kafka client dependency has been installed.
 
 ## Approved mission
 
@@ -50,11 +57,11 @@ Build a professional batch and streaming data-engineering platform that processe
 
 ## Current gate
 
-Phase 4A design is complete. Owner approval is required before implementing replay identities, extending the Spark schema, and generating the deterministic 100,000-record replay artifact.
+Phase 4B generation is complete. Owner approval is required before running the 100,000-message Spark Bronze-to-Silver gate.
 
 ## Next proposed milestone
 
-Phase 4B - implement and test the dependency-free replay generator, extend the explicit Spark schema for replay fields, generate the 100,000-record artifact twice, reconcile it, record performance, and stop before Spark processing or Kafka deployment.
+Phase 4C - run the admitted 100,000-message replay artifact through the existing Spark Bronze-to-Silver job in the pinned container, reconcile all outcomes and Parquet read-back counts, record performance and limitations, and stop before Kafka deployment.
 
 ## Known constraints
 

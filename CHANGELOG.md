@@ -45,3 +45,9 @@ All meaningful project changes will be recorded here.
 - Defined deterministic replay run and event identities, ordering, scheduled timestamps, and reconciliation invariants.
 - Defined replay, rejected, and dead-letter Kafka topic compatibility and the stable lineage-root message key.
 - Documented storage estimates, laptop controls, required tests, and the Phase 4B implementation boundary without generating data.
+- Implemented dependency-free deterministic replay plan and event identities.
+- Implemented streaming replay JSONL generation with immutable physical executions and failure manifests.
+- Extended the explicit Spark schema and validation contract with replay schedule, iteration, and sequence fields.
+- Added replay identity, lineage, repeatability, failure, and schema tests, bringing the suite to thirty-two tests.
+- Recorded and corrected a Windows path-length failure without changing logical replay identities.
+- Generated two byte-identical 100,000-message replay artifacts and independently reconciled their lineage, identities, classifications, sequence, size, and checksum.

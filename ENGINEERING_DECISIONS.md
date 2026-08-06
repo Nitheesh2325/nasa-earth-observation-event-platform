@@ -79,3 +79,13 @@
 **Decision:** Derive exactly ten deterministic `NASA_REPLAY` messages from each of the 10,000 admitted original NASA events. Preserve original detection identity, observation time, measurements, and raw lineage; assign versioned replay event identities and a separate deterministic scheduled replay timestamp. Use `lineage_root_id` as the future Kafka key.
 
 **Consequences:** The gate truthfully represents 100,000 replay messages backed by 10,000 unique NASA detections and adds no fabricated observation measurements. Replay distribution remains limited to the original sample, so later million-scale gates may require separately labeled synthetic data for broader controlled distributions.
+
+## ED-009: Separate logical replay identity from physical artifact paths
+
+**Status:** Accepted
+
+**Context:** Governed replay IDs use a URI-like colon-delimited identity that is valid in event content but invalid in Windows directory names. Long descriptive partition labels also exceeded the workstation's path-length boundary.
+
+**Decision:** Preserve the complete `nasa-replay-v1:sha256:<digest>` identity in every event and manifest. Use only filesystem-safe `plan=<digest>/run=<execution-uuid>` components for local physical paths.
+
+**Consequences:** Logical identities remain portable and deterministic while local paths work across Windows and Linux. Consumers must use manifests rather than infer complete logical identities from directory names.
