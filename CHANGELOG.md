@@ -54,3 +54,7 @@ All meaningful project changes will be recorded here.
 - Passed the 100,000-message Spark Bronze-to-Silver gate with complete outcome and Parquet read-back reconciliation.
 - Independently verified Silver replay identities, detection counts, classifications, lineage, sequence, schedule, partition, and derived fields.
 - Recorded 100,000-gate runtime, throughput, Parquet size, configuration, comparison, and limitations.
+- Researched and selected exact Kafka 4.3.1, confluent-kafka 2.15.0, and Spark Kafka connector 4.0.2 versions.
+- Defined the laptop-safe single-node KRaft topology and separate production topology.
+- Defined explicit topic, retention, resource, producer, consumer, checkpoint, watermark, idempotency, security, and observability standards.
+- Defined the gated Kafka and Structured Streaming test sequence without pulling images, installing dependencies, starting services, or publishing messages.

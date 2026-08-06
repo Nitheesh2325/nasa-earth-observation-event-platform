@@ -89,3 +89,23 @@
 **Decision:** Preserve the complete `nasa-replay-v1:sha256:<digest>` identity in every event and manifest. Use only filesystem-safe `plan=<digest>/run=<execution-uuid>` components for local physical paths.
 
 **Consequences:** Logical identities remain portable and deterministic while local paths work across Windows and Linux. Consumers must use manifests rather than infer complete logical identities from directory names.
+
+## ED-010: Use official Kafka 4.3.1 KRaft locally with a production-grade Python client
+
+**Status:** Accepted
+
+**Context:** The streaming milestone requires explicit KRaft infrastructure, reliable producer delivery, Spark 4.0.2 connector compatibility, and strict laptop controls. A local multi-node cluster would add resource pressure without improving the first vertical-slice evidence.
+
+**Decision:** Use the official `apache/kafka:4.3.1` image as one combined broker/controller for local development, `confluent-kafka==2.15.0` for Python production and diagnostic consumption, and `spark-sql-kafka-0-10_2.13:4.0.2` for Spark. Cap Kafka at 1.5 GiB and two CPUs, disable automatic topic creation, and create bounded topics explicitly. Document a separate production topology with dedicated controllers, multiple brokers, replication factor three, TLS, authentication, and authorization.
+
+**Consequences:** Local streaming remains feasible on the 16-GB laptop while using current production-relevant components. The single node provides no broker high availability and cannot validate replication or failover; those limitations must remain explicit in portfolio claims.
+
+## ED-011: Key Kafka replay messages by lineage root
+
+**Status:** Accepted
+
+**Context:** Replay events have unique event IDs but share an underlying original NASA detection. The streaming system needs deterministic per-lineage ordering without claiming global order across partitions.
+
+**Decision:** Use `lineage_root_id` as the UTF-8 Kafka key and retain `event_id` as the unique deduplication identity. Configure six replay-topic partitions locally.
+
+**Consequences:** All ten replay messages for a detection remain in one ordered partition, while different lineages can process concurrently. Load balance depends on the hash distribution of 10,000 lineage keys and must be measured per partition.

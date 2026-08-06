@@ -2,7 +2,7 @@
 
 ## Current milestone
 
-Phase 4C - 100,000-message Spark Bronze-to-Silver gate complete.
+Phase 5A - Kafka KRaft dependency research and local streaming architecture complete; implementation approval pending.
 
 ## Current status
 
@@ -55,6 +55,9 @@ Phase 4C - 100,000-message Spark Bronze-to-Silver gate complete.
 - The measured run completed in 61.232 seconds at 1,633.13 records per second.
 - Silver contains 16 Parquet files totaling 38,399,832 bytes under the preserved `event_date=2026-04-01` partition.
 - Independent Silver verification confirmed replay identities, 10,000 underlying detections, classification, parent lineage, sequence and iteration completeness, schedule boundaries, and derived fields.
+- Kafka research selected official broker image `apache/kafka:4.3.1`, Python client `confluent-kafka==2.15.0`, and Spark connector `spark-sql-kafka-0-10_2.13:4.0.2`.
+- The laptop-safe single-node KRaft topology, resource limits, explicit topics, retention, producer guarantees, offset reconciliation, checkpoint strategy, observability, and security boundary are documented.
+- No Kafka image has been pulled, no client installed, no Compose service created, no topic created, and no message published.
 
 ## Approved mission
 
@@ -62,11 +65,11 @@ Build a professional batch and streaming data-engineering platform that processe
 
 ## Current gate
 
-The 100,000-message batch scale gate is complete. Owner approval is required before Kafka dependency research, local KRaft architecture finalization, or service deployment.
+Phase 5A research and architecture are complete. Owner approval is required before adding Docker Compose, pulling Kafka, installing the Python client, starting KRaft, creating topics, or running bounded fixture smoke tests.
 
 ## Next proposed milestone
 
-Phase 5A - research and approve the exact Kafka/KRaft container and Python client versions, finalize the laptop-safe Docker Compose topology, resource limits, topic settings, producer guarantees, observability, and streaming test plan. Do not deploy Kafka or install a client until that design is approved.
+Phase 5B - implement and validate the pinned Kafka-only Docker Compose service, start the bounded KRaft broker, create and describe topics, install the pinned Python client, implement producer and diagnostic consumer foundations, and pass only fixture and 100-message smoke tests. Stop before full replay publication or Spark streaming.
 
 ## Known constraints
 
