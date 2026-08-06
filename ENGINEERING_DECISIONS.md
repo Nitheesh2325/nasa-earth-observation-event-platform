@@ -59,3 +59,13 @@
 **Decision:** Keep the pinned project-local PySpark dependency for contract development and version visibility, but execute local Spark file workloads in the official `apache/spark:4.0.2-python3` Linux image pinned by digest. Do not add an unofficial `winutils.exe` binary or rename the repository.
 
 **Consequences:** Local execution uses Linux filesystem semantics closer to EMR Serverless, the runtime is reproducible, and untrusted Windows binaries are avoided. Docker startup and bind-mount overhead must be excluded or disclosed in performance measurements, and the container's Python runtime must be recorded.
+
+## ED-007: Model Spark batch results as mutually exclusive governed outcomes
+
+**Status:** Accepted
+
+**Context:** Trusted Silver must not silently include invalid or duplicate messages, and performance evidence is meaningless when dropped records are not accounted for.
+
+**Decision:** Every batch input receives exactly one Spark outcome: accepted, rejected, or duplicate. Use explicit schema parsing and DataFrame validation expressions, deduplicate accepted candidates by stable `event_id`, physically separate quarantine outputs, and require both pre-write and Parquet read-back reconciliation.
+
+**Consequences:** Counts remain auditable and invalid data is diagnosable without contaminating Silver. Additional count actions increase small-run latency, which is an intentional correctness cost and must be visible in performance reports.

@@ -45,6 +45,19 @@ Version 1 baseline. Field definitions will be expanded only when their implement
 | `instrument` | Source instrument identifier |
 | `source_product_version` | NASA source product version |
 
+## Silver processing
+
+| Field | Definition |
+|---|---|
+| `event_date` | UTC event date and Silver physical partition key |
+| `event_hour` | UTC hour derived from the event timestamp |
+| `ingestion_date` | UTC date derived from the ingestion timestamp |
+| `geometry_wkt` | PostGIS-compatible point in longitude-latitude order |
+| `processing_timestamp` | Fixed UTC time assigned to one Spark processing run |
+| `spark_processing_run_id` | Unique identity of the Spark Bronze-to-Silver run |
+| `spark_validation_status` | Spark contract-validation result before deduplication |
+| `spark_validation_error_codes` | Stable Spark validation reason codes |
+
 ## Governance
 
 The canonical event contract under `contracts/events/v1/` is authoritative for required fields, types, compatibility, classification, and validation invariants.

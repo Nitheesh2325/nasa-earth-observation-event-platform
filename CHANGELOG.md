@@ -36,3 +36,8 @@ All meaningful project changes will be recorded here.
 - Reconciled all 44,292 canonical events with zero rejections and zero duplicates.
 - Added a governed deterministic scale-gate selector and three automated tests.
 - Produced exactly 10,000 original NASA events and verified byte-identical repeat selection.
+- Added the explicit version 1 Spark schema and governed Bronze-to-Silver batch job.
+- Added DataFrame validation, stable event-key deduplication, rejected and duplicate quarantine outputs, and read-back reconciliation.
+- Added a representative accepted/rejected/duplicate Spark integration fixture and two schema tests.
+- Passed the measured 10,000-record Spark batch gate with 10,000 Silver rows reconciled.
+- Added the Silver contract, first performance report, and Spark gate quality evidence.

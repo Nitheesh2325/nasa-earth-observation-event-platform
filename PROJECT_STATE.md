@@ -2,7 +2,7 @@
 
 ## Current milestone
 
-Phase 3B - Spark environment and deterministic 10,000-record NASA input complete.
+Phase 3C - 10,000-record Spark Bronze-to-Silver batch gate complete.
 
 ## Current status
 
@@ -33,6 +33,12 @@ Phase 3B - Spark environment and deterministic 10,000-record NASA input complete
 - All 44,292 records canonicalized successfully with zero rejections and zero duplicates.
 - The deterministic selector produced exactly 10,000 original NASA events and an independent repeat produced an identical checksum.
 - Twenty-three automated tests pass.
+- The version 1 explicit Spark schema and DataFrame-only validation and deduplication job are implemented.
+- A representative integration fixture reconciled one accepted, one rejected, and one duplicate event.
+- The measured 10,000-record run accepted 10,000, rejected zero, identified zero duplicates, and read 10,000 Silver rows back from Parquet.
+- The job completed in 36.029 seconds at 277.56 records per second on the bounded laptop container.
+- Silver contains eight Parquet files totaling 3,913,774 bytes under `event_date=2026-04-01`.
+- Twenty-five automated tests pass.
 
 ## Approved mission
 
@@ -40,11 +46,11 @@ Build a professional batch and streaming data-engineering platform that processe
 
 ## Current gate
 
-The Spark environment and exact 10,000-record input gate are complete. Owner approval is required before implementing the Spark Bronze-to-Silver batch job.
+The first local vertical slice and 10,000-record scale gate are complete. Owner approval is required before designing the controlled replay or synthetic input for the 100,000-record gate.
 
 ## Next proposed milestone
 
-Phase 3C - implement the explicit-schema Spark Bronze-to-Silver batch slice, add validation and deduplication tests, run the 10,000-record gate in the pinned container, and record quality, runtime, throughput, and limitations.
+Phase 4A - define and approve the controlled replay contract and deterministic 100,000-record input plan, including classification, identity, lineage, Kafka compatibility, storage impact, and laptop resource limits. Do not generate the larger dataset until that design is approved.
 
 ## Known constraints
 
