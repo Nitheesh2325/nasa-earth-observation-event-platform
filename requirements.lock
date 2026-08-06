@@ -1,4 +1,5 @@
 # Reproducible Phase 3 local runtime resolved on 2026-08-06.
 # Update only through an approved dependency milestone.
+confluent-kafka==2.15.0
 py4j==0.10.9.9
 pyspark==4.0.2

@@ -8,6 +8,7 @@ version = "0.1.0"
 description = "NASA Earth Observation batch and streaming data engineering platform"
 requires-python = ">=3.12"
 dependencies = [
+    "confluent-kafka==2.15.0",
     "pyspark==4.0.2",
 ]
 
