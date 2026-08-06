@@ -58,3 +58,9 @@ All meaningful project changes will be recorded here.
 - Defined the laptop-safe single-node KRaft topology and separate production topology.
 - Defined explicit topic, retention, resource, producer, consumer, checkpoint, watermark, idempotency, security, and observability standards.
 - Defined the gated Kafka and Structured Streaming test sequence without pulling images, installing dependencies, starting services, or publishing messages.
+- Pinned the official Kafka 4.3.1 image by immutable digest and installed the approved `confluent-kafka==2.15.0` client.
+- Added a resource-bounded single-node KRaft Compose service with an IPv4-only host listener and persistent local volume.
+- Implemented explicit topic administration, delivery-accounted bounded publication, offset manifests, and exact-range diagnostic consumption.
+- Added Kafka contract tests and a three-message replay diagnostic fixture, bringing the suite to thirty-five tests.
+- Verified all three live topic configurations and reconciled both a three-message diagnostic fixture and exactly 100 admitted replay messages.
+- Recorded the bounded Kafka smoke evidence and stopped before full replay publication or Spark streaming.

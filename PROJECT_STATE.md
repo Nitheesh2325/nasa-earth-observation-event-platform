@@ -2,7 +2,7 @@
 
 ## Current milestone
 
-Phase 5A - Kafka KRaft dependency research and local streaming architecture complete; implementation approval pending.
+Phase 5B - bounded local Kafka KRaft foundation and smoke tests complete; full replay publication is not approved.
 
 ## Current status
 
@@ -49,7 +49,6 @@ Phase 5A - Kafka KRaft dependency research and local streaming architecture comp
 - The replay artifact represents 10,000 unique original NASA detections exactly ten times each and contains zero synthetic messages.
 - The admitted replay artifact is 184,078,310 bytes with SHA-256 `9380341108650b2a5b536f9245148abf572883eb7b13ba0c332d0583fb5e0b0a`.
 - Independent scanning verified identity uniqueness, lineage resolution, classification, sequence completeness, detection frequency, and scheduled timestamp boundaries.
-- Kafka has not been started and no Kafka client dependency has been installed.
 - The admitted 100,000-message replay artifact passed the Spark Bronze-to-Silver job in the pinned container.
 - Spark accepted 100,000, rejected zero, identified zero duplicates, and read back 100,000 Silver rows.
 - The measured run completed in 61.232 seconds at 1,633.13 records per second.
@@ -57,7 +56,14 @@ Phase 5A - Kafka KRaft dependency research and local streaming architecture comp
 - Independent Silver verification confirmed replay identities, 10,000 underlying detections, classification, parent lineage, sequence and iteration completeness, schedule boundaries, and derived fields.
 - Kafka research selected official broker image `apache/kafka:4.3.1`, Python client `confluent-kafka==2.15.0`, and Spark connector `spark-sql-kafka-0-10_2.13:4.0.2`.
 - The laptop-safe single-node KRaft topology, resource limits, explicit topics, retention, producer guarantees, offset reconciliation, checkpoint strategy, observability, and security boundary are documented.
-- No Kafka image has been pulled, no client installed, no Compose service created, no topic created, and no message published.
+- The official Kafka 4.3.1 image is pinned by immutable digest and the Python client is pinned at `confluent-kafka==2.15.0`.
+- A resource-bounded, single-node local KRaft service passed its health check with an IPv4-only host binding.
+- Replay, rejected, and dead-letter topics were explicitly created; live partition, replication, retention, segment, and message-size settings match their contracts.
+- Thirty-five automated tests pass.
+- A three-message diagnostic fixture reconciled all offsets and correctly identified one duplicate event ID and one missing event ID with zero key/lineage mismatches.
+- Exactly 100 checksum-admitted `NASA_REPLAY` messages were acknowledged and reconciled against an offset delta of 100 across all six partitions.
+- The bounded consumer read exactly those 100 offsets and found 100 unique event IDs, zero duplicates, zero invalid JSON values, zero missing event IDs, and zero key/lineage mismatches.
+- No full 100,000-message Kafka publication and no Spark Structured Streaming execution has occurred.
 
 ## Approved mission
 
@@ -65,11 +71,11 @@ Build a professional batch and streaming data-engineering platform that processe
 
 ## Current gate
 
-Phase 5A research and architecture are complete. Owner approval is required before adding Docker Compose, pulling Kafka, installing the Python client, starting KRaft, creating topics, or running bounded fixture smoke tests.
+Phase 5B is complete. Owner approval is required before publishing and diagnostically reconciling the full 100,000-message replay artifact.
 
 ## Next proposed milestone
 
-Phase 5B - implement and validate the pinned Kafka-only Docker Compose service, start the bounded KRaft broker, create and describe topics, install the pinned Python client, implement producer and diagnostic consumer foundations, and pass only fixture and 100-message smoke tests. Stop before full replay publication or Spark streaming.
+Phase 5C - publish the admitted 100,000-message replay artifact with bounded delivery guarantees and reconcile its exact offset ranges using the diagnostic consumer. Stop before Spark Structured Streaming.
 
 ## Known constraints
 
@@ -82,6 +88,8 @@ Phase 5B - implement and validate the pinned Kafka-only Docker Compose service, 
 - Near-real-time NASA data may later be superseded by standard-processing data.
 - The Python canonicalizer is intentionally bounded; distributed scale processing will use Spark DataFrame APIs.
 - Native Windows Spark launch scripts do not safely handle the repository's spaced path, and native Hadoop Parquet writes require Windows support that is not bundled with PySpark.
+- The local Kafka volume occupied approximately 1.321 GB after topic creation and 103 messages because Kafka segment files are preallocated; this is not payload size.
+- The local one-node Kafka service proves contracts and client behavior, not broker high availability, replication, authentication, or failover.
 
 ## Integrity reminder
 

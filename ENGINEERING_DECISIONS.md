@@ -109,3 +109,13 @@
 **Decision:** Use `lineage_root_id` as the UTF-8 Kafka key and retain `event_id` as the unique deduplication identity. Configure six replay-topic partitions locally.
 
 **Consequences:** All ten replay messages for a detection remain in one ordered partition, while different lineages can process concurrently. Load balance depends on the hash distribution of 10,000 lineage keys and must be measured per partition.
+
+## ED-012: Pin the local broker image by digest and advertise IPv4 explicitly
+
+**Status:** Accepted
+
+**Context:** A mutable image tag weakens reproducibility. On this Windows host, Kafka's advertised `localhost` address resolved to IPv6 even though the Compose port was intentionally bound only to IPv4, causing the first pre-publication watermark request to time out.
+
+**Decision:** Pin `apache/kafka:4.3.1` to digest `sha256:77e3df9054047a88b520d0cc46e16696d3b22022e1d580aeccd2632df6532837`, bind the host port to `127.0.0.1`, and advertise `127.0.0.1:9092` to host clients. Preserve the internal Docker-network listener separately.
+
+**Consequences:** Local broker identity is immutable and Windows clients do not depend on hostname address-family selection. The host listener remains deliberately local and plaintext; it must not be presented as the production security topology.
