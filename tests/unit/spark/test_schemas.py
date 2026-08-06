@@ -26,6 +26,9 @@ class CanonicalEventSchemaTests(unittest.TestCase):
             "raw_row_number": LongType,
             "validation_error_codes": ArrayType,
             "_corrupt_record": StringType,
+            "scheduled_replay_timestamp": TimestampType,
+            "replay_iteration": LongType,
+            "replay_sequence_number": LongType,
         }
         actual = {field.name: field.dataType for field in CANONICAL_EVENT_V1_SCHEMA.fields}
         for field_name, expected_type in expected_types.items():

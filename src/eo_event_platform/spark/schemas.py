@@ -26,6 +26,9 @@ CANONICAL_EVENT_V1_FIELDS = (
     StructField("replay_run_id", StringType(), True),
     StructField("synthetic_generation_id", StringType(), True),
     StructField("parent_event_id", StringType(), True),
+    StructField("scheduled_replay_timestamp", TimestampType(), True),
+    StructField("replay_iteration", LongType(), True),
+    StructField("replay_sequence_number", LongType(), True),
     StructField("event_timestamp", TimestampType(), True),
     StructField("ingestion_timestamp", TimestampType(), True),
     StructField("latitude", DoubleType(), True),
@@ -58,4 +61,3 @@ CANONICAL_EVENT_V1_FIELDS = (
 )
 
 CANONICAL_EVENT_V1_SCHEMA = StructType(CANONICAL_EVENT_V1_FIELDS)
-

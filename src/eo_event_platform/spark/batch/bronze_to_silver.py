@@ -80,6 +80,27 @@ def validation_error_array() -> Column:
             "INVALID_REPLAY_CLASSIFICATION",
         ),
         (
+            (F.col("source_type") == "NASA_REPLAY")
+            & F.col("scheduled_replay_timestamp").isNull(),
+            "MISSING_SCHEDULED_REPLAY_TIMESTAMP",
+        ),
+        (
+            (F.col("source_type") == "NASA_REPLAY")
+            & (
+                F.col("replay_iteration").isNull()
+                | (F.col("replay_iteration") <= 0)
+            ),
+            "INVALID_REPLAY_ITERATION",
+        ),
+        (
+            (F.col("source_type") == "NASA_REPLAY")
+            & (
+                F.col("replay_sequence_number").isNull()
+                | (F.col("replay_sequence_number") < 0)
+            ),
+            "INVALID_REPLAY_SEQUENCE_NUMBER",
+        ),
+        (
             (F.col("source_type") == "SYNTHETIC_SCALE_TEST")
             & ((~F.col("is_synthetic")) | _missing_text("synthetic_generation_id")),
             "INVALID_SYNTHETIC_CLASSIFICATION",
@@ -343,4 +364,3 @@ def main() -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
-
