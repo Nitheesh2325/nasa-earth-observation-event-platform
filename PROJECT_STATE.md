@@ -2,7 +2,7 @@
 
 ## Current milestone
 
-Phase 3C - 10,000-record Spark Bronze-to-Silver batch gate complete.
+Phase 4A - deterministic 100,000-record controlled replay architecture complete; implementation approval pending.
 
 ## Current status
 
@@ -39,6 +39,10 @@ Phase 3C - 10,000-record Spark Bronze-to-Silver batch gate complete.
 - The job completed in 36.029 seconds at 277.56 records per second on the bounded laptop container.
 - Silver contains eight Parquet files totaling 3,913,774 bytes under `event_date=2026-04-01`.
 - Twenty-five automated tests pass.
+- The version 1 controlled replay contract defines 100,000 replay messages derived from 10,000 unique original NASA detections.
+- Deterministic replay run identity, event identity, ordering, scheduling, lineage, and reconciliation rules are documented.
+- The future Kafka replay, rejected, and dead-letter topics and stable `lineage_root_id` message key are documented.
+- No replay dataset has been generated and no Kafka dependency or service has been added.
 
 ## Approved mission
 
@@ -46,11 +50,11 @@ Build a professional batch and streaming data-engineering platform that processe
 
 ## Current gate
 
-The first local vertical slice and 10,000-record scale gate are complete. Owner approval is required before designing the controlled replay or synthetic input for the 100,000-record gate.
+Phase 4A design is complete. Owner approval is required before implementing replay identities, extending the Spark schema, and generating the deterministic 100,000-record replay artifact.
 
 ## Next proposed milestone
 
-Phase 4A - define and approve the controlled replay contract and deterministic 100,000-record input plan, including classification, identity, lineage, Kafka compatibility, storage impact, and laptop resource limits. Do not generate the larger dataset until that design is approved.
+Phase 4B - implement and test the dependency-free replay generator, extend the explicit Spark schema for replay fields, generate the 100,000-record artifact twice, reconcile it, record performance, and stop before Spark processing or Kafka deployment.
 
 ## Known constraints
 

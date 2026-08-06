@@ -40,6 +40,9 @@ Enrichment never changes the source classification.
 | `replay_run_id` | `source_type` is `NASA_REPLAY` |
 | `synthetic_generation_id` | `source_type` is `SYNTHETIC_SCALE_TEST` |
 | `parent_event_id` | The event is derived from another event message |
+| `scheduled_replay_timestamp` | `source_type` is `NASA_REPLAY` |
+| `replay_iteration` | `source_type` is `NASA_REPLAY` |
+| `replay_sequence_number` | `source_type` is `NASA_REPLAY` |
 
 ## NASA measurement fields
 
@@ -93,7 +96,9 @@ Kafka fields are nullable for batch-only source records.
 - Unique NASA detection reporting operates on `detection_id` with `source_type = NASA_ORIGINAL`.
 - Identity generation must be deterministic, versioned, and covered by tests.
 
-For version 1 NASA original events, `event_id`, `detection_id`, `lineage_root_id`, and `source_record_id` are equal to the versioned deterministic source identity. Replay and synthetic identity rules will be added only when those milestones begin.
+For version 1 NASA original events, `event_id`, `detection_id`, `lineage_root_id`, and `source_record_id` are equal to the versioned deterministic source identity.
+
+For version 1 replay events, `event_id` uses the `nasa-replay-v1` identity contract, while `detection_id`, `lineage_root_id`, and `source_record_id` preserve the original NASA identities. `parent_event_id` identifies the original event message.
 
 ## Time rules
 
@@ -102,6 +107,8 @@ For version 1 NASA original events, `event_id`, `detection_id`, `lineage_root_id
 - `event_timestamp` must not be replaced with ingestion time when the source event time is available.
 - `ingestion_timestamp` must not precede the platform's actual receipt of the record.
 - Replay may occur long after the original event time; both times must remain visible.
+- Replay preserves the original NASA `event_timestamp` and platform `ingestion_timestamp`.
+- `scheduled_replay_timestamp` is a deterministic logical schedule, not the actual Kafka broker timestamp or an achieved throughput claim.
 
 ## Validation outcomes
 

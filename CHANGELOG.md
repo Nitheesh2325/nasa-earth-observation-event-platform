@@ -41,3 +41,7 @@ All meaningful project changes will be recorded here.
 - Added a representative accepted/rejected/duplicate Spark integration fixture and two schema tests.
 - Passed the measured 10,000-record Spark batch gate with 10,000 Silver rows reconciled.
 - Added the Silver contract, first performance report, and Spark gate quality evidence.
+- Defined the version 1 controlled NASA replay contract for the 100,000-record gate.
+- Defined deterministic replay run and event identities, ordering, scheduled timestamps, and reconciliation invariants.
+- Defined replay, rejected, and dead-letter Kafka topic compatibility and the stable lineage-root message key.
+- Documented storage estimates, laptop controls, required tests, and the Phase 4B implementation boundary without generating data.

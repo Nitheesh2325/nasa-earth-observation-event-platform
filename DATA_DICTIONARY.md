@@ -18,6 +18,9 @@ Version 1 baseline. Field definitions will be expanded only when their implement
 | `ingestion_run_id` | Unique identity of the ingestion or generation run |
 | `replay_run_id` | Controlled replay run identifier |
 | `synthetic_generation_id` | Synthetic generation run identifier |
+| `parent_event_id` | Original event message from which a replay event derives |
+| `replay_iteration` | One-based replay copy number for a parent event within a logical replay plan |
+| `replay_sequence_number` | Zero-based global deterministic ordering within a replay plan |
 
 ## Time
 
@@ -27,6 +30,7 @@ Version 1 baseline. Field definitions will be expanded only when their implement
 | `ingestion_timestamp` | UTC time at which the platform first received the record |
 | `processing_timestamp` | UTC time at which Spark processed the record into Silver |
 | `kafka_timestamp` | Kafka record timestamp when the streaming path is used |
+| `scheduled_replay_timestamp` | Deterministic planned replay time; not an actual producer or broker performance measurement |
 
 ## Location and measurements
 
