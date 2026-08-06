@@ -22,3 +22,7 @@ All meaningful project changes will be recorded here.
 - Implemented canonical event transformation with validation, rejection, duplicate handling, checksums, failure manifests, and reconciliation.
 - Added canonical-event and identity tests, bringing the standard-library suite to twenty tests.
 - Verified 21 unique canonical NASA original events and a byte-identical deterministic rerun.
+- Researched and selected PySpark 4.0.2 for local parity with Amazon EMR Serverless `emr-spark-8.0.0`.
+- Documented the minimal Spark dependency boundary and conservative laptop resource envelope.
+- Defined a fixed-date `VIIRS_SNPP_SP` global acquisition and deterministic exact 10,000-record selection contract.
+- Recorded the Spark runtime and first scale-gate engineering decisions.

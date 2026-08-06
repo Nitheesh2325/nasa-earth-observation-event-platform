@@ -2,7 +2,7 @@
 
 ## Current milestone
 
-Phase 2B - Deterministic canonical NASA events complete.
+Phase 3A - Spark runtime and 10,000-record input design complete; execution approval pending.
 
 ## Current status
 
@@ -24,6 +24,8 @@ Phase 2B - Deterministic canonical NASA events complete.
 - No dependencies have been installed.
 - Local NASA source and generated event data remain excluded from Git.
 - No AWS resources have been created.
+- Spark dependency research selected PySpark 4.0.2 for parity with the target `emr-spark-8.0.0` runtime.
+- The deterministic Standard Processing acquisition and exact 10,000-record selection contract is documented.
 
 ## Approved mission
 
@@ -31,11 +33,11 @@ Build a professional batch and streaming data-engineering platform that processe
 
 ## Current gate
 
-The canonical-event milestone is complete. Owner approval is required before preparing the 10,000-record local batch gate and adding Spark dependencies.
+Phase 3A research and design are complete. Owner approval is required before creating the project virtual environment, installing PySpark 4.0.2, acquiring the bounded global Standard Processing input, or implementing the Spark batch slice.
 
 ## Next proposed milestone
 
-Phase 3A - select and acquire a bounded 10,000-record input, approve the Spark dependency plan, and build the first Bronze-to-Silver batch vertical slice.
+Phase 3B - install the approved pinned Spark dependency, run a local Spark compatibility smoke test, acquire and deterministically select the 10,000-record input, then stop for gate evidence review before the Bronze-to-Silver implementation.
 
 ## Known constraints
 
