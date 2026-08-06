@@ -1,0 +1,54 @@
+# Secrets and local environment
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.venv/
+venv/
+dist/
+build/
+*.egg-info/
+
+# Local data and generated artifacts
+data/local/
+data/bronze/
+data/silver/
+data/gold/
+data/quarantine/
+data/checkpoints/
+data/generated/
+*.parquet
+
+# Kafka, Spark, Airflow, and database state
+kafka-data/
+spark-warehouse/
+metastore_db/
+derby.log
+airflow/logs/
+airflow/airflow.db
+postgres-data/
+
+# Logs and reports generated during runs
+*.log
+reports/generated/
+
+# Credentials and cloud tooling
+.aws/
+.terraform/
+*.tfstate
+*.tfstate.*
+
+# Editors and operating systems
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+
