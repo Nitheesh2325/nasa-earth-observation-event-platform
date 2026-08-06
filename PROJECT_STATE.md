@@ -2,7 +2,7 @@
 
 ## Current milestone
 
-Phase 1B - Local readiness and data-contract finalization in progress.
+Phase 2A - Bounded NASA FIRMS Bronze extraction complete.
 
 ## Current status
 
@@ -14,6 +14,9 @@ Phase 1B - Local readiness and data-contract finalization in progress.
 - Docker Desktop 4.84.0 and Docker Engine 29.6.2 are operational.
 - Docker Compose 5.3.1 and the WSL2 Linux backend are available.
 - A NASA FIRMS API key has been obtained; the secret remains outside Git.
+- A standard-library bounded NASA FIRMS extractor is implemented.
+- Eleven extraction tests pass.
+- A live 21-record NASA NRT extraction reconciled successfully.
 - No application code has been written.
 - No dependencies have been installed.
 - No NASA data has been downloaded.
@@ -25,11 +28,11 @@ Build a professional batch and streaming data-engineering platform that processe
 
 ## Current gate
 
-Local prerequisites and the private NASA credential are verified. Version 1 of the canonical event, NASA source, and Bronze contracts has been drafted and must pass repository review before Phase 1B closes.
+The first extraction milestone is complete. Owner approval is required before canonical event identity and transformation work begins.
 
 ## Next proposed milestone
 
-Phase 1B - verify local prerequisites and finalize the canonical event and Bronze contracts before implementing NASA extraction.
+Phase 2B - implement deterministic source identity and canonical event transformation, then select the bounded input for the 10,000-record local vertical slice.
 
 ## Known constraints
 
@@ -38,6 +41,8 @@ Phase 1B - verify local prerequisites and finalize the canonical event and Bronz
 - The 5-million and 10-million execution environments will be chosen from measured earlier-gate results.
 - AWS deployment is prohibited until the local 10,000-record vertical slice passes.
 - Major dependencies require approval before installation.
+- The verified live extraction contains 21 original NASA records and is not a scale-gate result.
+- Near-real-time NASA data may later be superseded by standard-processing data.
 
 ## Integrity reminder
 

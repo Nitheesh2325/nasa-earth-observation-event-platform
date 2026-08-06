@@ -2,7 +2,7 @@
 
 ## Status
 
-The controlled repository foundation is complete. The architecture has been designed, but no data pipeline has been implemented or tested yet.
+The controlled repository foundation and first bounded NASA FIRMS Bronze extraction are complete. Downstream event processing has not started.
 
 ## Mission
 
@@ -23,8 +23,10 @@ Official NASA source -> Python extraction -> Bronze storage -> controlled replay
 
 - Architecture: proposed
 - Repository foundation: complete
+- NASA extraction: bounded 21-record smoke test passed
 - Local vertical slice: not started
 - AWS deployment: not authorized
-- Largest verified scale: none yet
+- Largest verified extraction: 21 original NASA records
+- Largest completed scale gate: none yet
 
 No performance, production-readiness, or cloud-deployment claims should be inferred until supported by recorded evidence.

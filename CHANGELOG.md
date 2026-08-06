@@ -14,3 +14,7 @@ All meaningful project changes will be recorded here.
 - Added the secret-free NASA FIRMS configuration variable name.
 - Added the version 1 NASA FIRMS source, canonical event, and Bronze data contracts.
 - Added the initial governed data dictionary.
+- Implemented bounded NASA FIRMS extraction with immutable Bronze output, checksums, manifests, bounded retries, and secret-safe failure behavior.
+- Added eleven standard-library extraction tests.
+- Reconciled and documented a live 21-record NASA NRT extraction.
+- Added the initial engineering decision record.
