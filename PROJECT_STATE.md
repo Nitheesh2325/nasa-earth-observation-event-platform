@@ -2,7 +2,7 @@
 
 ## Current milestone
 
-Phase 3A - Spark runtime and 10,000-record input design complete; execution approval pending.
+Phase 3B - Pinned Spark installed; native Windows Parquet compatibility blocked pending official Linux container approval.
 
 ## Current status
 
@@ -26,6 +26,9 @@ Phase 3A - Spark runtime and 10,000-record input design complete; execution appr
 - No AWS resources have been created.
 - Spark dependency research selected PySpark 4.0.2 for parity with the target `emr-spark-8.0.0` runtime.
 - The deterministic Standard Processing acquisition and exact 10,000-record selection contract is documented.
+- PySpark 4.0.2 and Py4J 0.10.9.9 are installed in the ignored project-local virtual environment.
+- Spark 4.0.2 starts with Java 17, but native Windows Parquet output fails because Hadoop requires unavailable Windows filesystem support.
+- The 10,000-record NASA acquisition was not started after the compatibility failure.
 
 ## Approved mission
 
@@ -33,11 +36,11 @@ Build a professional batch and streaming data-engineering platform that processe
 
 ## Current gate
 
-Phase 3A research and design are complete. Owner approval is required before creating the project virtual environment, installing PySpark 4.0.2, acquiring the bounded global Standard Processing input, or implementing the Spark batch slice.
+The dependency installation succeeded, but the native Windows Parquet smoke test did not pass. Owner approval is required before pulling and testing the official `apache/spark:4.0.2-python3` Linux image. NASA acquisition remains prohibited until Parquet write/read reconciliation succeeds.
 
 ## Next proposed milestone
 
-Phase 3B - install the approved pinned Spark dependency, run a local Spark compatibility smoke test, acquire and deterministically select the 10,000-record input, then stop for gate evidence review before the Bronze-to-Silver implementation.
+Phase 3B continuation - pull the official Spark 4.0.2 Python image, pin its digest, and pass a bounded Linux-container DataFrame and Parquet write/read smoke test. If it passes, acquire and deterministically select the 10,000-record NASA input, then stop for evidence review.
 
 ## Known constraints
 
@@ -49,6 +52,7 @@ Phase 3B - install the approved pinned Spark dependency, run a local Spark compa
 - The verified live extraction contains 21 original NASA records and is not a scale-gate result.
 - Near-real-time NASA data may later be superseded by standard-processing data.
 - The Python canonicalizer is intentionally bounded; distributed scale processing will use Spark DataFrame APIs.
+- Native Windows Spark launch scripts do not safely handle the repository's spaced path, and native Hadoop Parquet writes require Windows support that is not bundled with PySpark.
 
 ## Integrity reminder
 

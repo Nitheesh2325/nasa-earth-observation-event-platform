@@ -26,3 +26,7 @@ All meaningful project changes will be recorded here.
 - Documented the minimal Spark dependency boundary and conservative laptop resource envelope.
 - Defined a fixed-date `VIIRS_SNPP_SP` global acquisition and deterministic exact 10,000-record selection contract.
 - Recorded the Spark runtime and first scale-gate engineering decisions.
+- Declared and installed pinned PySpark 4.0.2 with Py4J 0.10.9.9 in the ignored project-local environment.
+- Verified that Spark 4.0.2 launches with Temurin JDK 17 and Scala 2.13.16.
+- Documented the blocked native Windows Parquet smoke test without claiming success.
+- Deferred NASA 10,000-record acquisition until an official Linux Spark container passes Parquet reconciliation.
