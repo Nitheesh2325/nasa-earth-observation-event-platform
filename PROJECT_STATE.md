@@ -2,7 +2,7 @@
 
 ## Current milestone
 
-Phase 2A - Bounded NASA FIRMS Bronze extraction complete.
+Phase 2B - Deterministic canonical NASA events complete.
 
 ## Current status
 
@@ -17,9 +17,12 @@ Phase 2A - Bounded NASA FIRMS Bronze extraction complete.
 - A standard-library bounded NASA FIRMS extractor is implemented.
 - Eleven extraction tests pass.
 - A live 21-record NASA NRT extraction reconciled successfully.
-- No application code has been written.
+- Deterministic version 1 source identity and canonical event transformation are implemented.
+- Twenty automated extraction and canonicalization tests pass.
+- All 21 verified NASA rows canonicalized successfully with unique stable identities.
+- A repeat canonicalization produced byte-identical canonical event output.
 - No dependencies have been installed.
-- No NASA data has been downloaded.
+- Local NASA source and generated event data remain excluded from Git.
 - No AWS resources have been created.
 
 ## Approved mission
@@ -28,11 +31,11 @@ Build a professional batch and streaming data-engineering platform that processe
 
 ## Current gate
 
-The first extraction milestone is complete. Owner approval is required before canonical event identity and transformation work begins.
+The canonical-event milestone is complete. Owner approval is required before preparing the 10,000-record local batch gate and adding Spark dependencies.
 
 ## Next proposed milestone
 
-Phase 2B - implement deterministic source identity and canonical event transformation, then select the bounded input for the 10,000-record local vertical slice.
+Phase 3A - select and acquire a bounded 10,000-record input, approve the Spark dependency plan, and build the first Bronze-to-Silver batch vertical slice.
 
 ## Known constraints
 
@@ -43,6 +46,7 @@ Phase 2B - implement deterministic source identity and canonical event transform
 - Major dependencies require approval before installation.
 - The verified live extraction contains 21 original NASA records and is not a scale-gate result.
 - Near-real-time NASA data may later be superseded by standard-processing data.
+- The Python canonicalizer is intentionally bounded; distributed scale processing will use Spark DataFrame APIs.
 
 ## Integrity reminder
 

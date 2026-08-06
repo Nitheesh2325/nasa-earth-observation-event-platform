@@ -18,3 +18,7 @@ All meaningful project changes will be recorded here.
 - Added eleven standard-library extraction tests.
 - Reconciled and documented a live 21-record NASA NRT extraction.
 - Added the initial engineering decision record.
+- Implemented versioned deterministic NASA FIRMS source identities.
+- Implemented canonical event transformation with validation, rejection, duplicate handling, checksums, failure manifests, and reconciliation.
+- Added canonical-event and identity tests, bringing the standard-library suite to twenty tests.
+- Verified 21 unique canonical NASA original events and a byte-identical deterministic rerun.
