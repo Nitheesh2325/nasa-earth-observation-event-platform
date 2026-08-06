@@ -73,8 +73,6 @@ This result proves correctness at the first scale gate. It is not a cloud benchm
 - Docker and the Windows-to-Linux bind mount add overhead not representative of EMR Serverless.
 - No shuffle, partition, or cache tuning conclusion is justified from a single small run.
 
-## Next Measurement
-
 ## 100,000-Message Replay Generation Gate
 
 **Status:** Passed
@@ -93,6 +91,29 @@ This measures local JSON replay generation and hashing only. It is not Spark pro
 
 The measured size fell within the planned 170-190 MB range. Physical run identifiers and wall-clock manifest fields differ; governed event bytes remain identical.
 
+## 100,000-Message Bronze-to-Silver Gate
+
+**Status:** Passed
+
+| Metric | Value |
+|---|---:|
+| Input replay messages | 100,000 |
+| Unique original NASA detections represented | 10,000 |
+| Accepted | 100,000 |
+| Rejected | 0 |
+| Duplicates | 0 |
+| Silver read-back | 100,000 |
+| Duration | 61.232 seconds |
+| Throughput | 1,633.13 records/second |
+| Silver Parquet files | 16 |
+| Silver Parquet bytes | 38,399,832 |
+
+The bounded environment remained Spark 4.0.2 on `local[4]` with four container CPUs, 3 GiB container memory, 2 GiB driver memory, and 16 shuffle partitions. The timer uses the same job-internal boundary as the 10,000 gate.
+
+Observed throughput increased from 277.56 to 1,633.13 records per second while volume increased tenfold. Duration increased from 36.029 to 61.232 seconds. Fixed Spark startup, validation-plan, write-setup, and reconciliation costs are more heavily amortized at 100,000 records. These two points are insufficient for a scalability curve and must not be extrapolated directly to one million or ten million records.
+
+Independent Silver verification confirmed 100,000 replay IDs, 10,000 detection IDs, complete replay sequence and iteration ranges, correct non-synthetic replay classification, schedule boundaries, and the required derived fields.
+
 ## Next Measurement
 
-The 100,000-message Spark gate requires separate approval and must use the admitted replay checksum. It must record accepted, rejected, duplicate, and Parquet read-back counts under the same bounded container before any Kafka deployment.
+Kafka producer, broker, consumer, lag, rejected-topic, dead-letter, and Structured Streaming performance remain unmeasured. Their runtime and resource plan requires separate approval before deployment on the constrained laptop.

@@ -2,7 +2,7 @@
 
 ## Current milestone
 
-Phase 4B - deterministic 100,000-message replay generation gate complete.
+Phase 4C - 100,000-message Spark Bronze-to-Silver gate complete.
 
 ## Current status
 
@@ -50,6 +50,11 @@ Phase 4B - deterministic 100,000-message replay generation gate complete.
 - The admitted replay artifact is 184,078,310 bytes with SHA-256 `9380341108650b2a5b536f9245148abf572883eb7b13ba0c332d0583fb5e0b0a`.
 - Independent scanning verified identity uniqueness, lineage resolution, classification, sequence completeness, detection frequency, and scheduled timestamp boundaries.
 - Kafka has not been started and no Kafka client dependency has been installed.
+- The admitted 100,000-message replay artifact passed the Spark Bronze-to-Silver job in the pinned container.
+- Spark accepted 100,000, rejected zero, identified zero duplicates, and read back 100,000 Silver rows.
+- The measured run completed in 61.232 seconds at 1,633.13 records per second.
+- Silver contains 16 Parquet files totaling 38,399,832 bytes under the preserved `event_date=2026-04-01` partition.
+- Independent Silver verification confirmed replay identities, 10,000 underlying detections, classification, parent lineage, sequence and iteration completeness, schedule boundaries, and derived fields.
 
 ## Approved mission
 
@@ -57,11 +62,11 @@ Build a professional batch and streaming data-engineering platform that processe
 
 ## Current gate
 
-Phase 4B generation is complete. Owner approval is required before running the 100,000-message Spark Bronze-to-Silver gate.
+The 100,000-message batch scale gate is complete. Owner approval is required before Kafka dependency research, local KRaft architecture finalization, or service deployment.
 
 ## Next proposed milestone
 
-Phase 4C - run the admitted 100,000-message replay artifact through the existing Spark Bronze-to-Silver job in the pinned container, reconcile all outcomes and Parquet read-back counts, record performance and limitations, and stop before Kafka deployment.
+Phase 5A - research and approve the exact Kafka/KRaft container and Python client versions, finalize the laptop-safe Docker Compose topology, resource limits, topic settings, producer guarantees, observability, and streaming test plan. Do not deploy Kafka or install a client until that design is approved.
 
 ## Known constraints
 

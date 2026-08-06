@@ -51,3 +51,6 @@ All meaningful project changes will be recorded here.
 - Added replay identity, lineage, repeatability, failure, and schema tests, bringing the suite to thirty-two tests.
 - Recorded and corrected a Windows path-length failure without changing logical replay identities.
 - Generated two byte-identical 100,000-message replay artifacts and independently reconciled their lineage, identities, classifications, sequence, size, and checksum.
+- Passed the 100,000-message Spark Bronze-to-Silver gate with complete outcome and Parquet read-back reconciliation.
+- Independently verified Silver replay identities, detection counts, classifications, lineage, sequence, schedule, partition, and derived fields.
+- Recorded 100,000-gate runtime, throughput, Parquet size, configuration, comparison, and limitations.
