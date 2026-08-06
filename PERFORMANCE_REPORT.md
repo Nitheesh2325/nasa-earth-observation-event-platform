@@ -114,6 +114,33 @@ Observed throughput increased from 277.56 to 1,633.13 records per second while v
 
 Independent Silver verification confirmed 100,000 replay IDs, 10,000 detection IDs, complete replay sequence and iteration ranges, correct non-synthetic replay classification, schedule boundaries, and the required derived fields.
 
+## 100,000-Message Kafka Replay Gate
+
+**Status:** Passed
+
+The local single-node Kafka 4.3.1 KRaft broker used six replay partitions, a two-CPU and 1.5-GiB container limit, and the pinned `confluent-kafka==2.15.0` client. The producer used `lineage_root_id` keys, idempotence, all acknowledgements, Zstandard compression, bounded retries, and delivery callbacks.
+
+| Metric | Value |
+|---|---:|
+| Admitted replay messages | 100,000 |
+| Unique original NASA detections represented | 10,000 |
+| Acknowledged | 100,000 |
+| Delivery failures / unflushed | 0 / 0 |
+| Broker offset delta | 100,000 |
+| Producer duration | 11.825 seconds |
+| Producer throughput | 8,457.01 records/second |
+| Serialized value bytes excluding delimiters | 183,978,310 |
+| Diagnostic messages consumed | 100,000 |
+| Unique event IDs | 100,000 |
+| Consumer validation duration | 2.973 seconds |
+| Consumer validation throughput | 33,631.75 records/second |
+| Invalid JSON / missing IDs / duplicates | 0 / 0 / 0 |
+| Key/lineage mismatches | 0 |
+
+Per-partition delivery was `[16,460, 16,100, 16,920, 17,170, 16,250, 17,100]`. All partitions were used; the minimum was 3.4% below and the maximum 3.0% above the ideal mean of 16,666.67. This supports the selected stable key's load distribution for this dataset, but does not establish behavior for different lineage distributions.
+
+The broker used approximately 523.7 MiB of its 1.5-GiB limit during post-run capture. The observed CPU snapshot was 183% of Docker's single-core scale while the container was capped at two CPUs. Producer and diagnostic consumer timers are application-level boundaries; Docker startup, broker warm-up, and evidence commands are excluded. This single-node local result does not measure replication, failover, authentication, sustained lag, or concurrent Spark consumption.
+
 ## Next Measurement
 
-Kafka producer, broker, consumer, lag, rejected-topic, dead-letter, and Structured Streaming performance remain unmeasured. Their runtime and resource plan requires separate approval before deployment on the constrained laptop.
+Spark Structured Streaming throughput, watermark behavior, checkpoint recovery, rejected-topic routing, dead-letter handling, and end-to-end Kafka-to-Silver latency remain unmeasured. The bounded streaming fixture and connector dependency require separate approval.

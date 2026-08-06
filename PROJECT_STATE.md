@@ -2,7 +2,7 @@
 
 ## Current milestone
 
-Phase 5B - bounded local Kafka KRaft foundation and smoke tests complete; full replay publication is not approved.
+Phase 5C - full 100,000-message Kafka replay publication and diagnostic reconciliation complete; Spark streaming is not approved.
 
 ## Current status
 
@@ -63,7 +63,10 @@ Phase 5B - bounded local Kafka KRaft foundation and smoke tests complete; full r
 - A three-message diagnostic fixture reconciled all offsets and correctly identified one duplicate event ID and one missing event ID with zero key/lineage mismatches.
 - Exactly 100 checksum-admitted `NASA_REPLAY` messages were acknowledged and reconciled against an offset delta of 100 across all six partitions.
 - The bounded consumer read exactly those 100 offsets and found 100 unique event IDs, zero duplicates, zero invalid JSON values, zero missing event IDs, and zero key/lineage mismatches.
-- No full 100,000-message Kafka publication and no Spark Structured Streaming execution has occurred.
+- The checksum-admitted 100,000-message `NASA_REPLAY` artifact was fully published with 100,000 acknowledgements, zero delivery failures, and an exact broker offset delta of 100,000.
+- The full producer run completed in 11.825 seconds at 8,457.01 records per second and distributed records across all six partitions within 3.4% of the 16,666.67-record mean.
+- The diagnostic consumer read exactly the recorded full-run offset ranges and reconciled 100,000 messages and 100,000 unique event IDs with zero duplicates, invalid JSON values, missing event IDs, or key/lineage mismatches.
+- No Spark Structured Streaming execution has occurred.
 
 ## Approved mission
 
@@ -71,11 +74,11 @@ Build a professional batch and streaming data-engineering platform that processe
 
 ## Current gate
 
-Phase 5B is complete. Owner approval is required before publishing and diagnostically reconciling the full 100,000-message replay artifact.
+Phase 5C is complete. Owner approval is required before adding the Spark Kafka connector and implementing the bounded Structured Streaming vertical slice.
 
 ## Next proposed milestone
 
-Phase 5C - publish the admitted 100,000-message replay artifact with bounded delivery guarantees and reconcile its exact offset ranges using the diagnostic consumer. Stop before Spark Structured Streaming.
+Phase 5D - research-confirm and add the exact Spark 4.0.2 Kafka connector, implement checkpointed and watermarked Structured Streaming validation/deduplication, and run a bounded fixture before any full streaming gate.
 
 ## Known constraints
 

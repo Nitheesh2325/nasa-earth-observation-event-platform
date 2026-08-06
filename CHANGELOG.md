@@ -64,3 +64,6 @@ All meaningful project changes will be recorded here.
 - Added Kafka contract tests and a three-message replay diagnostic fixture, bringing the suite to thirty-five tests.
 - Verified all three live topic configurations and reconciled both a three-message diagnostic fixture and exactly 100 admitted replay messages.
 - Recorded the bounded Kafka smoke evidence and stopped before full replay publication or Spark streaming.
+- Published the checksum-admitted 100,000-message replay artifact with idempotent delivery, acknowledgements, bounded retries, and exact per-partition offset reconciliation.
+- Consumed only the recorded producer offset ranges and reconciled all 100,000 unique event IDs with zero malformed values, missing IDs, duplicates, or key/lineage mismatches.
+- Recorded full Kafka producer, consumer, partition-distribution, and broker-resource evidence; stopped before Spark Structured Streaming.
