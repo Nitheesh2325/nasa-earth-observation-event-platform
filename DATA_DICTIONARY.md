@@ -13,7 +13,7 @@ Version 1 baseline. Field definitions will be expanded only when their implement
 | `lineage_root_id` | Original detection identity from which a replay or enrichment derives |
 | `source_type` | `NASA_ORIGINAL`, `NASA_REPLAY`, or `SYNTHETIC_SCALE_TEST` |
 | `source_dataset` | Dataset or product identifier governing the source record |
-| `source_record_id` | Deterministic identity generated from approved immutable source attributes |
+| `source_record_id` | Versioned `nasa-firms-viirs-v1` SHA-256 identity generated from approved immutable source attributes |
 | `is_synthetic` | True only for explicitly synthetic scale-test records |
 | `ingestion_run_id` | Unique identity of the ingestion or generation run |
 | `replay_run_id` | Controlled replay run identifier |
@@ -48,4 +48,3 @@ Version 1 baseline. Field definitions will be expanded only when their implement
 ## Governance
 
 The canonical event contract under `contracts/events/v1/` is authoritative for required fields, types, compatibility, classification, and validation invariants.
-

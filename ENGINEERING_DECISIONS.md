@@ -20,3 +20,12 @@
 
 **Consequences:** The repository stays small and safe. Reproducing a raw run requires the private NASA credential and the documented bounded request.
 
+## ED-003: Use versioned deterministic source identities
+
+**Status:** Accepted
+
+**Context:** NASA FIRMS CSV records do not expose a universally guaranteed record UUID. Batch, replay, Kafka, and streaming paths require stable deduplication and lineage keys.
+
+**Decision:** Build `nasa-firms-viirs-v1` identities from normalized dataset, satellite, acquisition date/time, latitude, longitude, and source product version, then SHA-256 hash the deterministic serialization.
+
+**Consequences:** Equivalent numeric formatting produces the same identity, source-product revisions remain distinguishable, and every processing path can implement parity tests against one documented algorithm. Changing these semantics is a breaking contract change.

@@ -93,7 +93,19 @@ The identity definition must include at least:
 - Source longitude
 - Source product version
 
-The exact canonicalization and hashing method must be versioned and tested before implementation.
+### Version 1 identity algorithm
+
+The implemented identity version is `nasa-firms-viirs-v1`.
+
+1. Trim the source dataset, satellite, acquisition date, and product version.
+2. Normalize acquisition time to four-digit `HHMM` and validate clock bounds.
+3. Normalize latitude and longitude with decimal arithmetic, removing insignificant trailing zeros and converting negative zero to zero.
+4. Construct a JSON object containing the identity version and the approved identity fields.
+5. Serialize the object with keys sorted and no insignificant whitespace.
+6. Calculate SHA-256 over the UTF-8 serialization.
+7. Format the source identity as `nasa-firms-viirs-v1:sha256:<digest>`.
+
+Equivalent decimal and acquisition-time representations must produce the same identity. A different source dataset or product version must produce a different identity.
 
 ## Failure behavior
 
@@ -107,4 +119,3 @@ The exact canonicalization and hashing method must be versioned and tested befor
 ## Acceptance criteria
 
 The source contract passes when a bounded representative NASA extract can be traced to one manifest, its checksum is verified, its record count is known, and its source fields are profiled without altering the original file.
-

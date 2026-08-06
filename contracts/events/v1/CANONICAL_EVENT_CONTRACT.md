@@ -93,6 +93,8 @@ Kafka fields are nullable for batch-only source records.
 - Unique NASA detection reporting operates on `detection_id` with `source_type = NASA_ORIGINAL`.
 - Identity generation must be deterministic, versioned, and covered by tests.
 
+For version 1 NASA original events, `event_id`, `detection_id`, `lineage_root_id`, and `source_record_id` are equal to the versioned deterministic source identity. Replay and synthetic identity rules will be added only when those milestones begin.
+
 ## Time rules
 
 - All timestamps use UTC.
@@ -126,4 +128,3 @@ Rejected events must retain reason codes and enough lineage for diagnosis. They 
 - `SYNTHETIC_SCALE_TEST` implies `is_synthetic = true` and a non-empty generation ID.
 - Every replay must retain an identifiable original lineage root.
 - All published counts must distinguish event messages from unique underlying NASA detections.
-

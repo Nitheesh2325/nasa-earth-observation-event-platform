@@ -7,7 +7,7 @@ import unittest
 from pathlib import Path
 from unittest.mock import patch
 
-from eo_event_platform.ingestion.nasa_firms.cli import detect_pipeline_version
+from eo_event_platform.common.metadata import detect_pipeline_version
 
 
 class PipelineVersionTests(unittest.TestCase):
