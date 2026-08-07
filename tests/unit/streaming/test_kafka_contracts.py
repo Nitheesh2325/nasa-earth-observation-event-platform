@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import unittest
+from inspect import Parameter, signature
 
 from eo_event_platform.streaming.kafka.contracts import (
     REPLAY_TOPIC,
@@ -8,6 +9,7 @@ from eo_event_platform.streaming.kafka.contracts import (
     diagnostic_consumer_config,
     producer_config,
 )
+from eo_event_platform.streaming.kafka.consumer import consume_producer_run
 
 
 class KafkaContractTests(unittest.TestCase):
@@ -30,6 +32,12 @@ class KafkaContractTests(unittest.TestCase):
         config = diagnostic_consumer_config("localhost:9092", "test-group")
         self.assertFalse(config["enable.auto.commit"])
         self.assertFalse(config["enable.auto.offset.store"])
+
+    def test_diagnostic_consumer_requires_truth_expectations(self) -> None:
+        parameters = signature(consume_producer_run).parameters
+        self.assertIs(Parameter.empty, parameters["expected_source_type"].default)
+        self.assertIs(Parameter.empty, parameters["expected_detection_count"].default)
+        self.assertIs(Parameter.empty, parameters["expected_replay_factor"].default)
 
 
 if __name__ == "__main__":
