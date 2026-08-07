@@ -1,5 +1,14 @@
 # Changelog
 
+## Phase 6G.3 - One-million Kafka gate
+
+- Published the checksum-admitted one-million replay artifact to a fresh six-partition Kafka boundary with one million acknowledgements, zero delivery failures, and exact offset reconciliation.
+- Recorded producer runtime, throughput, partition distribution, broker resources, physical volume size, and a recovered producer-ID coordinator-loading retry.
+- Corrected diagnostic success semantics to fail closed on malformed values, duplicates, IDs, keys, truth classification, synthetic flags, detection frequency, sequence, iteration, and offsets.
+- Consumed only the producer manifest's recorded ranges and reconciled one million unique events, 10,000 detections exactly 100 times each, and zero quality errors.
+- Added a required-expectations contract test, bringing the complete suite to fifty-four passing tests.
+- Stopped Kafka while preserving its named volume and exact producer boundary for Structured Streaming; actual cloud cost remained zero.
+
 ## Phase 6G.2 - One-million Spark batch gate
 
 - Processed the admitted million-message replay artifact with the digest-pinned Spark 4.0.2 image, explicit schema, DataFrame transformations, and bounded four-CPU/four-GiB resources.

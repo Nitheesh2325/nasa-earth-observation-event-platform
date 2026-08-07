@@ -239,3 +239,13 @@
 **Decision:** Define the one-million gate as 1,000,000 `NASA_REPLAY` messages representing 10,000 underlying NASA detections exactly 100 times each, with zero synthetic messages. Execute generation, batch, Kafka/streaming, Gold, and PostgreSQL as ordered subgates, keeping unrelated services stopped. Enforce 40 GB free disk, component memory limits, a two-hour wall-time limit per subgate, immutable failure evidence, and zero tolerance for reconciliation or checksum errors.
 
 **Consequences:** The portfolio gains a reproducible local million-record proof without AWS spend or false source claims. End-to-end wall time is not a concurrent-service benchmark. Measurements at one million determine whether the 5-million and 10-million gates run on AWS; this decision does not authorize those larger scales on the laptop.
+
+## ED-025: Make Kafka diagnostics fail closed on data truth
+
+**Status:** Accepted
+
+**Context:** The original bounded consumer used manual offsets and recorded quality counters, but its success status depended only on total and partition counts. A run containing malformed values, duplicate event IDs, wrong keys, or false truth classification could therefore be labeled successful while displaying nonzero error metrics.
+
+**Decision:** Require explicit expected source type, synthetic count, underlying detection count, and replay factor. Make success depend on exact offset totals, unique event IDs, zero duplicates, valid JSON, present IDs, key/lineage equality, source classification, synthetic flags, detection frequency, and complete replay sequence and iteration ranges.
+
+**Consequences:** Diagnostic manifests are now enforceable gates rather than informational summaries. Verification retains event identities and sequences in memory for the bounded local million-record run; larger-scale diagnostics should move these checks to Spark or another distributed state engine rather than increasing local Python memory without measurement.

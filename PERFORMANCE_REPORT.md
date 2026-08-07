@@ -1,5 +1,23 @@
 # Performance Report
 
+## 1,000,000-Message Kafka Replay Gate
+
+**Status:** Passed
+
+| Metric | Value |
+|---|---:|
+| Attempted / acknowledged / offset delta | 1,000,000 / 1,000,000 / 1,000,000 |
+| Delivery failures / unflushed | 0 / 0 |
+| Producer duration | 64.367 seconds |
+| Producer throughput | 15,536.03 messages/second |
+| Diagnostic consumed / unique | 1,000,000 / 1,000,000 |
+| Diagnostic duration | 26.066 seconds |
+| Diagnostic throughput | 38,364.39 messages/second |
+| Invalid / duplicate / key mismatch | 0 / 0 / 0 |
+| Broker memory snapshots | 494.9-546.4 MiB / 1.5 GiB |
+
+All six partitions were within -3.40% to +3.02% of the mean. Diagnostic success now fails closed on offset, identity, detection frequency, replay sequence/iteration, source type, synthetic flag, JSON, duplicate, and key/lineage checks. This remains a sequential single-broker local measurement rather than a replicated production throughput claim.
+
 ## 1,000,000-Message Spark Batch Gate
 
 **Status:** Passed

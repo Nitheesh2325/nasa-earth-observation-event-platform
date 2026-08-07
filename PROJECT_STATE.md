@@ -2,7 +2,7 @@
 
 ## Current milestone
 
-Phase 6G.2 - one-million-message Spark batch Bronze-to-Silver gate complete.
+Phase 6G.3 - one-million-message Kafka publication and diagnostic-consumption gate complete.
 
 ## Current status
 
@@ -146,6 +146,13 @@ Phase 6G.2 - one-million-message Spark batch Bronze-to-Silver gate complete.
 - Peak observed Spark memory was 3.745 GiB of the 4-GiB limit, so larger local Spark gates are unsafe without a new capacity decision.
 - Fifty-three automated tests pass.
 - All Spark containers exited successfully; Kafka and PostgreSQL remain stopped.
+- Kafka published exactly 1,000,000 checksum-admitted replay messages with one million acknowledgements, zero delivery failures, and an exact one-million broker offset delta in 64.367 seconds.
+- The fail-closed diagnostic consumer read only the producer's explicit partition ranges and reconciled one million unique events in 26.066 seconds.
+- Kafka truth verification found 10,000 detections exactly 100 times each, complete sequences and iterations, replay-only classification, zero synthetic flags, zero malformed values, zero duplicates, and zero key/lineage mismatches.
+- A transient producer-ID coordinator-loading retry was retained as evidence and recovered within the bounded idempotent client policy.
+- The Kafka volume uses 1,580,538,375 bytes including prior history, indexes, metadata, compression, and allocated segments.
+- Fifty-four automated tests pass.
+- Kafka is stopped with its volume and exact Phase 6G.3 offsets preserved; PostgreSQL and Spark are stopped.
 
 ## Approved mission
 
@@ -153,11 +160,11 @@ Build a professional batch and streaming data-engineering platform that processe
 
 ## Current gate
 
-Phase 6G.2 is complete. Standing owner approval authorizes Phase 6G.3, subject to its Kafka resource, offset, delivery, and truth reconciliation rules.
+Phase 6G.3 is complete. Standing owner approval authorizes Phase 6G.4, subject to offset-retention, Spark/Kafka resource, checkpoint, watermark, lag, restart, and truth reconciliation rules.
 
 ## Next proposed milestone
 
-Phase 6G.3 - publish the admitted one-million replay artifact to a fresh bounded Kafka offset range, require one million acknowledgements and exact partition deltas, then independently consume only that range and reconcile identities, lineage keys, classification, and offsets. Keep PostgreSQL stopped.
+Phase 6G.4 - process only the preserved one-million producer offset boundary through the digest-pinned Spark Structured Streaming runtime, reconcile Bronze/Silver/rejected/duplicate outcomes, verify truth independently, and prove same-checkpoint zero-input recovery. Keep PostgreSQL stopped.
 
 ## Known constraints
 
