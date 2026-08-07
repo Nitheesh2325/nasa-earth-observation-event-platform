@@ -35,7 +35,33 @@ def explain(connection: psycopg.Connection[Any], sql: str, params: tuple[Any, ..
     return row[0][0]
 
 
-def verify(connection: psycopg.Connection[Any], expected_rows: int) -> dict[str, Any]:
+def expected_truth_counts(
+    *, rows: int, unique_detections: int, original: int, replay: int, synthetic: int
+) -> dict[str, int]:
+    if min(rows, unique_detections, original, replay, synthetic) < 0:
+        raise ValueError("expected truth counts cannot be negative")
+    if original + replay + synthetic != rows:
+        raise ValueError("expected source-type counts must reconcile to expected rows")
+    return {
+        "rows": rows,
+        "unique_events": rows,
+        "unique_detections": unique_detections,
+        "original": original,
+        "replay": replay,
+        "synthetic": synthetic,
+        "is_synthetic_true": synthetic,
+    }
+
+
+def verify(
+    connection: psycopg.Connection[Any],
+    expected_rows: int,
+    *,
+    expected_unique_detections: int,
+    expected_original: int,
+    expected_replay: int,
+    expected_synthetic: int,
+) -> dict[str, Any]:
     counts = connection.execute(
         """SELECT count(*), count(DISTINCT event_id), count(DISTINCT detection_id),
           count(*) FILTER (WHERE source_type='NASA_ORIGINAL'),
@@ -46,11 +72,14 @@ def verify(connection: psycopg.Connection[Any], expected_rows: int) -> dict[str,
     ).fetchone()
     count_names = ("rows", "unique_events", "unique_detections", "original", "replay", "synthetic", "is_synthetic_true")
     count_result = dict(zip(count_names, counts, strict=True))
-    if count_result != {
-        "rows": expected_rows, "unique_events": expected_rows,
-        "unique_detections": expected_rows, "original": expected_rows,
-        "replay": 0, "synthetic": 0, "is_synthetic_true": 0,
-    }:
+    expected_counts = expected_truth_counts(
+        rows=expected_rows,
+        unique_detections=expected_unique_detections,
+        original=expected_original,
+        replay=expected_replay,
+        synthetic=expected_synthetic,
+    )
+    if count_result != expected_counts:
         raise RuntimeError(f"truth counts failed: {count_result}")
 
     spatial_invalid = connection.execute(
@@ -60,7 +89,7 @@ def verify(connection: psycopg.Connection[Any], expected_rows: int) -> dict[str,
     ).fetchone()[0]
     aggregate_rows = connection.execute("SELECT coalesce(sum(event_message_count),0) FROM serving.dataset_daily_summary").fetchone()[0]
     lineage_rows = connection.execute("SELECT count(*) FROM serving.detection_lineage_summary").fetchone()[0]
-    if spatial_invalid or aggregate_rows != expected_rows or lineage_rows != expected_rows:
+    if spatial_invalid or aggregate_rows != expected_rows or lineage_rows != expected_unique_detections:
         raise RuntimeError("spatial or aggregate reconciliation failed")
 
     role_checks = {
@@ -127,9 +156,20 @@ def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--dsn", required=True)
     parser.add_argument("--expected-rows", type=int, required=True)
+    parser.add_argument("--expected-unique-detections", type=int, required=True)
+    parser.add_argument("--expected-original", type=int, required=True)
+    parser.add_argument("--expected-replay", type=int, required=True)
+    parser.add_argument("--expected-synthetic", type=int, required=True)
     args = parser.parse_args()
     with psycopg.connect(args.dsn, autocommit=True) as connection:
-        result = verify(connection, args.expected_rows)
+        result = verify(
+            connection,
+            args.expected_rows,
+            expected_unique_detections=args.expected_unique_detections,
+            expected_original=args.expected_original,
+            expected_replay=args.expected_replay,
+            expected_synthetic=args.expected_synthetic,
+        )
     print(json.dumps(result, indent=2, sort_keys=True, default=str))
     return 0
 
