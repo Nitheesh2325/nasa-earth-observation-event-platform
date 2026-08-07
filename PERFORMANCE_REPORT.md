@@ -1,5 +1,20 @@
 # Performance Report
 
+## 1,000,000-Message Replay Generation Gate
+
+**Status:** Passed
+
+| Metric | Execution 1 | Execution 2 |
+|---|---:|---:|
+| Controlled replay messages | 1,000,000 | 1,000,000 |
+| Underlying NASA detections | 10,000 | 10,000 |
+| Duration | 55.911 seconds | 49.777 seconds |
+| Throughput | 17,885.72 rows/second | 20,089.41 rows/second |
+| Output bytes | 1,842,603,090 | 1,842,603,090 |
+| Output SHA-256 | `67d32855...e7778` | identical |
+
+Independent full-artifact verification completed in 53.154 seconds at 18,813.13 rows/second. It recomputed all identities and schedule positions, verified exactly 100 events for each of 10,000 detections, preserved original fields, replay-only classification, zero synthetic flags, bytes, and checksum. This is local JSON generation and validation throughput, not Spark, Kafka, source, or end-to-end throughput.
+
 ## PostgreSQL/PostGIS 100,000-row storage A/B gate
 
 - Compact B retained 47 materialized columns and removed only duplicated `event_payload` JSONB.

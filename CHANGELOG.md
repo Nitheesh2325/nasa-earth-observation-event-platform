@@ -1,5 +1,14 @@
 # Changelog
 
+## Phase 6G.1 - One-million replay generation
+
+- Generated two immutable one-million-message controlled replay artifacts from the admitted 10,000-event NASA source.
+- Proved byte-identical deterministic output across physical runs: 1,842,603,090 bytes and SHA-256 `67d32855fe894c6b4e2a5237045f25db4374762320d6a561dc0d438efa2e7778`.
+- Added an independent streaming verifier that recomputes every event identity, schedule position, lineage mapping, preserved source field, truth classification, artifact size, and checksum.
+- Verified exactly 10,000 underlying NASA detections, 100 replay events per detection, replay sequence 0-999,999, iterations 1-100, and zero synthetic records.
+- Added two verifier tests, bringing the complete suite to fifty-one passing tests.
+- Recorded generation, verification, disk, service-state, zero-cloud-cost, and limitation evidence while keeping full artifacts outside Git.
+
 ## Phase 6F - One-million-record gate design
 
 - Defined the third scale gate as one million controlled replay messages representing 10,000 underlying NASA detections exactly 100 times each.

@@ -2,7 +2,7 @@
 
 ## Current milestone
 
-Phase 6F - one-million-record execution architecture and safety plan complete.
+Phase 6G.1 - deterministic one-million-message replay generation gate complete.
 
 ## Current status
 
@@ -134,6 +134,12 @@ Phase 6F - one-million-record execution architecture and safety plan complete.
 - Phase 6F defines a sequential local one-million gate using 1,000,000 controlled replay messages derived from 10,000 NASA detections exactly 100 times each.
 - The one-million design includes measured storage forecasts, a 40-GB free-disk floor, bounded memory and two-hour subgate limits, immutable failure evidence, and six ordered execution subgates.
 - The owner has provided standing approval through Phase 10; scale gates and milestone completion rules still apply and cannot be bypassed.
+- Two immutable one-million replay executions produced the same logical run identity, 1,842,603,090 bytes, and SHA-256 `67d32855fe894c6b4e2a5237045f25db4374762320d6a561dc0d438efa2e7778`.
+- The first and second one-million generation runs completed in 55.911 and 49.777 seconds.
+- Independent full-artifact verification recomputed every identity, lineage mapping, schedule position, preserved source field, classification, byte count, and checksum in 53.154 seconds.
+- The artifact contains exactly 1,000,000 `NASA_REPLAY` messages, 10,000 underlying NASA detections, 100 events per detection, and zero synthetic rows.
+- Fifty-one automated tests pass.
+- PostgreSQL and Kafka remain stopped; no Spark container ran. Both full one-million artifacts remain outside Git.
 
 ## Approved mission
 
@@ -141,11 +147,11 @@ Build a professional batch and streaming data-engineering platform that processe
 
 ## Current gate
 
-Phase 6F is complete. Standing owner approval authorizes Phase 6G execution, subject to its fail-closed resource and reconciliation rules.
+Phase 6G.1 is complete. Standing owner approval authorizes Phase 6G.2, subject to its Spark resource and reconciliation rules.
 
 ## Next proposed milestone
 
-Phase 6G.1 - generate and independently reconcile the deterministic one-million-message replay artifact. Do not start Spark, Kafka, or PostgreSQL during this subgate.
+Phase 6G.2 - run the admitted one-million artifact through the digest-pinned Spark 4.0.2 batch Bronze-to-Silver gate with explicit schema, bounded resources, exact outcome reconciliation, independent Parquet read-back, and performance evidence. Keep Kafka and PostgreSQL stopped.
 
 ## Known constraints
 
