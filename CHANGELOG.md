@@ -1,5 +1,13 @@
 # Changelog
 
+## Phase 6B - PostgreSQL/PostGIS 10,000-row serving gate
+
+- Added a digest-pinned, localhost-only PostgreSQL/PostGIS service with bounded CPU, memory, shared buffers, and connections.
+- Added least-privilege schemas and roles, spatially constrained event detail, query indexes, aggregate tables, and immutable load-control records.
+- Added checksum-governed Gold generation, portable manifests, bulk-copy staging, transactional reconciliation, content-conflict protection, idempotent reruns, and post-load statistics refresh.
+- Passed 44 automated tests and the final clean 10,000-row serving gate with exact truth, spatial, aggregate, security, storage, plan, latency, and resource evidence.
+- Stopped PostgreSQL after the gate while preserving its named local volume.
+
 ## Phase 6A - PostgreSQL/PostGIS serving design
 
 - Defined PostgreSQL as a rebuildable projection of authoritative compacted Gold artifacts.

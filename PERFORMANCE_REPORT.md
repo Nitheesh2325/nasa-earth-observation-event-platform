@@ -1,5 +1,15 @@
 # Performance Report
 
+## PostgreSQL/PostGIS 10,000-row serving gate
+
+- Gold transformation: 10,000 Silver rows to reconciled Gold Parquet and load artifact in 22.243 seconds.
+- Database bulk load: 10,000 staged and inserted rows in 3.839 seconds.
+- Identical-manifest rerun: zero inserts and 10,000 already-present rows.
+- Database size: 57,422,307 bytes; event-detail relation: 34,136,064 bytes, including 5,750,784 index bytes.
+- Warm local query p95: daily aggregate 2.548 ms, lineage 2.823 ms, spatial bounding box 2.823 ms, and source summary 6.296 ms.
+- Observed idle post-verification memory: 93.28 MiB within a 2-GiB container limit.
+- Full evidence and limitations: `reports/quality/POSTGIS_10000_SERVING_GATE.md`.
+
 ## Measurement Policy
 
 Each governed scale gate records the exact input checksum, pipeline revision, runtime, throughput, Spark configuration, output counts, output size, read-back counts, and known hardware limitations. Results from different environments are not treated as directly comparable unless their configurations are equivalent.

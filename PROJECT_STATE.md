@@ -2,7 +2,7 @@
 
 ## Current milestone
 
-Phase 6A - PostgreSQL/PostGIS serving architecture approved and complete; implementation is not approved.
+Phase 6B - PostgreSQL/PostGIS 10,000-row serving gate complete; the 100,000-row serving gate is not approved.
 
 ## Current status
 
@@ -98,7 +98,14 @@ Phase 6A - PostgreSQL/PostGIS serving architecture approved and complete; implem
 - The dead-letter topic increased by exactly one offset and independently verified `PROCESSING_RETRIES_EXHAUSTED`, `RuntimeError`, exactly three attempts, the original lineage key, and source coordinate.
 - Both routed envelopes passed version, key, unique-source-coordinate, delivery, flush, and offset reconciliation with zero failures.
 - Test fault injection requires an explicit CLI flag and is not part of a production service configuration.
-- Kafka is stopped. PostgreSQL/PostGIS architecture is complete; no image, dependency, service, or schema has been installed or started.
+- The digest-pinned PostgreSQL 16.4/PostGIS 3.4.3 serving runtime is implemented.
+- The governed Gold run reconciled 10,000 accepted Silver rows to 10,000 Parquet and 10,000 load-artifact rows in 22.243 seconds.
+- The final database load staged and inserted exactly 10,000 rows in 3.839 seconds; the identical manifest rerun inserted zero rows.
+- Independent verification found 10,000 original NASA-derived events, 10,000 unique detections, zero replay events, zero synthetic events, and zero invalid geometries.
+- Daily aggregate totals and 10,000 lineage summaries reconcile to detail.
+- Least-privilege role checks, a rolled-back content-conflict probe, database checksums, relation sizes, query plans, and warm local latency were recorded.
+- Forty-four automated tests pass.
+- Kafka, Spark, and PostgreSQL are stopped. The PostgreSQL named volume is preserved.
 
 ## Approved mission
 
@@ -106,11 +113,11 @@ Build a professional batch and streaming data-engineering platform that processe
 
 ## Current gate
 
-Phase 6A is complete. Owner approval is required before the bounded PostgreSQL/PostGIS implementation gate.
+Phase 6B is complete. Owner approval is required before any 100,000-row serving execution.
 
 ## Next proposed milestone
 
-Phase 6B - pin and verify PostgreSQL/PostGIS, implement migrations and the governed loader, and execute an exactly 10,000-row local serving gate. Kafka and Spark remain stopped. Do not install or start PostgreSQL before approval.
+Phase 6C - design and execute the 100,000-row Gold/PostgreSQL serving gate from the preserved governed replay Silver dataset, with exact replay lineage disclosure, capacity comparison, index/query-plan evidence, idempotency, and laptop stop conditions. Do not start services before approval.
 
 ## Known constraints
 

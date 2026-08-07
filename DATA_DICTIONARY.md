@@ -65,3 +65,22 @@ Version 1 baseline. Field definitions will be expanded only when their implement
 ## Governance
 
 The canonical event contract under `contracts/events/v1/` is authoritative for required fields, types, compatibility, classification, and validation invariants.
+
+## Gold and serving control
+
+| Field | Definition |
+|---|---|
+| `gold_run_id` | Unique identity of one governed Silver-to-Gold transformation |
+| `gold_contract_version` | Version of the Gold product grain and count semantics |
+| `gold_pipeline_version` | Git revision recorded by the Gold transformation |
+| `governed_content_hash` | SHA-256 over ordered governed event content, excluding run-specific Gold identity fields |
+| `loaded_at` | Database time at which the event entered the serving projection |
+| `idempotency_key` | SHA-256 of the immutable Gold manifest; unique per admitted database load |
+| `event_message_count` | Count of event messages at an aggregate grain; not necessarily unique NASA detections |
+| `unique_event_count` | Distinct `event_id` count at an aggregate grain |
+| `unique_detection_count` | Distinct underlying `detection_id` count at an aggregate grain |
+| `original_message_count` | Event messages classified `NASA_ORIGINAL` |
+| `replay_message_count` | Event messages classified `NASA_REPLAY` |
+| `synthetic_message_count` | Event messages classified `SYNTHETIC_SCALE_TEST` |
+
+Gold Parquet remains authoritative. PostgreSQL/PostGIS is a rebuildable serving projection and materializes SRID-4326 point geometry from governed longitude and latitude.

@@ -2,7 +2,7 @@
 
 ## Status
 
-Design complete. No image has been pulled, no dependency installed, no database started, and no schema applied. Implementation requires owner approval.
+Design complete and Phase 6B implemented. The exactly 10,000-row serving gate passed; see `reports/quality/POSTGIS_10000_SERVING_GATE.md`. PostgreSQL is stopped and its named volume is preserved.
 
 ## Objective
 
@@ -39,11 +39,11 @@ Bronze and Silver remain immutable file-backed truth. Gold Parquet is the author
 
 | Component | Design selection | Rationale |
 |---|---|---|
-| PostgreSQL | Major version 16; pin the current supported minor at implementation | Mature, supported through November 2028, and aligned with the intended Amazon RDS target |
-| PostGIS | 3.4 line; pin the exact RDS-compatible patch and local image digest at implementation | Keeps local and RDS extension behavior aligned |
-| Local distribution | Officially published `postgis/postgis` Linux image for PostgreSQL 16/PostGIS 3.4, pinned by digest after pull | Reproducible PostGIS-enabled runtime without a native Windows installation |
+| PostgreSQL | 16.4 locally; RDS minor must be selected again at deployment | Mature, supported through November 2028, and aligned with the intended Amazon RDS target |
+| PostGIS | 3.4.3 locally; RDS patch must match the selected engine minor | Keeps local and RDS extension behavior aligned |
+| Local distribution | `postgis/postgis@sha256:44126d872ac91993766c341e369c539e8196614321765d36a6f1bab0419a5fa5` | Reproducible PostGIS-enabled runtime without a native Windows installation |
 | AWS database | Amazon RDS for PostgreSQL 16 with the RDS-supported PostGIS 3.4 patch | Managed backups, patching, monitoring, encryption, and Multi-AZ upgrade path |
-| Client/loader | Python 3.12 with a pinned PostgreSQL driver, proposed for Phase 6B approval | Bounded transactional loading, tests, and manifest generation |
+| Client/loader | Python 3.12 with `psycopg==3.3.4` | Bounded transactional loading, tests, and manifest generation |
 
 PostgreSQL 18 is current, but selecting it locally would not improve this milestone enough to justify drifting from the mature RDS/PostGIS target. Major and extension upgrades require a compatibility gate and recorded migration plan.
 
@@ -125,7 +125,7 @@ No index is added independently to every foreign-key-like or low-cardinality fie
 
 1. Spark writes compacted, versioned Gold Parquet and an immutable manifest.
 2. The manifest identifies every artifact by URI, byte size, SHA-256, row count, schema version, Gold run ID, and upstream Silver run IDs.
-3. The loader acquires a database advisory lock for the Gold run and rejects a concurrent duplicate.
+3. A unique manifest idempotency key rejects a concurrent duplicate load identity before serving rows change.
 4. Data enters a load-run-specific staging table with no application privileges.
 5. Database constraints and load validation run before serving tables change.
 6. One transaction inserts new event IDs and replaces the aggregate snapshot for the same Gold run.
@@ -144,7 +144,7 @@ aggregate_source_rows = aggregate_input_rows
 
 `event_id` conflicts are accepted only when the existing row's governed content hash matches. A different payload for the same ID is a hard integrity failure, not an update.
 
-Local Phase 6B will use a small representative export and PostgreSQL bulk-copy semantics. AWS loading will use a private, short-lived ECS/Fargate loader task or equivalent controlled job close to RDS. FastAPI is never the bulk-loader path, and row-at-a-time inserts are prohibited for scale gates.
+Local Phase 6B used a manifest-governed JSONL export and PostgreSQL bulk-copy semantics. AWS loading will use a private, short-lived ECS/Fargate loader task or equivalent controlled job close to RDS. FastAPI is never the bulk-loader path, and row-at-a-time inserts are prohibited for scale gates.
 
 ## API-Facing Query Contract
 
@@ -228,10 +228,10 @@ Local named volumes are disposable and do not qualify as backups. Schema migrati
 
 ## Phase 6B Bounded Implementation Gate
 
-If approved, Phase 6B may:
+Phase 6B completed the following approved work:
 
 1. pin the exact local image tag and digest;
-2. add a PostgreSQL service without starting Kafka or Spark;
+2. keep Kafka stopped, run one bounded Silver-to-Gold Spark job, stop Spark, and add the PostgreSQL service;
 3. add reviewed migrations, role/bootstrap definitions, a bounded bulk loader, and tests;
 4. load exactly 10,000 preserved accepted Silver events through a versioned Gold projection;
 5. verify PostGIS coordinates, constraints, idempotent rerun, counts, sizes, query plans, and resource use;
