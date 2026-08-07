@@ -149,3 +149,13 @@
 **Decision:** Build this local Linux/AMD64 runtime with `--provenance=false`, retain checksum validation for every remote JAR, and pin the resulting single-platform image digest `sha256:d92fdb4dc4cc1febc451308ea17880f48b511f65528cc792120a2345b9d6fff3`. Require full streaming runs to omit runtime package resolution.
 
 **Consequences:** Consecutive local builds have one stable image identity and the performance gate cannot download dependencies at startup. This local digest is not a registry distribution claim; publishing later requires a controlled registry and separate provenance/signing policy.
+
+## ED-016: Preserve the first full streaming output before compaction
+
+**Status:** Accepted
+
+**Context:** The full gate produced 161 Silver Parquet files for 100,000 rows because 16 shuffle partitions were written across ten stateful microbatches. Rewriting the successful gate output would erase direct evidence and mix processing with optimization.
+
+**Decision:** Preserve the immutable Phase 5F output and report the small-file result as measured evidence. Design a separate idempotent compaction stage later with explicit target file sizes and before/after metrics.
+
+**Consequences:** The portfolio demonstrates detection of a realistic streaming lakehouse problem instead of hiding it. Downstream consumers should use a compacted Gold or serving layer rather than treating the raw streaming file layout as optimized.

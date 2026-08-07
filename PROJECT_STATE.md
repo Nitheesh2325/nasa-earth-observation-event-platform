@@ -2,7 +2,7 @@
 
 ## Current milestone
 
-Phase 5E - reproducible derived Spark-Kafka image and full streaming gate plan complete; full execution is not approved.
+Phase 5F - full 100,000-message Structured Streaming gate and checkpoint recovery complete.
 
 ## Current status
 
@@ -81,7 +81,17 @@ Phase 5E - reproducible derived Spark-Kafka image and full streaming gate plan c
 - A zero-input checkpoint recovery using the derived runtime succeeded without `--packages`, `--jars`, an Ivy path, or a runtime dependency cache.
 - The derived-image proof processed zero new rows in all three queries, reported zero lag, and preserved the fixture's 3/1/1/1 reconciliation.
 - The full 100,000-message Structured Streaming gate now has explicit fresh producer boundaries, runtime limits, reconciliation rules, recovery rules, evidence requirements, and exclusions.
-- No new 100,000-message publication or full Structured Streaming execution occurred in Phase 5E.
+- A fresh producer run published exactly 100,000 checksum-admitted `NASA_REPLAY` messages with 100,000 acknowledgements, zero failures, and an exact offset delta of 100,000.
+- The full producer completed in 11.287 seconds at 8,859.67 records per second.
+- The digest-pinned Spark-Kafka image processed only the fresh producer boundary with no runtime dependency resolution.
+- Structured Streaming landed 100,000 Bronze rows, admitted 100,000 unique Silver rows, rejected zero, and identified zero duplicates with exact per-partition offset reconciliation.
+- Independent Silver read-back verified 100,000 unique event IDs, 10,000 unique NASA lineage roots, only `NASA_REPLAY`, and zero synthetic rows.
+- The first full execution completed in 284.073 seconds; its logical end-to-end rate was 352.02 messages per second across three sequential queries.
+- The accepted state store peaked at 100,000 rows and 46,824,872 bytes; zero rows were dropped by the watermark.
+- A same-checkpoint recovery consumed zero new rows in all three queries, reported zero lag, preserved all counts and file sizes, and completed the independent verification.
+- Streaming output contains 60 Bronze Parquet files (45,790,714 bytes), 161 Silver files (48,805,944 bytes), and 10 empty-outcome rejected files (56,440 bytes).
+- Peak observed Spark memory was approximately 1.61 GiB of 3 GiB; peak observed Kafka memory was approximately 453 MiB of 1.5 GiB.
+- Kafka and Spark are stopped. Rejected-topic publication and dead-letter handling remain unimplemented.
 
 ## Approved mission
 
@@ -89,11 +99,11 @@ Build a professional batch and streaming data-engineering platform that processe
 
 ## Current gate
 
-Phase 5E is complete. Owner approval is required before republishing the admitted 100,000-message replay artifact into a fresh offset boundary and executing the full Structured Streaming gate.
+Phase 5F is complete. Owner approval is required before implementing and fault-testing rejected-topic and dead-letter routing.
 
 ## Next proposed milestone
 
-Phase 5F - republish exactly 100,000 checksum-admitted replay messages, process only that fresh boundary through the digest-pinned derived image, reconcile all outputs and checkpoints, test zero-input restart, and record performance evidence.
+Phase 5G - implement bounded rejected-topic publishing and dead-letter handling, inject deliberate invalid and exhausted-retry fixtures, reconcile their Kafka and quarantine evidence, and stop before advancing to PostgreSQL.
 
 ## Known constraints
 

@@ -141,6 +141,40 @@ Per-partition delivery was `[16,460, 16,100, 16,920, 17,170, 16,250, 17,100]`. A
 
 The broker used approximately 523.7 MiB of its 1.5-GiB limit during post-run capture. The observed CPU snapshot was 183% of Docker's single-core scale while the container was capped at two CPUs. Producer and diagnostic consumer timers are application-level boundaries; Docker startup, broker warm-up, and evidence commands are excluded. This single-node local result does not measure replication, failover, authentication, sustained lag, or concurrent Spark consumption.
 
+## 100,000-Message Structured Streaming Gate
+
+**Status:** Passed
+
+The admitted replay artifact was republished into a fresh Kafka boundary and processed with the digest-pinned Spark-Kafka image. No dependency was downloaded at runtime.
+
+| Metric | Value |
+|---|---:|
+| Producer duration | 11.287 seconds |
+| Producer throughput | 8,859.67 records/second |
+| Structured Streaming application duration | 284.073 seconds |
+| Logical end-to-end streaming throughput | 352.02 messages/second |
+| Bronze landed | 100,000 |
+| Silver accepted | 100,000 |
+| Rejected / duplicate | 0 / 0 |
+| Unique event IDs / lineage roots | 100,000 / 10,000 |
+| Watermark-dropped rows | 0 |
+| Peak state-store rows | 100,000 |
+| Peak state-store memory | 46,824,872 bytes |
+
+| Query | Source rows | Nonempty microbatches | Summed batch duration | Query rate |
+|---|---:|---:|---:|---:|
+| Bronze landing | 100,000 | 10 | 38.890 seconds | 2,571.36 rows/second |
+| Accepted validation/deduplication | 100,000 | 10 | 127.894 seconds | 781.90 rows/second |
+| Rejected quarantine | 100,000 | 10 | 80.137 seconds | 1,247.86 rows/second |
+
+The application-level duration includes Spark startup, three sequential Kafka reads, streaming writes, stateful deduplication, Parquet read-back, offset aggregation, and final reconciliation. It excludes the producer and Docker startup. The three-query design deliberately reads the same source range three times to give each sink an independent checkpoint; therefore logical message throughput is the appropriate end-to-end measure, while the per-query rates describe internal work.
+
+The highest progress-reported lag was 15,453 offsets while processing and returned to zero. Peak observed Spark memory was approximately 1.61 GiB of 3 GiB; Kafka peaked near 453 MiB of 1.5 GiB in sampled observations. The stateful accepted query briefly used close to all four assigned CPUs without breaching memory limits.
+
+The output footprint was 60 Bronze Parquet files totaling 45,790,714 bytes, 161 Silver files totaling 48,805,944 bytes, and 10 rejected files totaling 56,440 bytes. The 161 Silver files for 100,000 rows demonstrate a small-file issue caused by 16 shuffle partitions across ten microbatches. A later Gold/compaction stage should reduce file count based on measured target sizes; the successful gate output is preserved unchanged.
+
+Same-checkpoint recovery processed zero new rows, reported zero lag, and preserved all counts and file sizes. Recovery plus independent Silver verification completed in 47.846 seconds.
+
 ## Next Measurement
 
-Spark Structured Streaming throughput, watermark behavior, checkpoint recovery, rejected-topic routing, dead-letter handling, and end-to-end Kafka-to-Silver latency remain unmeasured. The bounded streaming fixture and connector dependency require separate approval.
+Rejected-topic publishing, dead-letter behavior, controlled failure recovery, and streaming compaction remain unmeasured. Million-record advancement is not authorized.

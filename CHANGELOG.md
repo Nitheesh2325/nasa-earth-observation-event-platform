@@ -78,3 +78,8 @@ All meaningful project changes will be recorded here.
 - Built the single-platform runtime twice with identical digest `sha256:d92fdb4dc4cc1febc451308ea17880f48b511f65528cc792120a2345b9d6fff3`.
 - Proved the derived image resumes all three checkpoints with zero new input and no runtime package or Ivy resolution.
 - Defined the fresh offset boundary, runtime envelope, reconciliation, recovery, evidence, and exclusion rules for the full 100,000-message streaming gate.
+- Republished exactly 100,000 admitted replay messages into a fresh, checksum-verified Kafka offset boundary.
+- Passed the full digest-pinned Structured Streaming gate with 100,000 Bronze, 100,000 Silver, zero rejected, and zero duplicate outcomes.
+- Verified 100,000 unique event IDs, 10,000 NASA lineage roots, replay-only classification, zero synthetic rows, and exact per-partition offsets.
+- Recorded per-query microbatch, lag, state-store, Parquet footprint, runtime, throughput, and Docker resource evidence.
+- Passed same-checkpoint recovery with zero new input, zero lag, unchanged outputs, and independent Silver read-back verification.
