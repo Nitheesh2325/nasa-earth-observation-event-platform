@@ -229,3 +229,13 @@
 **Decision:** Apply a forward migration that removes only `event_payload` from `serving.event_detail`. Continue checksum-validating and transiently staging Gold JSON, then insert the 47 explicit serving columns directly. Permit repeatable ordered migration arguments so an empty database applies the base schema and compact promotion before loading. Require an idempotent no-op to reconcile persisted rows for its Gold run.
 
 **Consequences:** An empty-database gate loaded 100,000 rows in 44.225 seconds, 30.49% faster than the full-JSONB baseline, while the relation remained approximately 53.76% smaller. PostgreSQL cannot reconstruct full canonical payload independently; this is intentional because governed Gold is the recovery authority. Loss of Gold artifacts would now be a recovery failure and retention controls are mandatory.
+
+## ED-024: Execute the one-million gate locally as sequential controlled replay
+
+**Status:** Accepted
+
+**Context:** The 100,000 gates proved deterministic replay, Spark batch, Kafka, Structured Streaming, Gold, and compact PostgreSQL within the laptop's individual resource envelopes. The laptop has 7.647 GiB allocated to Docker, a mechanical project drive, and approximately 993 GB free. Running every service concurrently would add risk without strengthening the bounded scale claim.
+
+**Decision:** Define the one-million gate as 1,000,000 `NASA_REPLAY` messages representing 10,000 underlying NASA detections exactly 100 times each, with zero synthetic messages. Execute generation, batch, Kafka/streaming, Gold, and PostgreSQL as ordered subgates, keeping unrelated services stopped. Enforce 40 GB free disk, component memory limits, a two-hour wall-time limit per subgate, immutable failure evidence, and zero tolerance for reconciliation or checksum errors.
+
+**Consequences:** The portfolio gains a reproducible local million-record proof without AWS spend or false source claims. End-to-end wall time is not a concurrent-service benchmark. Measurements at one million determine whether the 5-million and 10-million gates run on AWS; this decision does not authorize those larger scales on the laptop.

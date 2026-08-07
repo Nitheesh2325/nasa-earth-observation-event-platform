@@ -2,7 +2,7 @@
 
 ## Current milestone
 
-Phase 6E - compact production serving projection and clean 100,000-row direct-load gate complete.
+Phase 6F - one-million-record execution architecture and safety plan complete.
 
 ## Current status
 
@@ -131,6 +131,9 @@ Phase 6E - compact production serving projection and clean 100,000-row direct-lo
 - The compact event-detail relation is 178,159,616 bytes and the database is 201,642,467 bytes, approximately 53.76% and 50.68% smaller than the full-JSONB gate respectively.
 - Forty-nine automated tests pass.
 - PostgreSQL, Kafka, and Spark are stopped. The clean compact 100,000-row PostgreSQL evidence volume is preserved.
+- Phase 6F defines a sequential local one-million gate using 1,000,000 controlled replay messages derived from 10,000 NASA detections exactly 100 times each.
+- The one-million design includes measured storage forecasts, a 40-GB free-disk floor, bounded memory and two-hour subgate limits, immutable failure evidence, and six ordered execution subgates.
+- The owner has provided standing approval through Phase 10; scale gates and milestone completion rules still apply and cannot be bypassed.
 
 ## Approved mission
 
@@ -138,11 +141,11 @@ Build a professional batch and streaming data-engineering platform that processe
 
 ## Current gate
 
-Phase 6E is complete. Owner approval is required before designing or executing the one-million-row gate.
+Phase 6F is complete. Standing owner approval authorizes Phase 6G execution, subject to its fail-closed resource and reconciliation rules.
 
 ## Next proposed milestone
 
-Phase 6F - design the one-million-record gate, including truthful data composition, storage forecast, runtime envelope, failure budget, laptop-versus-cloud execution decision, and stop/go criteria. Do not generate data or start services before approval.
+Phase 6G.1 - generate and independently reconcile the deterministic one-million-message replay artifact. Do not start Spark, Kafka, or PostgreSQL during this subgate.
 
 ## Known constraints
 

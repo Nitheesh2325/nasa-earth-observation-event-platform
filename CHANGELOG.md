@@ -1,5 +1,13 @@
 # Changelog
 
+## Phase 6F - One-million-record gate design
+
+- Defined the third scale gate as one million controlled replay messages representing 10,000 underlying NASA detections exactly 100 times each.
+- Selected sequential local execution based on measured 100,000-record resource evidence and approximately 993 GB of free project-drive capacity.
+- Forecast replay, Spark, Kafka, Gold, compact PostgreSQL, checkpoint, WAL, and physical storage requirements.
+- Added six ordered subgates, hard resource and runtime stop thresholds, immutable recovery rules, evidence requirements, and the Phase 7-10 program sequence.
+- Recorded standing owner approval through Phase 10 without weakening milestone, scale-gate, cost, or reconciliation controls.
+
 ## Phase 6E - Compact PostgreSQL/PostGIS production projection
 
 - Promoted the measured compact PostgreSQL layout through a forward migration that removes only redundant `event_payload` JSONB storage.
