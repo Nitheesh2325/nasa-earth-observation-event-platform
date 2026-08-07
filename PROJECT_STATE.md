@@ -2,7 +2,7 @@
 
 ## Current milestone
 
-Phase 5C - full 100,000-message Kafka replay publication and diagnostic reconciliation complete; Spark streaming is not approved.
+Phase 5D - bounded Spark Structured Streaming compatibility and checkpoint recovery complete; full streaming execution is not approved.
 
 ## Current status
 
@@ -66,7 +66,15 @@ Phase 5C - full 100,000-message Kafka replay publication and diagnostic reconcil
 - The checksum-admitted 100,000-message `NASA_REPLAY` artifact was fully published with 100,000 acknowledgements, zero delivery failures, and an exact broker offset delta of 100,000.
 - The full producer run completed in 11.825 seconds at 8,457.01 records per second and distributed records across all six partitions within 3.4% of the 16,666.67-record mean.
 - The diagnostic consumer read exactly the recorded full-run offset ranges and reconciled 100,000 messages and 100,000 unique event IDs with zero duplicates, invalid JSON values, missing event IDs, or key/lineage mismatches.
-- No Spark Structured Streaming execution has occurred.
+- Official Spark 4.0.2 documentation reconfirmed connector coordinate `org.apache.spark:spark-sql-kafka-0-10_2.13:4.0.2` for the Scala 2.13 runtime.
+- The exact connector and ten resolved transitive JARs are cached outside Git with recorded SHA-256 checksums; they are not yet baked into a pinned derived image.
+- Thirty-seven automated tests pass.
+- A three-message Kafka fixture passed bounded Structured Streaming with three landed Bronze rows, one accepted Silver row, one rejected quarantine row, and one watermark-bounded duplicate.
+- Kafka start and end offsets reconciled exactly, and broker topic, partition, offset, timestamp, key, value, and headers were preserved in Bronze.
+- The accepted query uses `scheduled_replay_timestamp` with a ten-minute watermark and `event_id` deduplication.
+- A same-checkpoint restart processed zero new rows in all three queries, reported zero lag, and left output counts unchanged.
+- Streaming execution manifests are immutable per physical execution after correcting an initially discovered overwrite risk.
+- No full 100,000-message Structured Streaming run, rejected-topic publication, dead-letter flow, or derived Spark-Kafka image build has occurred.
 
 ## Approved mission
 
@@ -74,11 +82,11 @@ Build a professional batch and streaming data-engineering platform that processe
 
 ## Current gate
 
-Phase 5C is complete. Owner approval is required before adding the Spark Kafka connector and implementing the bounded Structured Streaming vertical slice.
+Phase 5D is complete. Owner approval is required before packaging the resolved connector JARs into a reproducible derived Spark image and designing the full 100,000-message streaming gate.
 
 ## Next proposed milestone
 
-Phase 5D - research-confirm and add the exact Spark 4.0.2 Kafka connector, implement checkpointed and watermarked Structured Streaming validation/deduplication, and run a bounded fixture before any full streaming gate.
+Phase 5E - define and build the derived Spark-Kafka image from recorded artifacts, pin its digest, design fresh source boundaries and idempotent multi-output evidence, and stop for approval before the full 100,000-message Structured Streaming execution.
 
 ## Known constraints
 

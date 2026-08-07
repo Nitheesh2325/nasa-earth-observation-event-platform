@@ -119,3 +119,23 @@
 **Decision:** Pin `apache/kafka:4.3.1` to digest `sha256:77e3df9054047a88b520d0cc46e16696d3b22022e1d580aeccd2632df6532837`, bind the host port to `127.0.0.1`, and advertise `127.0.0.1:9092` to host clients. Preserve the internal Docker-network listener separately.
 
 **Consequences:** Local broker identity is immutable and Windows clients do not depend on hostname address-family selection. The host listener remains deliberately local and plaintext; it must not be presented as the production security topology.
+
+## ED-013: Separate streaming outcomes by query and checkpoint
+
+**Status:** Accepted
+
+**Context:** Kafka Bronze landing, trusted deduplicated Silver admission, and invalid-event quarantine have different state and recovery semantics. Sharing a checkpoint across query shapes is unsafe, while ad hoc multi-sink writes can duplicate data on retry.
+
+**Decision:** Use one explicit-offset source boundary but three query identities and checkpoint paths: append-only Kafka Bronze, watermark-bounded accepted-event deduplication, and rejected-event quarantine. Use `scheduled_replay_timestamp` as replay event time, a ten-minute watermark, and `event_id` as the deduplication key. Preserve physical execution manifests immutably beneath the logical streaming run ID.
+
+**Consequences:** Each sink recovers independently and the bounded fixture proves zero-input restart behavior. Kafka is read three times, which adds local overhead. Duplicate count is reconciled as landed minus accepted minus rejected; a later production design must decide whether duplicate payloads require their own physical audit sink.
+
+## ED-014: Cache connector artifacts for compatibility, then bake them before scale evidence
+
+**Status:** Accepted
+
+**Context:** Python Spark applications require the Kafka connector and its dependencies. Network resolution during a measured scale run would weaken reproducibility and mix download latency with processing evidence.
+
+**Decision:** Resolve `org.apache.spark:spark-sql-kafka-0-10_2.13:4.0.2` once for the bounded compatibility fixture, record every resolved JAR name, size, and SHA-256, and keep binaries outside Git. Before the full streaming gate, build and digest-pin a derived image that contains exactly those artifacts and starts without network resolution.
+
+**Consequences:** Compatibility is proven now without claiming the runtime is final. The full gate remains blocked until the derived image is reproducible and pinned.

@@ -67,3 +67,9 @@ All meaningful project changes will be recorded here.
 - Published the checksum-admitted 100,000-message replay artifact with idempotent delivery, acknowledgements, bounded retries, and exact per-partition offset reconciliation.
 - Consumed only the recorded producer offset ranges and reconciled all 100,000 unique event IDs with zero malformed values, missing IDs, duplicates, or key/lineage mismatches.
 - Recorded full Kafka producer, consumer, partition-distribution, and broker-resource evidence; stopped before Spark Structured Streaming.
+- Reconfirmed the exact Spark 4.0.2 Scala 2.13 Kafka connector and resolved its eleven-artifact dependency set into the ignored local cache.
+- Implemented explicit-offset Kafka Bronze landing, canonical parsing, validation, ten-minute event-time watermarking, `event_id` deduplication, Silver admission, rejected Parquet quarantine, and independent checkpoints.
+- Added a governed three-message Structured Streaming fixture and two contract tests, bringing the suite to thirty-seven tests.
+- Reconciled the fixture as three landed, one accepted, one rejected, and one duplicate with exact Kafka offset boundaries.
+- Verified same-checkpoint recovery with zero new input, zero lag, and unchanged output counts.
+- Corrected execution-manifest overwrite risk by assigning immutable physical execution IDs and paths.
