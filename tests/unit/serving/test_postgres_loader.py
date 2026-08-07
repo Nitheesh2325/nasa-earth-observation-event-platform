@@ -4,7 +4,14 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from eo_event_platform.serving.postgres_loader import iter_payloads, load_manifest
+from eo_event_platform.serving.postgres_loader import INSERT_EVENT_SQL, iter_payloads, load_manifest
+
+
+def test_direct_insert_targets_compact_projection() -> None:
+    destination_columns = INSERT_EVENT_SQL.split(")\nSELECT", maxsplit=1)[0]
+
+    assert "event_payload" not in destination_columns
+    assert "governed_content_hash" in destination_columns
 
 
 def _fixture(tmp_path: Path) -> Path:

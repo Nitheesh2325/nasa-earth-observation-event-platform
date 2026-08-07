@@ -27,7 +27,7 @@ INSERT INTO serving.event_detail (
   raw_file_name, raw_row_number, raw_payload_hash, kafka_topic,
   kafka_partition, kafka_offset, kafka_timestamp, validation_status,
   deduplication_status, enrichment_status, spark_processing_run_id,
-  gold_run_id, governed_content_hash, event_payload
+  gold_run_id, governed_content_hash
 )
 SELECT
   payload->>'event_id', payload->>'detection_id', payload->>'lineage_root_id',
@@ -63,7 +63,7 @@ SELECT
   NULLIF(payload->>'kafka_timestamp','')::timestamptz,
   payload->>'validation_status', payload->>'deduplication_status',
   NULLIF(payload->>'enrichment_status',''), payload->>'spark_processing_run_id',
-  (payload->>'gold_run_id')::uuid, payload->>'governed_content_hash', payload
+  (payload->>'gold_run_id')::uuid, payload->>'governed_content_hash'
 FROM temp_gold_event
 ON CONFLICT (event_id) DO NOTHING
 """
@@ -229,14 +229,20 @@ def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--dsn", required=True)
     parser.add_argument("--manifest", type=Path, required=True)
-    parser.add_argument("--migration", type=Path)
+    parser.add_argument(
+        "--migration",
+        type=Path,
+        action="append",
+        default=[],
+        help="Migration to apply before loading; repeat in execution order.",
+    )
     parser.add_argument("--expected-rows", type=int, required=True)
     args = parser.parse_args()
     if args.expected_rows <= 0:
         raise ValueError("expected rows must be positive")
     with psycopg.connect(args.dsn, autocommit=False) as connection:
-        if args.migration:
-            apply_migration(connection, args.migration)
+        for migration in args.migration:
+            apply_migration(connection, migration)
         result = load(connection, args.manifest, args.expected_rows)
         connection.commit()
     for key, value in result.items():

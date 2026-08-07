@@ -102,15 +102,15 @@ def verify(
         raise RuntimeError(f"role checks failed: {role_checks}")
 
     with connection.transaction(force_rollback=True):
-        connection.execute("CREATE TEMP TABLE conflict_probe (payload jsonb NOT NULL)")
+        connection.execute("CREATE TEMP TABLE conflict_probe (event_id text NOT NULL, governed_content_hash text NOT NULL)")
         connection.execute(
-            """INSERT INTO conflict_probe SELECT jsonb_set(event_payload, '{governed_content_hash}', '"conflict"')
-               FROM serving.event_detail ORDER BY event_id LIMIT 1"""
+            """INSERT INTO conflict_probe
+               SELECT event_id, 'conflict' FROM serving.event_detail ORDER BY event_id LIMIT 1"""
         )
         conflict_count = connection.execute(
             """SELECT count(*) FROM conflict_probe s JOIN serving.event_detail e
-               ON e.event_id=s.payload->>'event_id'
-               WHERE e.governed_content_hash <> s.payload->>'governed_content_hash'"""
+               ON e.event_id=s.event_id
+               WHERE e.governed_content_hash <> s.governed_content_hash"""
         ).fetchone()[0]
         if conflict_count != 1:
             raise RuntimeError("content-conflict guard did not detect the probe")
