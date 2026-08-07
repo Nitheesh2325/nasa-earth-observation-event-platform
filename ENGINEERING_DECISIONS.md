@@ -169,3 +169,33 @@
 **Decision:** Permit the `_test_fault_mode=EXHAUST_RETRIES` marker only in a committed bounded fixture and require the explicit `--enable-test-fault-injection` CLI flag. Execute the processing function exactly up to the configured attempt count, then preserve the actual count and bounded failure category in the DLQ envelope.
 
 **Consequences:** The three-attempt DLQ path is deterministic and auditable. This fixture proves routing mechanics, not a real external-service outage or distributed retry scheduler; production deployment must omit the test flag and use classified operational exceptions.
+
+## ED-018: Treat PostgreSQL as a rebuildable Gold serving projection
+
+**Status:** Accepted
+
+**Context:** FastAPI and dashboard users need low-latency relational and spatial queries, but loading raw streaming output directly into PostgreSQL would duplicate source-of-truth responsibilities and couple recovery to the database.
+
+**Decision:** Keep compacted Gold Parquet and its immutable manifest authoritative. Load selected event detail and aggregate products into PostgreSQL/PostGIS through an idempotent, staged, reconciled transaction. Do not write from Kafka or FastAPI directly to serving tables.
+
+**Consequences:** PostgreSQL can be rebuilt, API workloads remain isolated from Spark processing, and database loss does not erase analytical truth. Gold transformation and a governed loader become required boundaries.
+
+## ED-019: Begin with an unpartitioned 10-million-row event table
+
+**Status:** Accepted
+
+**Context:** Native range partitioning complicates global `event_id` uniqueness, and controlled replay retains original event time, which can concentrate many event messages in one date partition. Ten million rows is within a measured PostgreSQL serving-table envelope.
+
+**Decision:** Use one unpartitioned `serving.event_detail` table with a global primary key, targeted B-tree, GiST, and BRIN indexes. Reconsider partitioning only after measured growth, maintenance, or query evidence justifies the added complexity.
+
+**Consequences:** Idempotency and conflict detection stay simple, while the project demonstrates evidence-based partition decisions. Full scans still require bounded API queries and preaggregated Gold products.
+
+## ED-020: Align local PostgreSQL/PostGIS with the RDS target
+
+**Status:** Accepted
+
+**Context:** PostgreSQL 18 is current, but Amazon RDS extension availability is engine-minor-specific. Local use of a newer major or PostGIS line would weaken cloud parity without improving the first serving gate.
+
+**Decision:** Target PostgreSQL 16 and the RDS-compatible PostGIS 3.4 line. At implementation, pin the current supported PostgreSQL minor, exact PostGIS patch, and local image digest, then record the independently reported runtime versions.
+
+**Consequences:** Local and cloud behavior remain comparable and PostgreSQL 16 retains upstream support through November 2028. Minor and extension upgrades remain explicit compatibility events rather than floating changes.

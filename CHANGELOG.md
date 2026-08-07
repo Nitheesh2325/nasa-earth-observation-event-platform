@@ -1,5 +1,13 @@
 # Changelog
 
+## Phase 6A - PostgreSQL/PostGIS serving design
+
+- Defined PostgreSQL as a rebuildable projection of authoritative compacted Gold artifacts.
+- Selected PostgreSQL 16 and the RDS-compatible PostGIS 3.4 line, with exact patch and image digest deferred to the implementation-day compatibility check.
+- Defined serving, reference, load-control, and quality schemas; event-detail and aggregate grains; spatial and relational indexes; and API query boundaries.
+- Defined staged transactional loading, content-hash conflict detection, idempotency, reconciliation, least-privilege roles, monitoring, recovery, and local/AWS resource envelopes.
+- Bounded Phase 6B to an exactly 10,000-row local gate with Kafka and Spark stopped.
+
 All meaningful project changes will be recorded here.
 
 ## Unreleased

@@ -2,7 +2,7 @@
 
 ## Current milestone
 
-Phase 5G - rejected-topic and dead-letter routing gate complete; PostgreSQL work is not approved.
+Phase 6A - PostgreSQL/PostGIS serving architecture approved and complete; implementation is not approved.
 
 ## Current status
 
@@ -98,7 +98,7 @@ Phase 5G - rejected-topic and dead-letter routing gate complete; PostgreSQL work
 - The dead-letter topic increased by exactly one offset and independently verified `PROCESSING_RETRIES_EXHAUSTED`, `RuntimeError`, exactly three attempts, the original lineage key, and source coordinate.
 - Both routed envelopes passed version, key, unique-source-coordinate, delivery, flush, and offset reconciliation with zero failures.
 - Test fault injection requires an explicit CLI flag and is not part of a production service configuration.
-- Kafka is stopped. PostgreSQL/PostGIS implementation has not started.
+- Kafka is stopped. PostgreSQL/PostGIS architecture is complete; no image, dependency, service, or schema has been installed or started.
 
 ## Approved mission
 
@@ -106,11 +106,11 @@ Build a professional batch and streaming data-engineering platform that processe
 
 ## Current gate
 
-Phase 5G is complete. Owner approval is required before PostgreSQL/PostGIS dependency research and serving-model architecture.
+Phase 6A is complete. Owner approval is required before the bounded PostgreSQL/PostGIS implementation gate.
 
 ## Next proposed milestone
 
-Phase 6A - research and design the PostgreSQL/PostGIS serving layer, pinned local image, schemas, indexes, loading contract, reconciliation, security, resource envelope, and bounded implementation gate. Do not install or start PostgreSQL before approval of that design.
+Phase 6B - pin and verify PostgreSQL/PostGIS, implement migrations and the governed loader, and execute an exactly 10,000-row local serving gate. Kafka and Spark remain stopped. Do not install or start PostgreSQL before approval.
 
 ## Known constraints
 
