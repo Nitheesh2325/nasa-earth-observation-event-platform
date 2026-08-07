@@ -177,13 +177,20 @@ def main() -> int:
     parser.add_argument("--dsn", required=True)
     parser.add_argument("--migration", type=Path, required=True)
     parser.add_argument("--expected-rows", type=int, required=True)
+    parser.add_argument("--output", type=Path)
     args = parser.parse_args()
     with psycopg.connect(args.dsn, autocommit=False) as connection:
         apply_migration(connection, args.migration)
         connection.commit()
         result = run(connection, args.expected_rows)
         connection.commit()
-    print(json.dumps(result, indent=2, sort_keys=True, default=str))
+    rendered = json.dumps(result, indent=2, sort_keys=True, default=str) + "\n"
+    if args.output:
+        args.output.parent.mkdir(parents=True, exist_ok=True)
+        temporary = args.output.with_suffix(args.output.suffix + ".part")
+        temporary.write_text(rendered, encoding="utf-8")
+        temporary.replace(args.output)
+    print(rendered, end="")
     return 0
 
 
