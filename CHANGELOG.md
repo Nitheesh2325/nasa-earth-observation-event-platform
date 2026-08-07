@@ -83,3 +83,8 @@ All meaningful project changes will be recorded here.
 - Verified 100,000 unique event IDs, 10,000 NASA lineage roots, replay-only classification, zero synthetic rows, and exact per-partition offsets.
 - Recorded per-query microbatch, lag, state-store, Parquet footprint, runtime, throughput, and Docker resource evidence.
 - Passed same-checkpoint recovery with zero new input, zero lag, unchanged outputs, and independent Silver read-back verification.
+- Added a versioned failure-routing envelope with preserved Kafka coordinates, lineage, reason codes, attempts, and original values.
+- Implemented bounded source consumption, contract rejection, exhausted-retry DLQ routing, delivery callbacks, output watermark reconciliation, and independent envelope verification.
+- Added a three-message valid/rejected/exhausted fixture and three tests, bringing the suite to forty tests.
+- Reconciled one pass-through control, one rejected-topic message, and one dead-letter message with exact source and destination offsets.
+- Independently verified stable lineage keys, rejection reasons, failure category, and exactly three DLQ processing attempts.

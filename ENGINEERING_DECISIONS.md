@@ -159,3 +159,13 @@
 **Decision:** Preserve the immutable Phase 5F output and report the small-file result as measured evidence. Design a separate idempotent compaction stage later with explicit target file sizes and before/after metrics.
 
 **Consequences:** The portfolio demonstrates detection of a realistic streaming lakehouse problem instead of hiding it. Downstream consumers should use a compacted Gold or serving layer rather than treating the raw streaming file layout as optimized.
+
+## ED-017: Isolate deterministic fault injection from production routing
+
+**Status:** Accepted
+
+**Context:** Dead-letter behavior cannot be proven without a repeatable exhausted-processing failure, but silently embedding random or always-active failures would make production semantics unsafe and evidence irreproducible.
+
+**Decision:** Permit the `_test_fault_mode=EXHAUST_RETRIES` marker only in a committed bounded fixture and require the explicit `--enable-test-fault-injection` CLI flag. Execute the processing function exactly up to the configured attempt count, then preserve the actual count and bounded failure category in the DLQ envelope.
+
+**Consequences:** The three-attempt DLQ path is deterministic and auditable. This fixture proves routing mechanics, not a real external-service outage or distributed retry scheduler; production deployment must omit the test flag and use classified operational exceptions.

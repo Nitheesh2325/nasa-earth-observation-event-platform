@@ -2,7 +2,7 @@
 
 ## Current milestone
 
-Phase 5F - full 100,000-message Structured Streaming gate and checkpoint recovery complete.
+Phase 5G - rejected-topic and dead-letter routing gate complete; PostgreSQL work is not approved.
 
 ## Current status
 
@@ -67,14 +67,13 @@ Phase 5F - full 100,000-message Structured Streaming gate and checkpoint recover
 - The full producer run completed in 11.825 seconds at 8,457.01 records per second and distributed records across all six partitions within 3.4% of the 16,666.67-record mean.
 - The diagnostic consumer read exactly the recorded full-run offset ranges and reconciled 100,000 messages and 100,000 unique event IDs with zero duplicates, invalid JSON values, missing event IDs, or key/lineage mismatches.
 - Official Spark 4.0.2 documentation reconfirmed connector coordinate `org.apache.spark:spark-sql-kafka-0-10_2.13:4.0.2` for the Scala 2.13 runtime.
-- The exact connector and ten resolved transitive JARs are cached outside Git with recorded SHA-256 checksums; they are not yet baked into a pinned derived image.
+- The exact connector and ten resolved transitive JARs are cached outside Git with recorded SHA-256 checksums and packaged into the pinned derived image.
 - Thirty-seven automated tests pass.
 - A three-message Kafka fixture passed bounded Structured Streaming with three landed Bronze rows, one accepted Silver row, one rejected quarantine row, and one watermark-bounded duplicate.
 - Kafka start and end offsets reconciled exactly, and broker topic, partition, offset, timestamp, key, value, and headers were preserved in Bronze.
 - The accepted query uses `scheduled_replay_timestamp` with a ten-minute watermark and `event_id` deduplication.
 - A same-checkpoint restart processed zero new rows in all three queries, reported zero lag, and left output counts unchanged.
 - Streaming execution manifests are immutable per physical execution after correcting an initially discovered overwrite risk.
-- No full 100,000-message Structured Streaming run, rejected-topic publication, or dead-letter flow has occurred.
 - A checksum-enforced Dockerfile adds only the four connector artifacts absent from the pinned Spark base image; seven byte-identical transitive dependencies are reused from the base.
 - The derived `nasa-eo-spark-kafka:4.0.2-v1` image is pinned to single-platform digest `sha256:d92fdb4dc4cc1febc451308ea17880f48b511f65528cc792120a2345b9d6fff3` and is 795,890,344 bytes locally.
 - Two provenance-disabled builds produced the same derived image digest and size.
@@ -91,7 +90,15 @@ Phase 5F - full 100,000-message Structured Streaming gate and checkpoint recover
 - A same-checkpoint recovery consumed zero new rows in all three queries, reported zero lag, preserved all counts and file sizes, and completed the independent verification.
 - Streaming output contains 60 Bronze Parquet files (45,790,714 bytes), 161 Silver files (48,805,944 bytes), and 10 empty-outcome rejected files (56,440 bytes).
 - Peak observed Spark memory was approximately 1.61 GiB of 3 GiB; peak observed Kafka memory was approximately 453 MiB of 1.5 GiB.
-- Kafka and Spark are stopped. Rejected-topic publication and dead-letter handling remain unimplemented.
+- Kafka and Spark are stopped after the full streaming gate.
+- A governed routing envelope preserves source Kafka coordinates, keys, lineage, original values, reason codes, failure category, and actual bounded attempt count.
+- Forty automated tests pass.
+- A three-message fault fixture reconciled one valid control, one contract rejection, and one dead-letter outcome.
+- The rejected topic increased by exactly one offset and independently verified `INVALID_LATITUDE` and `MISSING_EVENT_ID` with the original lineage key and source coordinate.
+- The dead-letter topic increased by exactly one offset and independently verified `PROCESSING_RETRIES_EXHAUSTED`, `RuntimeError`, exactly three attempts, the original lineage key, and source coordinate.
+- Both routed envelopes passed version, key, unique-source-coordinate, delivery, flush, and offset reconciliation with zero failures.
+- Test fault injection requires an explicit CLI flag and is not part of a production service configuration.
+- Kafka is stopped. PostgreSQL/PostGIS implementation has not started.
 
 ## Approved mission
 
@@ -99,11 +106,11 @@ Build a professional batch and streaming data-engineering platform that processe
 
 ## Current gate
 
-Phase 5F is complete. Owner approval is required before implementing and fault-testing rejected-topic and dead-letter routing.
+Phase 5G is complete. Owner approval is required before PostgreSQL/PostGIS dependency research and serving-model architecture.
 
 ## Next proposed milestone
 
-Phase 5G - implement bounded rejected-topic publishing and dead-letter handling, inject deliberate invalid and exhausted-retry fixtures, reconcile their Kafka and quarantine evidence, and stop before advancing to PostgreSQL.
+Phase 6A - research and design the PostgreSQL/PostGIS serving layer, pinned local image, schemas, indexes, loading contract, reconciliation, security, resource envelope, and bounded implementation gate. Do not install or start PostgreSQL before approval of that design.
 
 ## Known constraints
 

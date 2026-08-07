@@ -2,7 +2,7 @@
 
 ## Scope
 
-Define how controlled NASA replay events will be published after the 100,000-record replay artifact passes its batch-generation gate. This contract does not authorize Kafka deployment or publication.
+Define governed replay, rejection, and dead-letter messages for the local Kafka and Structured Streaming platform.
 
 ## Version Pins
 
@@ -60,6 +60,25 @@ Serialization must be deterministic for an equivalent event. The producer must n
 - route invalid messages to `eo.events.rejected.v1`
 - route exhausted processing failures to `eo.events.dlq.v1`
 - use checkpoints and watermarks in Structured Streaming where appropriate
+
+## Failure-routing envelope
+
+Rejected and dead-letter values use routing envelope version `1.0.0` and retain:
+
+- routing type and physical routing run ID
+- routing timestamp
+- original source topic, partition, offset, and Kafka timestamp
+- original message key
+- event ID and lineage root where parseable
+- stable reason codes
+- processing attempt count
+- bounded failure category
+- parsed original event where available
+- original UTF-8 value for diagnosis
+
+The output Kafka key remains `lineage_root_id`. Rejected messages have contract or key-integrity errors and use zero processing attempts. Dead-letter messages passed contract validation but exhausted the configured bounded processing attempts.
+
+Production code must never infer a retry count that did not occur. Test fault injection requires an explicit CLI flag and a committed fixture marker; it is not enabled by default in any service configuration.
 
 ## Retention and Laptop Controls
 
