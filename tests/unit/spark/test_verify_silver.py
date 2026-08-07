@@ -13,6 +13,7 @@ class SilverVerifierTests(unittest.TestCase):
     def test_requires_explicit_truth_expectations(self) -> None:
         args = build_parser().parse_args([
             "--silver-path", "silver",
+            "--profile", "streaming",
             "--expected-rows", "1000000",
             "--expected-detections", "10000",
             "--expected-replay-factor", "100",
@@ -25,3 +26,4 @@ class SilverVerifierTests(unittest.TestCase):
         self.assertEqual(1_000_000, args.expected_rows)
         self.assertEqual("NASA_REPLAY", args.expected_source_type)
         self.assertEqual(0, args.expected_synthetic)
+        self.assertEqual("streaming", args.profile)

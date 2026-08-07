@@ -28,13 +28,58 @@ def verify(args: argparse.Namespace) -> dict[str, object]:
     spark.sparkContext.setLogLevel(args.log_level)
     try:
         silver = spark.read.parquet(args.silver_path)
+        required_common = {
+            "event_id", "detection_id", "source_type", "is_synthetic",
+            "parent_event_id", "replay_sequence_number", "replay_iteration",
+            "scheduled_replay_timestamp",
+        }
+        required_profile = {
+            "batch": {"event_date", "processing_timestamp", "spark_processing_run_id"},
+            "streaming": {
+                "topic", "partition", "offset", "broker_timestamp", "kafka_topic",
+                "kafka_partition", "kafka_offset", "kafka_timestamp",
+                "spark_validation_status", "spark_validation_error_codes",
+                "validation_status", "deduplication_status",
+            },
+        }[args.profile]
+        missing = sorted((required_common | required_profile) - set(silver.columns))
+        if missing:
+            raise RuntimeError(f"Silver {args.profile} profile is missing columns: {missing}")
         rows = silver.count()
         unique_events = silver.select("event_id").distinct().count()
         unique_detections = silver.select("detection_id").distinct().count()
+        unique_sequences = silver.select("replay_sequence_number").distinct().count()
+        detection_frequency_values = sorted(
+            row["count"] for row in silver.groupBy("detection_id").count().select("count").distinct().collect()
+        )
+        replay_iterations = sorted(
+            row["replay_iteration"] for row in silver.select("replay_iteration").distinct().collect()
+        )
         truth = {
             row["source_type"]: row["count"]
             for row in silver.groupBy("source_type").count().collect()
         }
+        if args.profile == "batch":
+            profile_invalid = (
+                F.col("event_date").isNull()
+                | F.col("processing_timestamp").isNull()
+                | F.col("spark_processing_run_id").isNull()
+            )
+        else:
+            profile_invalid = (
+                F.col("topic").isNull()
+                | F.col("partition").isNull()
+                | F.col("offset").isNull()
+                | F.col("broker_timestamp").isNull()
+                | (F.col("topic") != F.col("kafka_topic"))
+                | (F.col("partition").cast("long") != F.col("kafka_partition"))
+                | (F.col("offset") != F.col("kafka_offset"))
+                | (F.col("broker_timestamp") != F.col("kafka_timestamp"))
+                | (F.col("spark_validation_status") != F.lit("ACCEPTED"))
+                | (F.size("spark_validation_error_codes") != 0)
+                | (F.col("validation_status") != F.lit("ACCEPTED"))
+                | (F.col("deduplication_status") != F.lit("UNIQUE"))
+            )
         ranges = silver.agg(
             F.min("replay_sequence_number").alias("min_sequence"),
             F.max("replay_sequence_number").alias("max_sequence"),
@@ -44,14 +89,15 @@ def verify(args: argparse.Namespace) -> dict[str, object]:
             F.max("scheduled_replay_timestamp").alias("last_scheduled"),
             F.sum(F.col("is_synthetic").cast("long")).alias("synthetic_true"),
             F.sum(F.col("parent_event_id").isNull().cast("long")).alias("null_parents"),
-            F.sum(F.col("event_date").isNull().cast("long")).alias("null_event_dates"),
-            F.sum(F.col("processing_timestamp").isNull().cast("long")).alias("null_processing_timestamps"),
-            F.sum(F.col("spark_processing_run_id").isNull().cast("long")).alias("null_spark_run_ids"),
+            F.sum(profile_invalid.cast("long")).alias("profile_invalid_rows"),
         ).first()
         actual = {
             "rows": rows,
             "unique_events": unique_events,
             "unique_detections": unique_detections,
+            "unique_sequences": unique_sequences,
+            "detection_frequency_values": detection_frequency_values,
+            "replay_iterations": replay_iterations,
             "source_type_counts": truth,
             "synthetic_true": ranges["synthetic_true"],
             "min_sequence": ranges["min_sequence"],
@@ -61,14 +107,15 @@ def verify(args: argparse.Namespace) -> dict[str, object]:
             "first_scheduled": utc_milliseconds(ranges["first_scheduled"]),
             "last_scheduled": utc_milliseconds(ranges["last_scheduled"]),
             "null_parents": ranges["null_parents"],
-            "null_event_dates": ranges["null_event_dates"],
-            "null_processing_timestamps": ranges["null_processing_timestamps"],
-            "null_spark_run_ids": ranges["null_spark_run_ids"],
+            "profile_invalid_rows": ranges["profile_invalid_rows"],
         }
         expected = {
             "rows": args.expected_rows,
             "unique_events": args.expected_rows,
             "unique_detections": args.expected_detections,
+            "unique_sequences": args.expected_rows,
+            "detection_frequency_values": [args.expected_replay_factor],
+            "replay_iterations": list(range(1, args.expected_replay_factor + 1)),
             "source_type_counts": {args.expected_source_type: args.expected_rows},
             "synthetic_true": args.expected_synthetic,
             "min_sequence": 0,
@@ -78,9 +125,7 @@ def verify(args: argparse.Namespace) -> dict[str, object]:
             "first_scheduled": args.expected_first_scheduled,
             "last_scheduled": args.expected_last_scheduled,
             "null_parents": 0,
-            "null_event_dates": 0,
-            "null_processing_timestamps": 0,
-            "null_spark_run_ids": 0,
+            "profile_invalid_rows": 0,
         }
         if actual != expected:
             raise RuntimeError(f"Silver truth verification failed: {actual}")
@@ -89,6 +134,7 @@ def verify(args: argparse.Namespace) -> dict[str, object]:
             "status": "PASSED",
             "verified_at": datetime.now(timezone.utc).isoformat(),
             "silver_path": args.silver_path,
+            "profile": args.profile,
             **actual,
             "duration_seconds": duration,
             "throughput_records_per_second": rows / duration,
@@ -103,6 +149,7 @@ def verify(args: argparse.Namespace) -> dict[str, object]:
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--silver-path", required=True)
+    parser.add_argument("--profile", choices=("batch", "streaming"), default="batch")
     parser.add_argument("--expected-rows", type=int, required=True)
     parser.add_argument("--expected-detections", type=int, required=True)
     parser.add_argument("--expected-replay-factor", type=int, required=True)
