@@ -1,5 +1,23 @@
 # Performance Report
 
+## 1,000,000-Message Spark Batch Gate
+
+**Status:** Passed
+
+Spark 4.0.2 processed the admitted million-message replay artifact with four CPUs, 4 GiB container memory, 3 GiB driver memory, and 32 shuffle partitions.
+
+| Metric | Value |
+|---|---:|
+| Input / accepted | 1,000,000 / 1,000,000 |
+| Rejected / duplicate | 0 / 0 |
+| Duration | 149.502 seconds |
+| Throughput | 6,688.88 rows/second |
+| Silver Parquet | 32 files / 214,918,941 bytes |
+| Independent verification | 27.243 seconds / 36,706.53 rows/second |
+| Peak observed memory | 3.745 GiB / 4 GiB |
+
+The run reconciled all output read-backs and independent truth checks. Throughput improved from 1,633.13 rows/second at 100,000 records because fixed work was further amortized and replay data compressed efficiently. The 93.62% memory high-water observation prohibits extrapolating this local configuration to five million records.
+
 ## 1,000,000-Message Replay Generation Gate
 
 **Status:** Passed

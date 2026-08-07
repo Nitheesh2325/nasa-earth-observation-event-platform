@@ -1,5 +1,14 @@
 # Changelog
 
+## Phase 6G.2 - One-million Spark batch gate
+
+- Processed the admitted million-message replay artifact with the digest-pinned Spark 4.0.2 image, explicit schema, DataFrame transformations, and bounded four-CPU/four-GiB resources.
+- Reconciled 1,000,000 accepted Silver rows, zero rejected rows, zero duplicates, and exact Parquet read-back in 149.502 seconds.
+- Added an independent Silver verifier for exact event, detection, classification, replay-range, schedule, lineage, and derived-field checks.
+- Independently verified one million unique events and 10,000 detections in 27.243 seconds.
+- Recorded 32 Silver Parquet files, 214,918,941 data bytes, sampled CPU/I/O, and a 3.745-GiB memory high-water observation.
+- Added two verifier tests, bringing the complete suite to fifty-three passing tests.
+
 ## Phase 6G.1 - One-million replay generation
 
 - Generated two immutable one-million-message controlled replay artifacts from the admitted 10,000-event NASA source.

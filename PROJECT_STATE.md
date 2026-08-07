@@ -2,7 +2,7 @@
 
 ## Current milestone
 
-Phase 6G.1 - deterministic one-million-message replay generation gate complete.
+Phase 6G.2 - one-million-message Spark batch Bronze-to-Silver gate complete.
 
 ## Current status
 
@@ -140,6 +140,12 @@ Phase 6G.1 - deterministic one-million-message replay generation gate complete.
 - The artifact contains exactly 1,000,000 `NASA_REPLAY` messages, 10,000 underlying NASA detections, 100 events per detection, and zero synthetic rows.
 - Fifty-one automated tests pass.
 - PostgreSQL and Kafka remain stopped; no Spark container ran. Both full one-million artifacts remain outside Git.
+- Spark batch processed the admitted one-million replay artifact into 1,000,000 accepted Silver rows, zero rejected rows, and zero duplicates in 149.502 seconds.
+- Independent Silver verification found 1,000,000 unique event IDs, 10,000 detections, replay iterations 1-100, sequence 0-999,999, replay-only classification, zero synthetic flags, and complete lineage and derived fields.
+- Silver contains 32 Parquet data files totaling 214,918,941 bytes; output read-back reconciled exactly.
+- Peak observed Spark memory was 3.745 GiB of the 4-GiB limit, so larger local Spark gates are unsafe without a new capacity decision.
+- Fifty-three automated tests pass.
+- All Spark containers exited successfully; Kafka and PostgreSQL remain stopped.
 
 ## Approved mission
 
@@ -147,11 +153,11 @@ Build a professional batch and streaming data-engineering platform that processe
 
 ## Current gate
 
-Phase 6G.1 is complete. Standing owner approval authorizes Phase 6G.2, subject to its Spark resource and reconciliation rules.
+Phase 6G.2 is complete. Standing owner approval authorizes Phase 6G.3, subject to its Kafka resource, offset, delivery, and truth reconciliation rules.
 
 ## Next proposed milestone
 
-Phase 6G.2 - run the admitted one-million artifact through the digest-pinned Spark 4.0.2 batch Bronze-to-Silver gate with explicit schema, bounded resources, exact outcome reconciliation, independent Parquet read-back, and performance evidence. Keep Kafka and PostgreSQL stopped.
+Phase 6G.3 - publish the admitted one-million replay artifact to a fresh bounded Kafka offset range, require one million acknowledgements and exact partition deltas, then independently consume only that range and reconcile identities, lineage keys, classification, and offsets. Keep PostgreSQL stopped.
 
 ## Known constraints
 
