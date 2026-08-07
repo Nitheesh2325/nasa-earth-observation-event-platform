@@ -5,6 +5,7 @@ services:
     image: postgis/postgis@sha256:44126d872ac91993766c341e369c539e8196614321765d36a6f1bab0419a5fa5
     container_name: eo-postgres
     restart: "no"
+    command: ["postgres", "-c", "shared_buffers=512MB", "-c", "max_connections=30"]
     environment:
       POSTGRES_DB: eo_intelligence
       POSTGRES_USER: postgres

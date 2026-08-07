@@ -201,6 +201,9 @@ def load(connection: psycopg.Connection[Any], manifest_path: Path, expected_rows
                    FROM serving.event_detail WHERE gold_run_id=%s GROUP BY lineage_root_id""",
                 (manifest["gold_run_id"], manifest["gold_run_id"]),
             )
+            connection.execute("ANALYZE serving.event_detail")
+            connection.execute("ANALYZE serving.dataset_daily_summary")
+            connection.execute("ANALYZE serving.detection_lineage_summary")
             completed = datetime.now(timezone.utc)
             duration = time.perf_counter() - clock
             connection.execute(
