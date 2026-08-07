@@ -38,6 +38,11 @@ def expected_end_offsets(producer_manifest: dict[str, object]) -> dict[int, int]
     }
 
 
+def parquet_metrics(path: Path) -> tuple[int, int]:
+    files = list(path.rglob("*.parquet"))
+    return len(files), sum(item.stat().st_size for item in files)
+
+
 def parsed_kafka_events(kafka_rows: DataFrame) -> DataFrame:
     """Parse canonical values and preserve broker metadata and key integrity."""
     parsed = kafka_rows.select(
@@ -178,6 +183,26 @@ def run_streaming(args: argparse.Namespace) -> dict[str, object]:
         if not reconciled:
             raise RuntimeError("streaming counts do not reconcile")
 
+        silver_verification = accepted_readback.agg(
+            F.countDistinct("event_id").alias("unique_event_id_count"),
+            F.countDistinct("lineage_root_id").alias("unique_lineage_root_count"),
+            F.sort_array(F.collect_set("source_type")).alias("source_types"),
+            F.sum(F.when(F.col("is_synthetic"), F.lit(1)).otherwise(F.lit(0))).alias("synthetic_count"),
+        ).first().asDict()
+        unique_event_id_count = int(silver_verification["unique_event_id_count"])
+        unique_lineage_root_count = int(silver_verification["unique_lineage_root_count"])
+        source_types = list(silver_verification["source_types"])
+        synthetic_count = int(silver_verification["synthetic_count"] or 0)
+        expected_lineage_count = args.expected_lineage_count
+        silver_verified = (
+            unique_event_id_count == accepted_count
+            and source_types == ["NASA_REPLAY"]
+            and synthetic_count == 0
+            and (expected_lineage_count is None or unique_lineage_root_count == expected_lineage_count)
+        )
+        if not silver_verified:
+            raise RuntimeError("Silver identity or classification verification failed")
+
         observed_offsets = {
             int(row["partition"]): (int(row["minimum"]), int(row["maximum"]) + 1)
             for row in landing.groupBy("partition").agg(
@@ -194,6 +219,10 @@ def run_streaming(args: argparse.Namespace) -> dict[str, object]:
         offsets_reconciled = observed_offsets == expected_nonempty
         if not offsets_reconciled:
             raise RuntimeError("streaming Kafka offsets do not reconcile")
+
+        landing_parquet_files, landing_parquet_bytes = parquet_metrics(landing_path)
+        accepted_parquet_files, accepted_parquet_bytes = parquet_metrics(accepted_path)
+        rejected_parquet_files, rejected_parquet_bytes = parquet_metrics(rejected_path)
 
         landing_input_rows = sum(int(item.get("numInputRows", 0)) for item in landing_progress)
         accepted_source_input_rows = sum(int(item.get("numInputRows", 0)) for item in accepted_progress)
@@ -219,6 +248,12 @@ def run_streaming(args: argparse.Namespace) -> dict[str, object]:
             "rejected_count": rejected_count,
             "duplicate_count": duplicate_count,
             "reconciled": reconciled,
+            "unique_event_id_count": unique_event_id_count,
+            "unique_lineage_root_count": unique_lineage_root_count,
+            "expected_lineage_root_count": expected_lineage_count,
+            "accepted_source_types": source_types,
+            "accepted_synthetic_count": synthetic_count,
+            "silver_verified": silver_verified,
             "watermark_column": "scheduled_replay_timestamp",
             "watermark_delay": WATERMARK_DELAY,
             "deduplication_key": "event_id",
@@ -226,6 +261,12 @@ def run_streaming(args: argparse.Namespace) -> dict[str, object]:
             "accepted_path": accepted_path.as_posix(),
             "rejected_path": rejected_path.as_posix(),
             "checkpoint_root": checkpoint_root.as_posix(),
+            "landing_parquet_file_count": landing_parquet_files,
+            "landing_parquet_bytes": landing_parquet_bytes,
+            "accepted_parquet_file_count": accepted_parquet_files,
+            "accepted_parquet_bytes": accepted_parquet_bytes,
+            "rejected_parquet_file_count": rejected_parquet_files,
+            "rejected_parquet_bytes": rejected_parquet_bytes,
             "landing_progress": landing_progress,
             "accepted_progress": accepted_progress,
             "rejected_progress": rejected_progress,
@@ -258,6 +299,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--topic", default="eo.events.replay.v1")
     parser.add_argument("--shuffle-partitions", type=int, default=4)
     parser.add_argument("--max-offsets-per-trigger", type=int, default=100)
+    parser.add_argument("--expected-lineage-count", type=int)
     parser.add_argument("--log-level", default="WARN")
     return parser
 
@@ -266,6 +308,8 @@ def main() -> int:
     args = build_parser().parse_args()
     if args.shuffle_partitions <= 0 or args.max_offsets_per_trigger <= 0:
         raise ValueError("streaming partition and offset limits must be positive")
+    if args.expected_lineage_count is not None and args.expected_lineage_count <= 0:
+        raise ValueError("expected-lineage-count must be positive")
     result = run_streaming(args)
     for key in ("streaming_run_id", "status", "input_count", "accepted_count", "rejected_count", "duplicate_count", "offsets_reconciled", "duration_seconds", "manifest_path"):
         print(f"{key}={result[key]}")
