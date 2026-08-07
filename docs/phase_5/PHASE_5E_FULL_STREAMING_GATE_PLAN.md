@@ -12,7 +12,7 @@ Process exactly one fresh publication of the admitted 100,000-message `NASA_REPL
 
 - base Spark image: pinned Spark 4.0.2 digest
 - connector: `org.apache.spark:spark-sql-kafka-0-10_2.13:4.0.2`
-- derived image: immutable digest recorded after the Phase 5E build
+- derived image: `sha256:d92fdb4dc4cc1febc451308ea17880f48b511f65528cc792120a2345b9d6fff3`
 - no runtime `--packages`, `--jars`, Ivy resolution, or network dependency
 - Kafka: pinned 4.3.1 image, six replay partitions
 - Spark: `local[4]`, four CPUs, 3 GiB container memory, 2 GiB driver memory

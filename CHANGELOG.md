@@ -73,3 +73,8 @@ All meaningful project changes will be recorded here.
 - Reconciled the fixture as three landed, one accepted, one rejected, and one duplicate with exact Kafka offset boundaries.
 - Verified same-checkpoint recovery with zero new input, zero lag, and unchanged output counts.
 - Corrected execution-manifest overwrite risk by assigning immutable physical execution IDs and paths.
+- Added a checksum-enforced derived Spark-Kafka Dockerfile and a complete artifact lock.
+- Verified seven transitive artifacts already in the pinned Spark base image and added only the four absent JARs.
+- Built the single-platform runtime twice with identical digest `sha256:d92fdb4dc4cc1febc451308ea17880f48b511f65528cc792120a2345b9d6fff3`.
+- Proved the derived image resumes all three checkpoints with zero new input and no runtime package or Ivy resolution.
+- Defined the fresh offset boundary, runtime envelope, reconciliation, recovery, evidence, and exclusion rules for the full 100,000-message streaming gate.

@@ -2,7 +2,7 @@
 
 ## Current milestone
 
-Phase 5D - bounded Spark Structured Streaming compatibility and checkpoint recovery complete; full streaming execution is not approved.
+Phase 5E - reproducible derived Spark-Kafka image and full streaming gate plan complete; full execution is not approved.
 
 ## Current status
 
@@ -74,7 +74,14 @@ Phase 5D - bounded Spark Structured Streaming compatibility and checkpoint recov
 - The accepted query uses `scheduled_replay_timestamp` with a ten-minute watermark and `event_id` deduplication.
 - A same-checkpoint restart processed zero new rows in all three queries, reported zero lag, and left output counts unchanged.
 - Streaming execution manifests are immutable per physical execution after correcting an initially discovered overwrite risk.
-- No full 100,000-message Structured Streaming run, rejected-topic publication, dead-letter flow, or derived Spark-Kafka image build has occurred.
+- No full 100,000-message Structured Streaming run, rejected-topic publication, or dead-letter flow has occurred.
+- A checksum-enforced Dockerfile adds only the four connector artifacts absent from the pinned Spark base image; seven byte-identical transitive dependencies are reused from the base.
+- The derived `nasa-eo-spark-kafka:4.0.2-v1` image is pinned to single-platform digest `sha256:d92fdb4dc4cc1febc451308ea17880f48b511f65528cc792120a2345b9d6fff3` and is 795,890,344 bytes locally.
+- Two provenance-disabled builds produced the same derived image digest and size.
+- A zero-input checkpoint recovery using the derived runtime succeeded without `--packages`, `--jars`, an Ivy path, or a runtime dependency cache.
+- The derived-image proof processed zero new rows in all three queries, reported zero lag, and preserved the fixture's 3/1/1/1 reconciliation.
+- The full 100,000-message Structured Streaming gate now has explicit fresh producer boundaries, runtime limits, reconciliation rules, recovery rules, evidence requirements, and exclusions.
+- No new 100,000-message publication or full Structured Streaming execution occurred in Phase 5E.
 
 ## Approved mission
 
@@ -82,11 +89,11 @@ Build a professional batch and streaming data-engineering platform that processe
 
 ## Current gate
 
-Phase 5D is complete. Owner approval is required before packaging the resolved connector JARs into a reproducible derived Spark image and designing the full 100,000-message streaming gate.
+Phase 5E is complete. Owner approval is required before republishing the admitted 100,000-message replay artifact into a fresh offset boundary and executing the full Structured Streaming gate.
 
 ## Next proposed milestone
 
-Phase 5E - define and build the derived Spark-Kafka image from recorded artifacts, pin its digest, design fresh source boundaries and idempotent multi-output evidence, and stop for approval before the full 100,000-message Structured Streaming execution.
+Phase 5F - republish exactly 100,000 checksum-admitted replay messages, process only that fresh boundary through the digest-pinned derived image, reconcile all outputs and checkpoints, test zero-input restart, and record performance evidence.
 
 ## Known constraints
 

@@ -32,3 +32,18 @@ These seven transitive dependencies are already present in the base image. Their
 ## Reproducibility rule
 
 The full Structured Streaming gate must reference the derived image by immutable digest and must not pass `--packages`, `--jars`, or an Ivy cache path at runtime.
+
+## Derived image
+
+- local name: `nasa-eo-spark-kafka:4.0.2-v1`
+- immutable single-platform digest: `sha256:d92fdb4dc4cc1febc451308ea17880f48b511f65528cc792120a2345b9d6fff3`
+- local unpacked size: 795,890,344 bytes
+- runtime user: `spark`
+
+Build with generated provenance disabled so Docker's changing attestation envelope does not alter the local top-level identity:
+
+```text
+docker build --pull=false --provenance=false --tag nasa-eo-spark-kafka:4.0.2-v1 infrastructure/spark-kafka
+```
+
+Two consecutive builds produced the same image digest and size. The remote artifacts remain checksum-enforced by the Dockerfile.

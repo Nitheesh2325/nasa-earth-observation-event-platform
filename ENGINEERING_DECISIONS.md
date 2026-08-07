@@ -139,3 +139,13 @@
 **Decision:** Resolve `org.apache.spark:spark-sql-kafka-0-10_2.13:4.0.2` once for the bounded compatibility fixture, record every resolved JAR name, size, and SHA-256, and keep binaries outside Git. Before the full streaming gate, build and digest-pin a derived image that contains exactly those artifacts and starts without network resolution.
 
 **Consequences:** Compatibility is proven now without claiming the runtime is final. The full gate remains blocked until the derived image is reproducible and pinned.
+
+## ED-015: Pin the derived runtime to a single-platform manifest
+
+**Status:** Accepted
+
+**Context:** Docker BuildKit's default provenance attestation can change the top-level manifest-list digest between otherwise byte-identical local builds. The application image manifest, configuration, and layers remained identical, but the generated attestation envelope did not.
+
+**Decision:** Build this local Linux/AMD64 runtime with `--provenance=false`, retain checksum validation for every remote JAR, and pin the resulting single-platform image digest `sha256:d92fdb4dc4cc1febc451308ea17880f48b511f65528cc792120a2345b9d6fff3`. Require full streaming runs to omit runtime package resolution.
+
+**Consequences:** Consecutive local builds have one stable image identity and the performance gate cannot download dependencies at startup. This local digest is not a registry distribution claim; publishing later requires a controlled registry and separate provenance/signing policy.
