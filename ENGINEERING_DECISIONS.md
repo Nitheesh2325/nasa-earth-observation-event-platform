@@ -219,3 +219,13 @@
 **Decision:** Select the compact layout for the future production serving table. Retain complete canonical payload in checksum-governed Gold rather than duplicating it as JSONB in every PostgreSQL row. PostgreSQL retains all materialized serving fields, geometry, `event_id`, `governed_content_hash`, `gold_run_id`, raw lineage, and processing metadata.
 
 **Consequences:** Measured relation storage falls 53.77% and JSONB TOAST duplication is almost eliminated. A clean direct-loader and rebuild gate is required before replacing the existing serving table or advancing to one million rows; the A/B materialization time is not presented as direct-load performance.
+
+## ED-023: Promote the compact projection through a forward migration
+
+**Status:** Accepted
+
+**Context:** Phase 6D selected the compact projection after row parity, integrity, storage, and maintained-query comparisons. The existing successful loader staged governed JSON and inserted explicit columns, so retaining the same JSON in every serving row added no recovery capability beyond authoritative Gold.
+
+**Decision:** Apply a forward migration that removes only `event_payload` from `serving.event_detail`. Continue checksum-validating and transiently staging Gold JSON, then insert the 47 explicit serving columns directly. Permit repeatable ordered migration arguments so an empty database applies the base schema and compact promotion before loading. Require an idempotent no-op to reconcile persisted rows for its Gold run.
+
+**Consequences:** An empty-database gate loaded 100,000 rows in 44.225 seconds, 30.49% faster than the full-JSONB baseline, while the relation remained approximately 53.76% smaller. PostgreSQL cannot reconstruct full canonical payload independently; this is intentional because governed Gold is the recovery authority. Loss of Gold artifacts would now be a recovery failure and retention controls are mandatory.

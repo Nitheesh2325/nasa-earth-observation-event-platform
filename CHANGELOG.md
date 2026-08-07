@@ -1,5 +1,14 @@
 # Changelog
 
+## Phase 6E - Compact PostgreSQL/PostGIS production projection
+
+- Promoted the measured compact PostgreSQL layout through a forward migration that removes only redundant `event_payload` JSONB storage.
+- Updated the manifest-governed loader to apply ordered migrations and insert 47 explicit serving fields directly from transient staging.
+- Rebuilt an empty PostgreSQL/PostGIS database from the 100,000-row governed Gold manifest in 44.225 seconds.
+- Reconciled 100,000 replay events, 10,000 NASA detections, zero synthetic rows, aggregates, PostGIS geometry, roles, and conflict rollback.
+- Strengthened idempotent no-op behavior to verify persisted Gold-run rows before returning success.
+- Added compact direct-load runtime, storage, query-plan, resource, and limitation evidence; the suite now passes forty-nine tests.
+
 ## Phase 6D - PostgreSQL/PostGIS 100,000-row storage A/B gate
 
 - Added an isolated compact candidate, controlled A/B plan, structural migration, parity verifier, and atomic local evidence output.

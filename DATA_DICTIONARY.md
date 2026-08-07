@@ -83,4 +83,4 @@ The canonical event contract under `contracts/events/v1/` is authoritative for r
 | `replay_message_count` | Event messages classified `NASA_REPLAY` |
 | `synthetic_message_count` | Event messages classified `SYNTHETIC_SCALE_TEST` |
 
-Gold Parquet remains authoritative. PostgreSQL/PostGIS is a rebuildable serving projection and materializes SRID-4326 point geometry from governed longitude and latitude.
+Gold Parquet remains authoritative. PostgreSQL/PostGIS is a rebuildable compact serving projection and materializes SRID-4326 point geometry from governed longitude and latitude. The database retains explicit governed fields, hashes, and Gold lineage; it does not duplicate the complete canonical payload as per-row JSONB.

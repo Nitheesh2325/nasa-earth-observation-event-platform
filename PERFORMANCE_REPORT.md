@@ -211,3 +211,22 @@ Same-checkpoint recovery processed zero new rows, reported zero lag, and preserv
 ## Next Measurement
 
 Rejected-topic publishing, dead-letter behavior, controlled failure recovery, and streaming compaction remain unmeasured. Million-record advancement is not authorized.
+
+## 100,000-Record Compact PostgreSQL Direct-Load Gate
+
+**Status:** Passed
+
+The compact production projection rebuilt an empty database directly from the governed 100,000-row Gold manifest. It represents 100,000 replay messages derived from 10,000 original NASA detections, with zero synthetic records.
+
+| Metric | Value |
+|---|---:|
+| Staged / inserted / serving rows | 100,000 / 100,000 / 100,000 |
+| Direct load duration | 44.225 seconds |
+| Full-JSONB direct load baseline | 63.627 seconds |
+| Load-duration change | -30.49% |
+| Event-detail relation | 178,159,616 bytes |
+| Database | 201,642,467 bytes |
+| Physical database directory | 513,425,863 bytes |
+| Container memory snapshot | 357.7 MiB / 2 GiB |
+
+Warm local p95 latency was 71.921 ms for a full-detail source summary, 13.362 ms for the spatial bounding box, 2.432 ms for lineage lookup, and 2.394 ms for the daily aggregate. The full-detail summary is not the intended dashboard path; governed aggregates should serve that workload. See `reports/quality/POSTGIS_100000_COMPACT_DIRECT_GATE.md` for truth, rollback, plans, security, and limitations.

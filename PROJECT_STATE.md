@@ -2,7 +2,7 @@
 
 ## Current milestone
 
-Phase 6D - 100,000-row serving storage A/B gate complete; compact direct-loader implementation is not approved.
+Phase 6E - compact production serving projection and clean 100,000-row direct-load gate complete.
 
 ## Current status
 
@@ -123,6 +123,14 @@ Phase 6D - 100,000-row serving storage A/B gate complete; compact direct-loader 
 - Compact layout B is selected, but the production loader and canonical serving table still use layout A.
 - Forty-seven automated tests pass.
 - PostgreSQL, Spark, and Kafka are stopped. The A/B database volume is preserved.
+- The selected compact layout is now the production serving projection; `event_payload` remains authoritative only in governed Gold.
+- A clean database rebuild directly staged and inserted 100,000 replay messages in 44.225 seconds from the checksum-validated Gold manifest.
+- The replay truth gate reconciled 100,000 unique events to 10,000 NASA detections, zero original-message claims, zero synthetic rows, and zero invalid geometries.
+- The identical-manifest rerun inserted zero rows, and its no-op path now verifies persisted Gold-run row count before reporting success.
+- A deliberately conflicting content hash was detected inside a forced rollback; the serving count remained 100,000.
+- The compact event-detail relation is 178,159,616 bytes and the database is 201,642,467 bytes, approximately 53.76% and 50.68% smaller than the full-JSONB gate respectively.
+- Forty-nine automated tests pass.
+- PostgreSQL, Kafka, and Spark are stopped. The clean compact 100,000-row PostgreSQL evidence volume is preserved.
 
 ## Approved mission
 
@@ -130,11 +138,11 @@ Build a professional batch and streaming data-engineering platform that processe
 
 ## Current gate
 
-Phase 6D is complete. Owner approval is required before changing the production schema/loader or executing any one-million-row gate.
+Phase 6E is complete. Owner approval is required before designing or executing the one-million-row gate.
 
 ## Next proposed milestone
 
-Phase 6E - implement a clean compact-only production schema and direct manifest-governed Gold loader, then repeat the 100,000-row replay gate from an empty database with reconciliation, idempotency, conflict rollback, storage, query, rebuild, and resource evidence. Do not start services before approval.
+Phase 6F - design the one-million-record gate, including truthful data composition, storage forecast, runtime envelope, failure budget, laptop-versus-cloud execution decision, and stop/go criteria. Do not generate data or start services before approval.
 
 ## Known constraints
 
