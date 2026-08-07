@@ -11,7 +11,7 @@ services:
       POSTGRES_PASSWORD: ${EO_POSTGRES_PASSWORD:?EO_POSTGRES_PASSWORD is required}
       POSTGRES_INITDB_ARGS: --data-checksums
     ports:
-      - "127.0.0.1:5432:5432"
+      - "127.0.0.1:55432:5432"
     volumes:
       - eo_postgres_data:/var/lib/postgresql/data
     healthcheck:

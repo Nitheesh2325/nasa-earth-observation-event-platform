@@ -20,7 +20,7 @@ def _fixture(tmp_path: Path) -> Path:
         "expected_rows": 1,
         "load_artifact_rows": 1,
         "artifacts": [{
-            "path": artifact.as_posix(),
+            "path": "load_artifact/part-00000.json",
             "bytes": artifact.stat().st_size,
             "sha256": hashlib.sha256(artifact.read_bytes()).hexdigest(),
         }],

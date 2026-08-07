@@ -31,7 +31,7 @@ def artifact_entries(root: Path) -> list[dict[str, object]]:
     entries = []
     for path in sorted(item for item in root.rglob("*") if item.is_file() and not item.name.startswith(".")):
         entries.append({
-            "path": path.as_posix(),
+            "path": path.relative_to(root).as_posix(),
             "bytes": path.stat().st_size,
             "sha256": sha256_file(path),
         })

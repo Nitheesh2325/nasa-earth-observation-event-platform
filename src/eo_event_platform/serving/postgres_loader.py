@@ -91,20 +91,23 @@ def load_manifest(path: Path, *, expected_rows: int) -> tuple[dict[str, Any], st
         raise ValueError("manifest row count does not match the bounded gate")
     for artifact in manifest["artifacts"]:
         artifact_path = Path(artifact["path"])
+        if not artifact_path.is_absolute():
+            artifact_path = path.parent / artifact_path
         if not artifact_path.is_file():
             raise FileNotFoundError(artifact_path)
         if artifact_path.stat().st_size != artifact["bytes"]:
             raise ValueError(f"artifact size mismatch: {artifact_path}")
         if sha256_file(artifact_path) != artifact["sha256"]:
             raise ValueError(f"artifact checksum mismatch: {artifact_path}")
+    manifest["_manifest_root"] = path.parent.as_posix()
     return manifest, hashlib.sha256(raw).hexdigest()
 
 
 def iter_payloads(manifest: dict[str, Any]) -> Iterable[tuple[str]]:
     paths = sorted(
-        Path(item["path"])
+        Path(manifest["_manifest_root"]) / item["path"]
         for item in manifest["artifacts"]
-        if "/load_artifact/part-" in item["path"].replace("\\", "/")
+        if item["path"].replace("\\", "/").startswith("load_artifact/part-")
         and item["path"].endswith(".json")
     )
     if not paths:
@@ -148,7 +151,7 @@ def load(connection: psycopg.Connection[Any], manifest_path: Path, expected_rows
     for artifact in manifest["artifacts"]:
         connection.execute(
             "INSERT INTO load_control.loaded_artifact VALUES (%s,%s,%s,%s,%s)",
-            (load_run_id, artifact["path"], artifact["sha256"], artifact["bytes"], expected_rows if "/load_artifact/part-" in artifact["path"].replace("\\", "/") else 0),
+            (load_run_id, artifact["path"], artifact["sha256"], artifact["bytes"], expected_rows if artifact["path"].replace("\\", "/").startswith("load_artifact/part-") else 0),
         )
     connection.commit()
 
