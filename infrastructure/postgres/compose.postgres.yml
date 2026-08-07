@@ -1,0 +1,30 @@
+name: eo-postgres
+
+services:
+  postgres:
+    image: postgis/postgis@sha256:44126d872ac91993766c341e369c539e8196614321765d36a6f1bab0419a5fa5
+    container_name: eo-postgres
+    restart: "no"
+    environment:
+      POSTGRES_DB: eo_intelligence
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${EO_POSTGRES_PASSWORD:?EO_POSTGRES_PASSWORD is required}
+      POSTGRES_INITDB_ARGS: --data-checksums
+    ports:
+      - "127.0.0.1:5432:5432"
+    volumes:
+      - eo_postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d eo_intelligence"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+    deploy:
+      resources:
+        limits:
+          cpus: "2.0"
+          memory: 2G
+
+volumes:
+  eo_postgres_data:
+    name: eo_postgres_data

@@ -1,0 +1,1 @@
+"""Gold analytical product generation."""
