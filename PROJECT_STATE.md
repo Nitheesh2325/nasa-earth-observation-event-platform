@@ -2,7 +2,7 @@
 
 ## Current milestone
 
-Phase 6B - PostgreSQL/PostGIS 10,000-row serving gate complete; the 100,000-row serving gate is not approved.
+Phase 6C - PostgreSQL/PostGIS 100,000-row replay serving gate complete; the one-million serving gate is blocked pending storage-layout design approval.
 
 ## Current status
 
@@ -106,6 +106,15 @@ Phase 6B - PostgreSQL/PostGIS 10,000-row serving gate complete; the 100,000-row 
 - Least-privilege role checks, a rolled-back content-conflict probe, database checksums, relation sizes, query plans, and warm local latency were recorded.
 - Forty-four automated tests pass.
 - Kafka, Spark, and PostgreSQL are stopped. The PostgreSQL named volume is preserved.
+- The replay-aware serving verifier explicitly distinguishes event messages, original NASA detections, and synthetic rows; 46 automated tests pass.
+- Gold reconciled 100,000 accepted replay Silver rows to 100,000 Parquet and 100,000 load-artifact rows in 94.243 seconds.
+- PostgreSQL staged and inserted exactly 100,000 replay rows in 63.627 seconds; an identical-manifest rerun inserted zero.
+- Database verification found 100,000 unique replay event IDs, 10,000 unique detections, exactly ten events per detection, zero original-message claims, zero synthetic rows, and zero invalid geometries.
+- Replay sequence 0-99,999, iteration 1-10, scheduled boundaries, and 100,000 non-null parent IDs passed.
+- The database is 408,867,299 bytes; the event-detail relation is 385,294,336 bytes and the physical named volume is 888.2 MB including WAL and engine overhead.
+- Full payload JSONB duplication causes material TOAST storage; the next database scale gate requires an approved storage-layout A/B decision.
+- Docker Desktop's engine stopped after the successful Gold run; recovery proved exit code zero, no OOM, and complete reconciliation.
+- Kafka, Spark, and PostgreSQL are stopped. The 100,000-row PostgreSQL named volume is preserved.
 
 ## Approved mission
 
@@ -113,11 +122,11 @@ Build a professional batch and streaming data-engineering platform that processe
 
 ## Current gate
 
-Phase 6B is complete. Owner approval is required before any 100,000-row serving execution.
+Phase 6C is complete. Owner approval is required before storage-layout optimization work or any one-million-row serving execution.
 
 ## Next proposed milestone
 
-Phase 6C - design and execute the 100,000-row Gold/PostgreSQL serving gate from the preserved governed replay Silver dataset, with exact replay lineage disclosure, capacity comparison, index/query-plan evidence, idempotency, and laptop stop conditions. Do not start services before approval.
+Phase 6D - design and execute a bounded 100,000-row serving-storage A/B gate comparing the current full JSONB payload with an audit-safe compact projection. Preserve Gold authority, hashes, lineage, idempotency, and API query fields; record load time, relation/TOAST/WAL storage, query latency, and rebuild tradeoffs. Do not start services before approval.
 
 ## Known constraints
 

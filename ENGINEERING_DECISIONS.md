@@ -199,3 +199,13 @@
 **Decision:** Target PostgreSQL 16 and the RDS-compatible PostGIS 3.4 line. At implementation, pin the current supported PostgreSQL minor, exact PostGIS patch, and local image digest, then record the independently reported runtime versions.
 
 **Consequences:** Local and cloud behavior remain comparable and PostgreSQL 16 retains upstream support through November 2028. Minor and extension upgrades remain explicit compatibility events rather than floating changes.
+
+## ED-021: Measure serving payload duplication before the one-million gate
+
+**Status:** Accepted
+
+**Context:** The 100,000-row replay gate produced a 385.29-MB event-detail relation and an 888.2-MB physical volume. The main heap and indexes account for about 178.09 MB; full `event_payload` JSONB duplication drives substantial TOAST storage, while the load also produces WAL and engine overhead.
+
+**Decision:** Do not advance the PostgreSQL serving layer to one million rows until a bounded 100,000-row A/B gate compares the current full-payload layout with an audit-safe alternative, such as keeping canonical payload only in authoritative Gold and retaining materialized serving columns plus hashes and Gold object lineage in PostgreSQL.
+
+**Consequences:** The project avoids multiplying a measured storage inefficiency by ten or one hundred. Any optimized layout must retain event identity, truth classification, conflict detection, source lineage, rebuildability, and API requirements, and must publish before/after load, size, latency, and recovery tradeoffs.

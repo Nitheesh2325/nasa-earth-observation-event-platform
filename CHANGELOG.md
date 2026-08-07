@@ -1,5 +1,15 @@
 # Changelog
 
+## Phase 6C - PostgreSQL/PostGIS 100,000-row replay serving gate
+
+- Parameterized serving verification with explicit original, replay, synthetic, and unique-detection expectations.
+- Passed 46 automated tests, including the 100,000-message/10,000-detection replay truth contract.
+- Reconciled 100,000 Silver replay rows to Gold Parquet and the database bulk-load artifact.
+- Loaded and read back exactly 100,000 PostGIS rows; the identical manifest rerun inserted zero rows.
+- Verified replay sequence, iteration, parent lineage, spatial integrity, aggregate counts, roles, content-conflict rollback, index plans, latency, storage, and resources.
+- Recorded Docker Desktop's post-job engine interruption without misclassifying the successful, exit-zero Gold job.
+- Blocked the one-million database gate pending a measured storage-layout A/B decision for JSONB/TOAST and WAL amplification.
+
 ## Phase 6B - PostgreSQL/PostGIS 10,000-row serving gate
 
 - Added a digest-pinned, localhost-only PostgreSQL/PostGIS service with bounded CPU, memory, shared buffers, and connections.

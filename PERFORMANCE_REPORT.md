@@ -1,5 +1,17 @@
 # Performance Report
 
+## PostgreSQL/PostGIS 100,000-row replay serving gate
+
+- Gold transformation: 100,000 replay Silver rows to reconciled Gold Parquet and load artifact in 94.243 seconds (1,061.09 rows/second).
+- Database bulk load: 100,000 staged and inserted rows in 63.627 seconds (1,571.65 rows/second).
+- Identical-manifest rerun: zero inserts and 100,000 already-present rows.
+- Truth: 100,000 unique replay event messages, 10,000 unique underlying NASA detections, zero original-message claims, and zero synthetic rows.
+- Database size: 408,867,299 bytes; event-detail total: 385,294,336 bytes; physical named volume: 888.2 MB including WAL and engine overhead.
+- Warm local p95: daily aggregate 2.727 ms, lineage 3.841 ms, spatial bounding box 6.756 ms, and source summary 12.479 ms.
+- One lineage p99 sample reached 1,100.932 ms despite a 0.111-ms measured plan execution; the outlier is retained as local host/runtime noise.
+- Full JSONB duplication caused material TOAST and WAL amplification and must be evaluated before the one-million gate.
+- Full evidence: `reports/quality/POSTGIS_100000_SERVING_GATE.md`.
+
 ## PostgreSQL/PostGIS 10,000-row serving gate
 
 - Gold transformation: 10,000 Silver rows to reconciled Gold Parquet and load artifact in 22.243 seconds.
