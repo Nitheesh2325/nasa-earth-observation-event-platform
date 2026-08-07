@@ -141,6 +141,14 @@ def run(connection: psycopg.Connection[Any], expected_rows: int) -> dict[str, An
         if conflict_count != 1:
             raise RuntimeError("compact hash conflict probe failed")
 
+    connection.commit()
+    connection.autocommit = True
+    maintenance_started = time.perf_counter()
+    connection.execute("VACUUM (ANALYZE) serving.event_detail")
+    connection.execute("VACUUM (ANALYZE) serving.event_detail_compact")
+    maintenance_seconds = time.perf_counter() - maintenance_started
+    connection.autocommit = False
+
     return {
         "control_rows": full_rows,
         "compact_rows": compact_rows,
@@ -155,6 +163,7 @@ def run(connection: psycopg.Connection[Any], expected_rows: int) -> dict[str, An
             "replay": truth[3], "synthetic": truth[4], "invalid_geometry": truth[5],
         },
         "content_conflicts_detected": conflict_count,
+        "fairness_maintenance_seconds": maintenance_seconds,
         "sizes": {
             "full": relation_sizes(connection, FULL_TABLE),
             "compact": relation_sizes(connection, COMPACT_TABLE),
