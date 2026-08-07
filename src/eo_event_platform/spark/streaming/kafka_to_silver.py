@@ -5,6 +5,7 @@ from __future__ import annotations
 import argparse
 import json
 import time
+import uuid
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -106,6 +107,7 @@ def run_available_now(stream: DataFrame, *, output_path: Path, checkpoint_path: 
 def run_streaming(args: argparse.Namespace) -> dict[str, object]:
     started_at = datetime.now(timezone.utc)
     started_clock = time.perf_counter()
+    execution_id = str(uuid.uuid4())
     producer_manifest_path = Path(args.producer_manifest)
     producer_manifest = json.loads(producer_manifest_path.read_text(encoding="utf-8"))
     if producer_manifest.get("status") != "SUCCEEDED" or not producer_manifest.get("reconciled"):
@@ -193,8 +195,12 @@ def run_streaming(args: argparse.Namespace) -> dict[str, object]:
         if not offsets_reconciled:
             raise RuntimeError("streaming Kafka offsets do not reconcile")
 
+        landing_input_rows = sum(int(item.get("numInputRows", 0)) for item in landing_progress)
+        accepted_source_input_rows = sum(int(item.get("numInputRows", 0)) for item in accepted_progress)
+        rejected_source_input_rows = sum(int(item.get("numInputRows", 0)) for item in rejected_progress)
         manifest = {
             "streaming_run_id": args.streaming_run_id,
+            "execution_id": execution_id,
             "status": "SUCCEEDED",
             "job_name": JOB_NAME,
             "pipeline_version": args.pipeline_version,
@@ -223,13 +229,17 @@ def run_streaming(args: argparse.Namespace) -> dict[str, object]:
             "landing_progress": landing_progress,
             "accepted_progress": accepted_progress,
             "rejected_progress": rejected_progress,
+            "landing_input_rows_this_execution": landing_input_rows,
+            "accepted_source_input_rows_this_execution": accepted_source_input_rows,
+            "rejected_source_input_rows_this_execution": rejected_source_input_rows,
+            "checkpoint_restart_no_new_input": landing_input_rows == 0 and accepted_source_input_rows == 0 and rejected_source_input_rows == 0,
             "started_at": started_at.isoformat(),
             "completed_at": datetime.now(timezone.utc).isoformat(),
             "duration_seconds": time.perf_counter() - started_clock,
             "shuffle_partitions": args.shuffle_partitions,
             "max_offsets_per_trigger": args.max_offsets_per_trigger,
         }
-        manifest_path = Path(args.manifest_root) / f"run_date={started_at.date()}" / f"{args.streaming_run_id}.json"
+        manifest_path = Path(args.manifest_root) / f"run_date={started_at.date()}" / f"streaming_run_id={args.streaming_run_id}" / f"{execution_id}.json"
         write_json_atomically(manifest_path, manifest)
         return {**manifest, "manifest_path": manifest_path.as_posix()}
     finally:
