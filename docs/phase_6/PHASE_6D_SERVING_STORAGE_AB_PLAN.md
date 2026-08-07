@@ -2,7 +2,7 @@
 
 ## Status
 
-Approved for a bounded 100,000-row local comparison. No one-million-row work is authorized.
+Complete. Compact layout B passed the bounded 100,000-row comparison and is selected for a separate production-loader implementation gate. No one-million-row work is authorized.
 
 ## Objective
 

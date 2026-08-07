@@ -1,5 +1,16 @@
 # Performance Report
 
+## PostgreSQL/PostGIS 100,000-row storage A/B gate
+
+- Compact B retained 47 materialized columns and removed only duplicated `event_payload` JSONB.
+- All 100,000 rows were identical after excluding only that field; missing rows and identity/hash/lineage mismatches were zero.
+- Total relation size fell from 385,294,336 to 178,126,848 bytes, saving 207,167,488 bytes or 53.77%.
+- TOAST fell from 207,142,912 bytes to 8,192 bytes, approximately a 99.996% reduction.
+- After equal `VACUUM (ANALYZE)`, compact p95 versus full p95 was 18.700 versus 17.247 ms for summary, 9.618 versus 10.851 ms for spatial, and 3.366 versus 4.332 ms for lineage.
+- Compact B met the maximum 20% p95 regression rule and is selected for direct-loader implementation.
+- The 13.503-second `INSERT ... SELECT` materialization is not a direct Gold bulk-load benchmark.
+- Full evidence: `reports/quality/POSTGIS_100000_STORAGE_AB_GATE.md`.
+
 ## PostgreSQL/PostGIS 100,000-row replay serving gate
 
 - Gold transformation: 100,000 replay Silver rows to reconciled Gold Parquet and load artifact in 94.243 seconds (1,061.09 rows/second).

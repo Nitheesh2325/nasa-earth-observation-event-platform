@@ -2,7 +2,7 @@
 
 ## Current milestone
 
-Phase 6C - PostgreSQL/PostGIS 100,000-row replay serving gate complete; the one-million serving gate is blocked pending storage-layout design approval.
+Phase 6D - 100,000-row serving storage A/B gate complete; compact direct-loader implementation is not approved.
 
 ## Current status
 
@@ -115,6 +115,14 @@ Phase 6C - PostgreSQL/PostGIS 100,000-row replay serving gate complete; the one-
 - Full payload JSONB duplication causes material TOAST storage; the next database scale gate requires an approved storage-layout A/B decision.
 - Docker Desktop's engine stopped after the successful Gold run; recovery proved exit code zero, no OOM, and complete reconciliation.
 - Kafka, Spark, and PostgreSQL are stopped. The 100,000-row PostgreSQL named volume is preserved.
+- The full-payload and compact layouts reconciled 100,000 rows with zero differences after excluding only `event_payload`.
+- Compact retained 47 materialized fields, 15 constraints, 6 indexes, governed hashes, Gold identity, raw lineage, and PostGIS geometry.
+- Total relation storage decreased from 385,294,336 to 178,126,848 bytes, a 53.77% reduction.
+- TOAST storage decreased from 207,142,912 bytes to 8,192 bytes, approximately 99.996%.
+- After equal vacuum/analyze maintenance, compact p95 was 18.700 ms summary, 9.618 ms spatial, and 3.366 ms lineage; all met the 20% regression bound.
+- Compact layout B is selected, but the production loader and canonical serving table still use layout A.
+- Forty-seven automated tests pass.
+- PostgreSQL, Spark, and Kafka are stopped. The A/B database volume is preserved.
 
 ## Approved mission
 
@@ -122,11 +130,11 @@ Build a professional batch and streaming data-engineering platform that processe
 
 ## Current gate
 
-Phase 6C is complete. Owner approval is required before storage-layout optimization work or any one-million-row serving execution.
+Phase 6D is complete. Owner approval is required before changing the production schema/loader or executing any one-million-row gate.
 
 ## Next proposed milestone
 
-Phase 6D - design and execute a bounded 100,000-row serving-storage A/B gate comparing the current full JSONB payload with an audit-safe compact projection. Preserve Gold authority, hashes, lineage, idempotency, and API query fields; record load time, relation/TOAST/WAL storage, query latency, and rebuild tradeoffs. Do not start services before approval.
+Phase 6E - implement a clean compact-only production schema and direct manifest-governed Gold loader, then repeat the 100,000-row replay gate from an empty database with reconciliation, idempotency, conflict rollback, storage, query, rebuild, and resource evidence. Do not start services before approval.
 
 ## Known constraints
 

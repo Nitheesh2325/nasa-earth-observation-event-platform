@@ -209,3 +209,13 @@
 **Decision:** Do not advance the PostgreSQL serving layer to one million rows until a bounded 100,000-row A/B gate compares the current full-payload layout with an audit-safe alternative, such as keeping canonical payload only in authoritative Gold and retaining materialized serving columns plus hashes and Gold object lineage in PostgreSQL.
 
 **Consequences:** The project avoids multiplying a measured storage inefficiency by ten or one hundred. Any optimized layout must retain event identity, truth classification, conflict detection, source lineage, rebuildability, and API requirements, and must publish before/after load, size, latency, and recovery tradeoffs.
+
+## ED-022: Select a compact PostgreSQL projection and keep full payload authority in Gold
+
+**Status:** Accepted
+
+**Context:** The controlled 100,000-row A/B gate found zero row differences after removing only `event_payload`, equal constraints and indexes, and zero hash or lineage mismatches. Compact storage was 178.13 MB versus 385.29 MB, while maintained query p95 stayed within the approved regression bound.
+
+**Decision:** Select the compact layout for the future production serving table. Retain complete canonical payload in checksum-governed Gold rather than duplicating it as JSONB in every PostgreSQL row. PostgreSQL retains all materialized serving fields, geometry, `event_id`, `governed_content_hash`, `gold_run_id`, raw lineage, and processing metadata.
+
+**Consequences:** Measured relation storage falls 53.77% and JSONB TOAST duplication is almost eliminated. A clean direct-loader and rebuild gate is required before replacing the existing serving table or advancing to one million rows; the A/B materialization time is not presented as direct-load performance.

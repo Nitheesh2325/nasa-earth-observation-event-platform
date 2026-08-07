@@ -1,5 +1,15 @@
 # Changelog
 
+## Phase 6D - PostgreSQL/PostGIS 100,000-row storage A/B gate
+
+- Added an isolated compact candidate, controlled A/B plan, structural migration, parity verifier, and atomic local evidence output.
+- Passed 47 automated tests.
+- Proved 100,000-row equality after removing only duplicated `event_payload`, with zero missing rows or hash/lineage mismatches.
+- Verified equal constraint and index counts, replay truth, geometry, read-only grants, idempotent materialization, and conflict detection.
+- Reduced total relation storage 53.77% and TOAST approximately 99.996%.
+- Corrected an initially unfair pre-vacuum query comparison and encoded equal `VACUUM (ANALYZE)` maintenance into the benchmark.
+- Selected compact layout B for direct-loader implementation while keeping the one-million gate blocked.
+
 ## Phase 6C - PostgreSQL/PostGIS 100,000-row replay serving gate
 
 - Parameterized serving verification with explicit original, replay, synthetic, and unique-detection expectations.
