@@ -1,5 +1,24 @@
 # Performance Report
 
+## 1,000,000-Message Structured Streaming Gate
+
+**Status:** Passed
+
+| Metric | Value |
+|---|---:|
+| Bronze / Silver | 1,000,000 / 1,000,000 |
+| Rejected / duplicate | 0 / 0 |
+| First execution | 1,967.873 seconds |
+| Logical throughput | 508.16 messages/second |
+| Maximum / final lag | 167,408 / 0 |
+| State maximum | 144,992 rows / 58,680,528 bytes |
+| Watermark-dropped rows | 0 |
+| Independent verification | 255.385 seconds |
+| Checkpoint recovery | 156.178 seconds / zero new input |
+| Peak observed Spark memory | 3.600 GiB / 4 GiB |
+
+The run wrote 246 Bronze files (417,298,297 bytes), 1,312 Silver files (483,632,931 bytes), and 41 empty-outcome rejected files (231,404 bytes). The very small Silver files and 90% sampled memory utilization make five-million local streaming execution inappropriate. A failed verifier attempt exposed a batch-only schema assumption; explicit batch/streaming verification profiles corrected it without changing output.
+
 ## 1,000,000-Message Kafka Replay Gate
 
 **Status:** Passed

@@ -1,5 +1,16 @@
 # Changelog
 
+## Phase 6G.4 - One-million Structured Streaming gate
+
+- Verified every preserved producer start/end offset remained available before launching the digest-pinned Spark-Kafka runtime.
+- Processed exactly one million messages into one million Bronze and Silver rows with zero rejected or duplicate outcomes and exact offsets.
+- Recorded 41 nonempty microbatches per query, lag, watermark, state-store, runtime, throughput, file, disk, and sampled resource evidence.
+- Preserved a failed independent verification attempt that exposed an invalid batch-only schema assumption for streaming Silver.
+- Added explicit batch and streaming verifier profiles and independently verified truth, detection frequency, sequences, iterations, coordinates, and statuses.
+- Proved same-checkpoint zero-input recovery with unchanged counts, files, bytes, offsets, and Silver truth.
+- Recorded 1,312 tiny Silver files and 90% sampled Spark memory as blockers for larger local streaming gates.
+- Stopped Kafka and Spark while preserving checkpoints and Kafka volume; all fifty-four tests pass and local cloud cost remains zero.
+
 ## Phase 6G.3 - One-million Kafka gate
 
 - Published the checksum-admitted one-million replay artifact to a fresh six-partition Kafka boundary with one million acknowledgements, zero delivery failures, and exact offset reconciliation.

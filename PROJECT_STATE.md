@@ -2,7 +2,7 @@
 
 ## Current milestone
 
-Phase 6G.3 - one-million-message Kafka publication and diagnostic-consumption gate complete.
+Phase 6G.4 - one-million-message Spark Structured Streaming and recovery gate complete.
 
 ## Current status
 
@@ -153,6 +153,15 @@ Phase 6G.3 - one-million-message Kafka publication and diagnostic-consumption ga
 - The Kafka volume uses 1,580,538,375 bytes including prior history, indexes, metadata, compression, and allocated segments.
 - Fifty-four automated tests pass.
 - Kafka is stopped with its volume and exact Phase 6G.3 offsets preserved; PostgreSQL and Spark are stopped.
+- The digest-pinned Spark-Kafka runtime processed only the preserved one-million producer boundary into 1,000,000 Bronze and 1,000,000 Silver rows with zero rejected or duplicate outcomes.
+- First streaming execution duration was 1,967.873 seconds; all three queries ended at zero lag and exact producer offsets.
+- The accepted state store updated one million rows, peaked at 144,992 retained rows and 58,680,528 bytes, removed 880,000 rows after watermark advancement, and dropped zero records by the watermark.
+- Independent streaming-profile verification proved unique events and sequences, detection frequency, replay iterations, schedule, classification, lineage, and broker/status parity.
+- A failed verifier attempt exposed and preserved a batch-versus-streaming schema assumption; the corrected verifier now has explicit profiles.
+- Same-checkpoint recovery consumed zero new rows in all queries and preserved all counts, files, bytes, offsets, and truth.
+- Streaming produced 246 Bronze, 1,312 Silver, and 41 rejected Parquet files; Gold compaction is mandatory.
+- Peak observed Spark memory was 3.600 GiB of 4 GiB, prohibiting a larger local streaming claim without a new capacity decision.
+- Fifty-four automated tests pass. Kafka, Spark, and PostgreSQL are stopped; Kafka and checkpoint evidence remain preserved.
 
 ## Approved mission
 
@@ -160,11 +169,11 @@ Build a professional batch and streaming data-engineering platform that processe
 
 ## Current gate
 
-Phase 6G.3 is complete. Standing owner approval authorizes Phase 6G.4, subject to offset-retention, Spark/Kafka resource, checkpoint, watermark, lag, restart, and truth reconciliation rules.
+Phase 6G.4 is complete. Standing owner approval authorizes Phase 6G.5, subject to governed Gold manifest, checksum, compaction, truth, read-back, resource, and runtime reconciliation rules.
 
 ## Next proposed milestone
 
-Phase 6G.4 - process only the preserved one-million producer offset boundary through the digest-pinned Spark Structured Streaming runtime, reconcile Bronze/Silver/rejected/duplicate outcomes, verify truth independently, and prove same-checkpoint zero-input recovery. Keep PostgreSQL stopped.
+Phase 6G.5 - build compact governed Gold and its database load artifact from the admitted 32-file one-million batch Silver output, then reconcile manifest checksums, counts, truth, file layout, runtime, and resources. Keep Kafka and PostgreSQL stopped.
 
 ## Known constraints
 

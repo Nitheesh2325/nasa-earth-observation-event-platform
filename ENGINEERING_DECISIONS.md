@@ -249,3 +249,13 @@
 **Decision:** Require explicit expected source type, synthetic count, underlying detection count, and replay factor. Make success depend on exact offset totals, unique event IDs, zero duplicates, valid JSON, present IDs, key/lineage equality, source classification, synthetic flags, detection frequency, and complete replay sequence and iteration ranges.
 
 **Consequences:** Diagnostic manifests are now enforceable gates rather than informational summaries. Verification retains event identities and sequences in memory for the bounded local million-record run; larger-scale diagnostics should move these checks to Spark or another distributed state engine rather than increasing local Python memory without measurement.
+
+## ED-026: Verify Silver against explicit execution profiles
+
+**Status:** Accepted
+
+**Context:** Batch Silver adds processing and partition-derived fields, while streaming Silver preserves Kafka broker coordinates and streaming validation state. Reusing a batch-only verifier against streaming output failed on the absent `event_date` column even though the streaming job's own reconciliation had passed.
+
+**Decision:** Require the independent Silver verifier to select an explicit `batch` or `streaming` profile. Apply common identity, truth, frequency, replay-range, schedule, and lineage checks to both. Apply derived-field completeness to batch and broker-coordinate plus streaming-status parity to streaming.
+
+**Consequences:** Independent verification now tests the intended contract rather than accidental schema overlap, and schema drift fails with a named missing-column error. The first failed verification attempt remains documented. Additional distributed verification passes increase runtime, especially over streaming small files, but provide stronger evidence than trusting the producing job alone.
