@@ -4,14 +4,12 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from eo_event_platform.serving.postgres_loader import INSERT_EVENT_SQL, iter_payloads, load_manifest
-
-
-def test_direct_insert_targets_compact_projection() -> None:
-    destination_columns = INSERT_EVENT_SQL.split(")\nSELECT", maxsplit=1)[0]
-
-    assert "event_payload" not in destination_columns
-    assert "governed_content_hash" in destination_columns
+from eo_event_platform.serving.postgres_loader import (
+    INSERT_EVENT_SQL,
+    iter_payloads,
+    load_manifest,
+    reconcile_idempotent_rows,
+)
 
 
 def _fixture(tmp_path: Path) -> Path:
@@ -38,6 +36,16 @@ def _fixture(tmp_path: Path) -> Path:
 
 
 class PostgresLoaderTests(unittest.TestCase):
+    def test_direct_insert_targets_compact_projection(self) -> None:
+        destination_columns = INSERT_EVENT_SQL.split(")\nSELECT", maxsplit=1)[0]
+        self.assertNotIn("event_payload", destination_columns)
+        self.assertIn("governed_content_hash", destination_columns)
+
+    def test_idempotency_requires_persisted_gold_rows(self) -> None:
+        reconcile_idempotent_rows(100_000, 100_000)
+        with self.assertRaisesRegex(RuntimeError, "successful load metadata exists"):
+            reconcile_idempotent_rows(0, 100_000)
+
     def test_manifest_and_payload_are_admitted(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             manifest, key = load_manifest(_fixture(Path(directory)), expected_rows=1)

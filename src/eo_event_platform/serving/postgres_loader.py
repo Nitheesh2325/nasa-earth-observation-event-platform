@@ -123,13 +123,27 @@ def apply_migration(connection: psycopg.Connection[Any], migration_path: Path) -
     connection.execute(migration_path.read_text(encoding="utf-8"))
 
 
+def reconcile_idempotent_rows(persisted_rows: int, expected_rows: int) -> None:
+    if persisted_rows != expected_rows:
+        raise RuntimeError(
+            f"successful load metadata exists but serving rows are {persisted_rows}, expected {expected_rows}"
+        )
+
+
 def load(connection: psycopg.Connection[Any], manifest_path: Path, expected_rows: int) -> dict[str, Any]:
     manifest, idempotency_key = load_manifest(manifest_path, expected_rows=expected_rows)
     existing = connection.execute(
-        "SELECT load_run_id, inserted_rows FROM load_control.database_load_run WHERE idempotency_key = %s AND status = 'SUCCEEDED'",
+        """SELECT load_run_id, inserted_rows, gold_run_id
+           FROM load_control.database_load_run
+           WHERE idempotency_key = %s AND status = 'SUCCEEDED'""",
         (idempotency_key,),
     ).fetchone()
     if existing:
+        persisted_rows = connection.execute(
+            "SELECT count(*) FROM serving.event_detail WHERE gold_run_id = %s",
+            (existing[2],),
+        ).fetchone()[0]
+        reconcile_idempotent_rows(persisted_rows, expected_rows)
         return {"load_run_id": str(existing[0]), "inserted_rows": 0, "already_present_rows": expected_rows, "idempotent_noop": True}
 
     started = datetime.now(timezone.utc)
