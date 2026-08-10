@@ -4,7 +4,7 @@ from eo_event_platform.serving.verify import expected_truth_counts
 
 
 class VerifyTruthContractTests(unittest.TestCase):
-    def test_replay_gate_distinguishes_messages_from_detections(self) -> None:
+    def test_million_replay_gate_distinguishes_messages_from_detections(self) -> None:
         self.assertEqual(
             {
                 "rows": 100_000,
@@ -33,3 +33,15 @@ class VerifyTruthContractTests(unittest.TestCase):
                 replay=99,
                 synthetic=0,
             )
+
+    def test_replay_gate_distinguishes_messages_from_detections(self) -> None:
+        result = expected_truth_counts(
+            rows=1_000_000,
+            unique_detections=10_000,
+            original=0,
+            replay=1_000_000,
+            synthetic=0,
+        )
+
+        self.assertEqual(1_000_000, result["replay"])
+        self.assertEqual(10_000, result["unique_detections"])
