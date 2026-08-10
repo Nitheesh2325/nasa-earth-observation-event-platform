@@ -2,11 +2,19 @@
 
 ## Current milestone
 
-Phase 7 - Airflow orchestration and operational metadata complete.
+Phase 8A - Version 1.0 FastAPI read-only serving layer complete.
 
 ## Current status
 
 - `AGENTS.md` is the active repository instruction file.
+- FastAPI 0.139.2 and Uvicorn 0.51.0 provide the bounded Version 1.0 read-only API surface.
+- Five GET-only routes cover readiness, platform truth summary, activity-time daily aggregates, paginated detection lineage, and bounded GeoJSON bounding-box search.
+- Request and response schemas reject unknown parameters, invalid coordinates, inverted boxes, ranges over policy limits, malformed cursors, and excessive limits.
+- `eo_api_runtime` is a non-owner, nonsuperuser login inheriting only `eo_api_readonly`; read-only transactions and a 15-second statement timeout are role defaults.
+- INSERT, UPDATE, DELETE, and CREATE attempts through the API role all fail with read-only transaction errors.
+- A Phase 6 compatibility migration preserves the original observation-date aggregate and adds a separate activity-date aggregate maintained by the existing loader.
+- The bounded spatial endpoint uses the existing `event_detail_geometry_gist_idx`; the final exact-predicate plan completed in 0.720 ms.
+- Seven API unit tests and four one-million-row PostgreSQL integration tests pass.
 - One Airflow 3.3.0 DAG now orchestrates the approved batch vertical slice in the fixed extraction-to-verification order.
 - The DAG has bounded parameters, stable logical-date-derived run identities, bounded retries, explicit task and DAG timeouts, `all_success` failure propagation, and one active run.
 - Atomic operational manifests record stage attempts, states, durations, checksums, reconciliation, and same-identity rerun reuse outside Git.

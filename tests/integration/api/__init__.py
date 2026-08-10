@@ -1,0 +1,1 @@
+"""FastAPI/PostgreSQL integration tests."""

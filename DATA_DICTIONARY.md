@@ -31,6 +31,8 @@ Version 1 baseline. Field definitions will be expanded only when their implement
 | `processing_timestamp` | UTC time at which Spark processed the record into Silver |
 | `kafka_timestamp` | Kafka record timestamp when the streaming path is used |
 | `scheduled_replay_timestamp` | Deterministic planned replay time; not an actual producer or broker performance measurement |
+| `activity_timestamp` | API and operational activity time: `scheduled_replay_timestamp` for replay messages, otherwise `event_timestamp` |
+| `activity_date` | UTC date derived from `activity_timestamp`; distinct from the preserved observation-derived `event_date` |
 
 ## Location and measurements
 
@@ -84,3 +86,5 @@ The canonical event contract under `contracts/events/v1/` is authoritative for r
 | `synthetic_message_count` | Event messages classified `SYNTHETIC_SCALE_TEST` |
 
 Gold Parquet remains authoritative. PostgreSQL/PostGIS is a rebuildable compact serving projection and materializes SRID-4326 point geometry from governed longitude and latitude. The database retains explicit governed fields, hashes, and Gold lineage; it does not duplicate the complete canonical payload as per-row JSONB.
+
+`serving.dataset_daily_summary` retains its Phase 6 observation-date grain. `serving.dataset_activity_daily_summary` uses activity date, dataset, and source type for the Phase 8 API. Neither table changes event truth: counts always distinguish event messages, unique events, underlying detections, original messages, replay messages, and explicitly synthetic messages.

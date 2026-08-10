@@ -9,9 +9,14 @@ description = "NASA Earth Observation batch and streaming data engineering platf
 requires-python = ">=3.12"
 dependencies = [
     "confluent-kafka==2.15.0",
+    "fastapi==0.139.2",
     "psycopg[binary]==3.3.4",
     "pyspark==4.0.2",
+    "uvicorn==0.51.0",
 ]
+
+[project.optional-dependencies]
+test = ["httpx==0.28.1"]
 
 [tool.setuptools.packages.find]
 where = ["src"]

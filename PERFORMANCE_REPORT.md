@@ -339,6 +339,26 @@ The official `apache/airflow:3.3.0-python3.12` Linux image executed the complete
 
 The Airflow wall intervals run from DAG creation logging to the final successful state and include local task-runner/API overhead. Docker image startup and initial metadata migration are excluded. The receipt timer covers only the deterministic integration stage body; it must not be compared with NASA, Spark, Gold, or PostgreSQL processing throughput. The same logical date and parameters produced orchestration ID `d0ccaf3e94455f2e03e76de99773f1119e5d62ea5fb958062c062c4d3b73195e`; the final rerun retained every successful stage at attempt one.
 
+## Phase 8A FastAPI Read-Only Gate
+
+**Status:** Passed
+
+Thirty warm in-process, single-client ASGI requests per endpoint were measured against the preserved one-million-row compact PostgreSQL/PostGIS database. Each sample includes request validation, connection establishment, parameterized SQL, response validation, and JSON serialization; it excludes TCP/Uvicorn network transport and production concurrency.
+
+| Endpoint workload | p50 | p95 | p99 |
+|---|---:|---:|---:|
+| Readiness | 30.965 ms | 47.902 ms | 52.219 ms |
+| Platform summary | 45.025 ms | 49.132 ms | 50.350 ms |
+| Activity daily aggregate | 40.422 ms | 47.720 ms | 54.693 ms |
+| Detection lineage, 100 events | 45.800 ms | 53.968 ms | 57.464 ms |
+| Spatial bounding box, limit 100 | 45.822 ms | 56.835 ms | 58.517 ms |
+
+The exact bounding-box `EXPLAIN (ANALYZE, BUFFERS, FORMAT JSON)` used `event_detail_geometry_gist_idx`; planning took 8.704 ms and execution took 0.720 ms. The activity-time aggregate reconciled one million replay messages, one million unique events, 10,000 underlying detections, and zero synthetic messages on 2026-08-08.
+
+The API role was `eo_api_runtime`, inherited `eo_api_readonly`, was not a superuser, database owner, database creator, or role creator, and had `default_transaction_read_only=on` plus `statement_timeout=15s`. SELECT succeeded while INSERT, UPDATE, DELETE, and CREATE were rejected. These local single-client results do not establish network, concurrency, saturation, TLS, or cloud latency.
+
+The activity aggregate occupied 32,768 bytes and the activity-time seek index occupied 122,724,352 bytes. Final database size was 1,902,440,931 bytes. The stopped-service snapshot showed 583.7 MiB PostgreSQL memory of the 2-GiB limit; this idle snapshot is not a peak measurement.
+
 ## 100,000-Record Compact PostgreSQL Direct-Load Gate
 
 **Status:** Passed

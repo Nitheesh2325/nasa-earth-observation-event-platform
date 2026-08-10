@@ -226,6 +226,23 @@ def load(connection: psycopg.Connection[Any], manifest_path: Path, expected_rows
                    GROUP BY event_timestamp::date, source_dataset, source_type""",
                 (manifest["gold_run_id"], manifest["gold_run_id"]),
             )
+            connection.execute(
+                "DELETE FROM serving.dataset_activity_daily_summary WHERE gold_run_id = %s",
+                (manifest["gold_run_id"],),
+            )
+            connection.execute(
+                """INSERT INTO serving.dataset_activity_daily_summary
+                   SELECT %s, COALESCE(scheduled_replay_timestamp,event_timestamp)::date,
+                     source_dataset, source_type, count(*), count(DISTINCT event_id),
+                     count(DISTINCT detection_id),
+                     count(*) FILTER (WHERE source_type='NASA_ORIGINAL'),
+                     count(*) FILTER (WHERE source_type='NASA_REPLAY'),
+                     count(*) FILTER (WHERE source_type='SYNTHETIC_SCALE_TEST'), clock_timestamp()
+                   FROM serving.event_detail WHERE gold_run_id=%s
+                   GROUP BY COALESCE(scheduled_replay_timestamp,event_timestamp)::date,
+                     source_dataset, source_type""",
+                (manifest["gold_run_id"], manifest["gold_run_id"]),
+            )
             connection.execute("DELETE FROM serving.detection_lineage_summary WHERE gold_run_id = %s", (manifest["gold_run_id"],))
             connection.execute(
                 """INSERT INTO serving.detection_lineage_summary
@@ -239,6 +256,7 @@ def load(connection: psycopg.Connection[Any], manifest_path: Path, expected_rows
             )
             connection.execute("ANALYZE serving.event_detail")
             connection.execute("ANALYZE serving.dataset_daily_summary")
+            connection.execute("ANALYZE serving.dataset_activity_daily_summary")
             connection.execute("ANALYZE serving.detection_lineage_summary")
             completed = datetime.now(timezone.utc)
             duration = time.perf_counter() - clock

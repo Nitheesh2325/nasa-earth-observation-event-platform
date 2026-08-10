@@ -289,3 +289,13 @@
 **Decision:** Pin Airflow 3.3.0 with its official Python 3.12 constraints and execute DAG parsing, contract tests, and local `dag.test()` in the official `apache/airflow:3.3.0-python3.12` Linux image. Keep the Airflow application environment separate from the verified project environment. Use ignored SQLite only for the bounded local integration gate, not as a production metadata-database claim.
 
 **Consequences:** Phase 7 uses a supported runtime without adding a provider, plugin, scheduler service, or architecture branch. Container startup materially dominates the four-record orchestration gate and is reported separately from compact stage-receipt durations. A deployed Airflow environment will require its production metadata database and executor configuration in the later approved deployment work.
+
+## ED-030: Separate observation-date and activity-date serving aggregates
+
+**Status:** Accepted
+
+**Context:** Phase 6 correctly grouped `dataset_daily_summary` by NASA observation date. Controlled replay messages retain that observation timestamp but are operationally active at `scheduled_replay_timestamp`. Reusing the observation-date aggregate for the Phase 8 API would falsely label April observations as August replay activity, while grouping one million detail rows per request exceeded the bounded API statement timeout.
+
+**Decision:** Preserve `dataset_daily_summary` unchanged as the observation-time contract. Add `dataset_activity_daily_summary` at Gold-run, activity date, dataset, and source-type grain, where activity time is `coalesce(scheduled_replay_timestamp,event_timestamp)`. Maintain it transactionally in the existing PostgreSQL loader. Add one B-tree expression index on activity time plus event ID for bounded filtering and seek pagination. Keep the existing GiST geometry index as the spatial access path.
+
+**Consequences:** The API reports replay activity truthfully without changing completed Phase 6 evidence or inventing a new analytics framework. The one-million preserved dataset reconciles to one activity-date row containing one million replay messages, 10,000 detections, and zero synthetic messages. Future loads perform one additional governed aggregate write and `ANALYZE` step.

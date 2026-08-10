@@ -1,5 +1,16 @@
 # Changelog
 
+## Phase 8A - FastAPI read-only serving layer
+
+- Added FastAPI 0.139.2 and Uvicorn 0.51.0 with explicit request, response, pagination, GeoJSON, truth-classification, and activity-time contracts.
+- Added five GET-only endpoints for readiness, platform summary, activity-date daily aggregates, detection lineage, and bounded PostGIS search.
+- Added a non-owner API login with inherited read-only privileges, forced read-only transactions, a bounded statement timeout, and no committed credential.
+- Preserved the Phase 6 observation-date aggregate while adding and loader-maintaining a separate activity-date aggregate required for replay semantics.
+- Added an activity-time seek index and verified the existing GiST geometry index in the bounded spatial plan.
+- Preserved failed integration attempts that exposed a five-second cold-summary timeout, observation/activity aggregate mismatch, and missing PostGIS schema usage; corrected only those verified compatibility defects.
+- Passed seven API unit tests, four one-million-row PostgreSQL integration tests, and the complete regression suite.
+- Recorded 30-sample endpoint latency, role permissions, query-plan evidence, source truth, limits, and limitations; stopped PostgreSQL afterward.
+
 ## Phase 7 - Airflow orchestration and operational metadata
 
 - Added one Airflow 3.3.0 TaskFlow DAG with the fixed extraction, canonicalization, replay, Spark, Gold, PostgreSQL, verification, and finalization chain.
