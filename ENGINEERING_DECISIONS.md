@@ -269,3 +269,13 @@
 **Decision:** Version the Gold contract to 1.1 and allow multiple database load JSON parts. Record exact bytes, SHA-256, and newline row count for every load part, and require the loader to reconcile the sum of declared part rows to the expected manifest count before staging. Record requested Spark partitions separately from observed physical data-file counts. Preserve read compatibility with version 1.0 manifests that contain exactly one undeclared-row load part.
 
 **Consequences:** One-million Gold can use bounded load artifacts without changing event grain, content hashes, PostgreSQL staging semantics, or Gold authority. A missing, invalid, or unreconciled part-row declaration fails before database modification. Existing successful 10,000- and 100,000-row manifests remain loadable.
+
+## ED-028: End larger local serving gates at one million rows
+
+**Status:** Accepted
+
+**Context:** The clean one-million compact PostgreSQL/PostGIS gate succeeded under the approved two-CPU, 2-GiB container limit, but the highest sampled memory reached 1.804 GiB, approximately 90.2% of the limit. The physical database directory reached 2.90 GB including 1.00 GiB of allocated WAL, and the broad spatial query p95 reached 378.860 ms on the mechanical-drive laptop.
+
+**Decision:** Treat one million rows as the final local serving scale gate under the current laptop configuration. Preserve the successful volume as evidence and execute the already planned five-million and ten-million gates only in the approved AWS phases with explicit budgets, capacity bounds, monitoring, and teardown controls.
+
+**Consequences:** Phase 6 closes with a defensible local end-to-end scale result without converting a near-capacity success into an unsafe larger claim. Local tests and representative fixtures remain valid for development, while larger serving performance, concurrency, backup, and recovery claims require the planned cloud environment.

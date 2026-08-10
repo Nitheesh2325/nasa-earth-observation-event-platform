@@ -2,7 +2,7 @@
 
 ## Current milestone
 
-Phase 6G.5 - one-million-message governed Gold gate complete.
+Phase 6G - complete one-million-message local scale gate closed through compact PostgreSQL/PostGIS serving.
 
 ## Current status
 
@@ -170,6 +170,16 @@ Phase 6G.5 - one-million-message governed Gold gate complete.
 - Independent Spark truth verification found 1,000,000 unique replay events, 10,000 detections exactly 100 times each, complete sequences and iterations, zero synthetic rows, zero null parents, and zero invalid batch-profile rows in 19.951 seconds.
 - Highest sampled Spark memory during the admitted build was 1.946 GiB of 4 GiB; the container exited zero without OOM.
 - Fifty-nine automated tests pass. Spark, Kafka, and PostgreSQL are stopped; both immutable Gold attempts remain outside Git.
+- A clean PostgreSQL 16.4/PostGIS 3.4.3 database was rebuilt from the checksum-admitted one-million Gold 1.1 manifest using only migrations `001` and `003`.
+- The load staged and inserted exactly 1,000,000 rows with zero already present in 408.006 seconds; external time including artifact admission was 417.491 seconds.
+- The identical manifest rerun inserted zero rows, returned the original load-run identity, and reconciled 1,000,000 persisted rows.
+- Serving verification found 1,000,000 unique replay events, 10,000 detections exactly 100 times each, complete sequences and iterations, zero synthetic rows, zero invalid geometries, and exact daily and lineage aggregate totals.
+- A forced-rollback content conflict probe detected exactly one mismatch and preserved the one-million-row serving count.
+- The compact event-detail relation is 1,756,102,656 bytes; the database is 1,779,675,619 bytes and the physical data directory is 2,896,650,695 bytes including 1,073,741,824 bytes of WAL allocation.
+- Warm local p95 was 143.746 ms for detail source summary, 378.860 ms for the broad spatial bounding box, 2.383 ms for lineage, and 1.963 ms for the daily aggregate.
+- Highest sampled PostgreSQL memory was 1.804 GiB of 2 GiB, prohibiting a larger local serving claim without a new capacity decision.
+- Windows rejected the prior localhost port 55432; the Compose host port is now configurable and the gate used session-selected port 55382 without changing container port 5432.
+- Sixty automated tests pass. PostgreSQL is stopped with the completed one-million evidence volume preserved; Kafka and Spark remain stopped.
 
 ## Approved mission
 
@@ -177,11 +187,11 @@ Build a professional batch and streaming data-engineering platform that processe
 
 ## Current gate
 
-Phase 6G.5 is complete. Standing owner approval authorizes Phase 6G.6, subject to a clean compact PostgreSQL/PostGIS rebuild and full count, identity, detection-frequency, geometry, aggregate, role, rollback, idempotency, query-plan, storage, WAL, runtime, and resource reconciliation.
+Phase 6G is complete. The full local one-million scale gate has passed through replay generation, Spark batch, Kafka, Structured Streaming recovery, governed Gold, and compact PostgreSQL/PostGIS serving.
 
 ## Next proposed milestone
 
-Phase 6G.6 - rebuild an empty compact PostgreSQL/PostGIS serving database from the admitted one-million Gold manifest, then reconcile staging, insertion, serving truth, geometry, aggregates, security, rollback, idempotency, plans, latency, storage, WAL, runtime, and resources. Keep Kafka and Spark stopped.
+Phase 7 - design and implement Airflow orchestration and operational metadata for the proven vertical slice. Phase 7 has not started.
 
 ## Known constraints
 

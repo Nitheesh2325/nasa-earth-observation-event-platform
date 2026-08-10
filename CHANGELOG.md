@@ -1,5 +1,16 @@
 # Changelog
 
+## Phase 6G.6 - One-million compact PostgreSQL/PostGIS gate
+
+- Removed only the verified disposable prior serving volume after its evidence was committed and rebuilt an empty database from the admitted one-million Gold 1.1 manifest.
+- Parameterized the localhost PostgreSQL host port after Windows rejected the prior fixed port, without changing container port 5432 or the serving architecture.
+- Applied migrations `001` and `003`, staged and inserted one million rows, and recorded load, external admission, storage, WAL, and resource measurements.
+- Strengthened serving verification to fail closed on replay sequences, iterations, per-detection frequency, aggregate totals, and load-control metrics.
+- Reconciled one million unique replay events, 10,000 detections, zero synthetic rows, PostGIS geometry, daily and lineage aggregates, roles, plans, and latency.
+- Proved identical-manifest idempotency and forced-rollback content-conflict detection with unchanged serving data.
+- Increased the full automated suite to sixty passing tests.
+- Closed the complete local one-million Phase 6G gate and stopped PostgreSQL while preserving its evidence volume; Kafka and Spark remained stopped.
+
 ## Phase 6G.5 - One-million governed Gold gate
 
 - Versioned the Gold contract to 1.1 with partitioned, checksum-addressed PostgreSQL load artifacts and exact per-part row reconciliation.

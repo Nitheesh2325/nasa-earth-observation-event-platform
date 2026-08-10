@@ -2,7 +2,7 @@
 
 ## Status
 
-The local governed pipeline is verified through one-million-message replay generation, Spark batch, Kafka, Spark Structured Streaming recovery, and compact Gold creation. The one-million PostgreSQL/PostGIS rebuild is the current milestone.
+The local governed pipeline is verified end to end at one million controlled replay messages through Spark batch, Kafka, Spark Structured Streaming recovery, compact Gold, and PostgreSQL/PostGIS serving.
 
 ## Mission
 
@@ -29,7 +29,7 @@ Official NASA source -> Python extraction -> Bronze storage -> controlled replay
 - AWS deployment: not authorized
 - Largest verified official NASA selection: 10,000 original NASA detections
 - Largest verified replay processing gate: 1,000,000 messages representing 10,000 NASA detections exactly 100 times each
-- Largest completed serving gate: 100,000 replay messages
-- Current gate: Phase 6G.6 one-million compact PostgreSQL/PostGIS rebuild
+- Largest completed serving gate: 1,000,000 replay messages representing 10,000 NASA detections
+- Current gate: Phase 6 complete; Phase 7 has not started
 
 Local measurements and limitations are recorded in `PERFORMANCE_REPORT.md` and `reports/quality/`. No cloud-deployment claim should be inferred.

@@ -1,5 +1,24 @@
 # Performance Report
 
+## 1,000,000-Row Compact PostgreSQL/PostGIS Gate
+
+**Status:** Passed
+
+| Metric | Value |
+|---|---:|
+| Manifest / staged / inserted / serving rows | 1,000,000 / 1,000,000 / 1,000,000 / 1,000,000 |
+| Database load duration | 408.006 seconds |
+| Database load throughput | 2,450.94 rows/second |
+| External duration including artifact admission | 417.491 seconds |
+| Idempotent reload | 0 inserted / 1,000,000 already present |
+| Event-detail relation | 1,756,102,656 bytes |
+| Database | 1,779,675,619 bytes |
+| Physical data directory | 2,896,650,695 bytes |
+| WAL directory allocation | 1,073,741,824 bytes |
+| Highest sampled PostgreSQL memory | 1.804 GiB / 2 GiB |
+
+Warm local p95 was 143.746 ms for full-detail source summary, 378.860 ms for a broad spatial bounding box, 2.383 ms for a 100-event lineage lookup, and 1.963 ms for the governed daily aggregate. The verifier confirmed one million unique replay events, 10,000 detections exactly 100 times each, zero synthetic rows, complete replay ranges, valid PostGIS geometry, aggregates, roles, conflict rollback, and load controls. These are local single-client measurements, not cloud or concurrency claims.
+
 ## 1,000,000-Message Governed Gold Gate
 
 **Status:** Passed
