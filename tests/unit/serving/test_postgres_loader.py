@@ -35,7 +35,59 @@ def _fixture(tmp_path: Path) -> Path:
     return path
 
 
+def _partitioned_fixture(tmp_path: Path) -> Path:
+    load_dir = tmp_path / "load_artifact"
+    load_dir.mkdir()
+    artifacts = []
+    for index in range(2):
+        path = load_dir / f"part-{index:05d}.json"
+        path.write_text(json.dumps({"event_id": str(index)}) + "\n", encoding="utf-8")
+        artifacts.append({
+            "path": f"load_artifact/{path.name}",
+            "bytes": path.stat().st_size,
+            "sha256": hashlib.sha256(path.read_bytes()).hexdigest(),
+            "rows": 1,
+        })
+    manifest = {
+        "gold_run_id": "00000000-0000-0000-0000-000000000002",
+        "gold_contract_version": "1.1.0",
+        "pipeline_version": "test",
+        "source_silver_path": "silver",
+        "expected_rows": 2,
+        "load_artifact_rows": 2,
+        "artifacts": artifacts,
+    }
+    path = tmp_path / "manifest.json"
+    path.write_text(json.dumps(manifest), encoding="utf-8")
+    return path
+
+
 class PostgresLoaderTests(unittest.TestCase):
+    def test_partitioned_load_artifact_rows_reconcile(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            manifest, _ = load_manifest(_partitioned_fixture(Path(directory)), expected_rows=2)
+            self.assertEqual(2, sum(item["rows"] for item in manifest["artifacts"]))
+
+    def test_partitioned_load_artifact_row_mismatch_is_rejected(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            manifest_path = _partitioned_fixture(Path(directory))
+            manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+            manifest["artifacts"][0]["rows"] = 0
+            manifest_path.write_text(json.dumps(manifest), encoding="utf-8")
+
+            with self.assertRaisesRegex(ValueError, "row counts do not reconcile"):
+                load_manifest(manifest_path, expected_rows=2)
+
+    def test_partitioned_load_artifact_requires_all_row_counts(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            manifest_path = _partitioned_fixture(Path(directory))
+            manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+            del manifest["artifacts"][0]["rows"]
+            manifest_path.write_text(json.dumps(manifest), encoding="utf-8")
+
+            with self.assertRaisesRegex(ValueError, "non-negative integers"):
+                load_manifest(manifest_path, expected_rows=2)
+
     def test_direct_insert_targets_compact_projection(self) -> None:
         destination_columns = INSERT_EVENT_SQL.split(")\nSELECT", maxsplit=1)[0]
         self.assertNotIn("event_payload", destination_columns)

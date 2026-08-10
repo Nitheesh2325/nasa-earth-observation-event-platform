@@ -99,6 +99,19 @@ def load_manifest(path: Path, *, expected_rows: int) -> tuple[dict[str, Any], st
             raise ValueError(f"artifact size mismatch: {artifact_path}")
         if sha256_file(artifact_path) != artifact["sha256"]:
             raise ValueError(f"artifact checksum mismatch: {artifact_path}")
+    load_artifacts = [
+        artifact for artifact in manifest["artifacts"]
+        if artifact["path"].replace("\\", "/").startswith("load_artifact/part-")
+        and artifact["path"].endswith(".json")
+    ]
+    if not load_artifacts:
+        raise ValueError("manifest contains no JSON load artifacts")
+    declared_rows = [artifact.get("rows") for artifact in load_artifacts]
+    if any(value is not None for value in declared_rows):
+        if any(not isinstance(value, int) or value < 0 for value in declared_rows):
+            raise ValueError("load artifact row counts must be non-negative integers")
+        if sum(declared_rows) != expected_rows:
+            raise ValueError("load artifact row counts do not reconcile")
     manifest["_manifest_root"] = path.parent.as_posix()
     return manifest, hashlib.sha256(raw).hexdigest()
 
@@ -162,10 +175,19 @@ def load(connection: psycopg.Connection[Any], manifest_path: Path, expected_rows
            VALUES (%s,%s,%s,'RUNNING',%s,%s)""",
         (load_run_id, manifest["gold_run_id"], idempotency_key, expected_rows, started),
     )
+    load_artifact_count = sum(
+        item["path"].replace("\\", "/").startswith("load_artifact/part-")
+        and item["path"].endswith(".json")
+        for item in manifest["artifacts"]
+    )
     for artifact in manifest["artifacts"]:
+        is_load_artifact = artifact["path"].replace("\\", "/").startswith("load_artifact/part-") and artifact["path"].endswith(".json")
+        artifact_rows = artifact.get("rows")
+        if artifact_rows is None:
+            artifact_rows = expected_rows if is_load_artifact and load_artifact_count == 1 else 0
         connection.execute(
             "INSERT INTO load_control.loaded_artifact VALUES (%s,%s,%s,%s,%s)",
-            (load_run_id, artifact["path"], artifact["sha256"], artifact["bytes"], expected_rows if artifact["path"].replace("\\", "/").startswith("load_artifact/part-") else 0),
+            (load_run_id, artifact["path"], artifact["sha256"], artifact["bytes"], artifact_rows),
         )
     connection.commit()
 

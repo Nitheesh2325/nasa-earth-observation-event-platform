@@ -16,7 +16,7 @@ from eo_event_platform.common.metadata import detect_pipeline_version
 
 
 JOB_NAME = "silver-to-gold-serving-v1"
-GOLD_CONTRACT_VERSION = "1.0.0"
+GOLD_CONTRACT_VERSION = "1.1.0"
 
 
 def sha256_file(path: Path) -> str:
@@ -27,14 +27,31 @@ def sha256_file(path: Path) -> str:
     return digest.hexdigest()
 
 
+def file_metrics(path: Path, *, count_rows: bool) -> tuple[int, str, int | None]:
+    digest = hashlib.sha256()
+    rows = 0
+    size = 0
+    with path.open("rb") as source:
+        for chunk in iter(lambda: source.read(1024 * 1024), b""):
+            digest.update(chunk)
+            size += len(chunk)
+            if count_rows:
+                rows += chunk.count(b"\n")
+    return size, digest.hexdigest(), rows if count_rows else None
+
+
 def artifact_entries(root: Path) -> list[dict[str, object]]:
     entries = []
     for path in sorted(item for item in root.rglob("*") if item.is_file() and not item.name.startswith(".")):
-        entries.append({
-            "path": path.relative_to(root).as_posix(),
-            "bytes": path.stat().st_size,
-            "sha256": sha256_file(path),
-        })
+        relative = path.relative_to(root).as_posix()
+        size, digest, rows = file_metrics(
+            path,
+            count_rows=relative.startswith("load_artifact/part-") and relative.endswith(".json"),
+        )
+        entry: dict[str, object] = {"path": relative, "bytes": size, "sha256": digest}
+        if rows is not None:
+            entry["rows"] = rows
+        entries.append(entry)
     return entries
 
 
@@ -80,7 +97,7 @@ def run(args: argparse.Namespace) -> dict[str, object]:
         )
         gold = gold.withColumn("governed_content_hash", governed_content_hash(gold.columns))
         gold.coalesce(args.output_partitions).write.mode("errorifexists").parquet(str(parquet_path))
-        gold.coalesce(1).write.mode("errorifexists").json(str(load_path))
+        gold.coalesce(args.load_partitions).write.mode("errorifexists").json(str(load_path))
         parquet_readback = spark.read.parquet(str(parquet_path)).count()
         load_readback = spark.read.json(str(load_path)).count()
         if parquet_readback != input_count or load_readback != input_count:
@@ -99,6 +116,8 @@ def run(args: argparse.Namespace) -> dict[str, object]:
             "input_rows": input_count,
             "gold_parquet_rows": parquet_readback,
             "load_artifact_rows": load_readback,
+            "gold_parquet_partitions": args.output_partitions,
+            "load_artifact_partitions": args.load_partitions,
             "source_type_counts": classified,
             "synthetic_rows": synthetic_count,
             "started_at": started.isoformat(),
@@ -120,10 +139,11 @@ def main() -> int:
     parser.add_argument("--output-root", required=True)
     parser.add_argument("--expected-rows", type=int, required=True)
     parser.add_argument("--output-partitions", type=int, default=2)
+    parser.add_argument("--load-partitions", type=int, default=1)
     parser.add_argument("--pipeline-version")
     parser.add_argument("--log-level", default="WARN")
     args = parser.parse_args()
-    if args.expected_rows <= 0 or args.output_partitions <= 0:
+    if args.expected_rows <= 0 or args.output_partitions <= 0 or args.load_partitions <= 0:
         raise ValueError("row and partition counts must be positive")
     result = run(args)
     for key in ("gold_run_id", "input_rows", "gold_parquet_rows", "load_artifact_rows", "duration_seconds", "manifest_path"):

@@ -56,8 +56,11 @@ Counts must never imply that replay or synthetic messages are distinct original 
 
 - Parquet with an explicit schema.
 - Compact target files rather than direct consumption of streaming small files.
+- The database load boundary may contain multiple newline-delimited JSON part files so scale gates do not require one multi-gigabyte artifact.
 - Versioned product and run prefixes.
 - Immutable manifest containing object URI, size, SHA-256, row count, schema version, pipeline version, upstream runs, and creation time.
+- Every database load part records its own non-negative row count; the sum of all declared part rows must equal the manifest's expected row count before PostgreSQL staging begins.
+- A version 1.0 manifest with exactly one load part and no per-part row field remains readable; partitioned manifests require row counts on every load part.
 - Generated artifacts remain outside Git; compact contracts and evidence are committed.
 
 ## Reconciliation
