@@ -55,6 +55,14 @@ def artifact_entries(root: Path) -> list[dict[str, object]]:
     return entries
 
 
+def artifact_part_count(artifacts: list[dict[str, object]], prefix: str, suffix: str) -> int:
+    return sum(
+        str(artifact["path"]).startswith(prefix)
+        and str(artifact["path"]).endswith(suffix)
+        for artifact in artifacts
+    )
+
+
 def governed_content_hash(frame_columns: list[str]):
     excluded = {"gold_run_id", "gold_contract_version", "governed_content_hash"}
     ordered = [F.col(name) for name in sorted(frame_columns) if name not in excluded]
@@ -104,6 +112,10 @@ def run(args: argparse.Namespace) -> dict[str, object]:
             raise RuntimeError("Gold read-back counts do not reconcile")
 
         artifacts = artifact_entries(output_root)
+        gold_parquet_files = artifact_part_count(artifacts, "event_detail/part-", ".parquet")
+        load_artifact_files = artifact_part_count(artifacts, "load_artifact/part-", ".json")
+        if gold_parquet_files <= 0 or load_artifact_files <= 0:
+            raise RuntimeError("Gold data artifacts are missing")
         completed = datetime.now(timezone.utc)
         manifest = {
             "gold_run_id": gold_run_id,
@@ -116,8 +128,10 @@ def run(args: argparse.Namespace) -> dict[str, object]:
             "input_rows": input_count,
             "gold_parquet_rows": parquet_readback,
             "load_artifact_rows": load_readback,
-            "gold_parquet_partitions": args.output_partitions,
-            "load_artifact_partitions": args.load_partitions,
+            "requested_gold_parquet_partitions": args.output_partitions,
+            "requested_load_artifact_partitions": args.load_partitions,
+            "gold_parquet_files": gold_parquet_files,
+            "load_artifact_files": load_artifact_files,
             "source_type_counts": classified,
             "synthetic_rows": synthetic_count,
             "started_at": started.isoformat(),

@@ -266,6 +266,6 @@
 
 **Context:** The 100,000-row Gold gate produced one 226,751,570-byte newline-delimited JSON load file. The approved one-million plan forecast a 2.2-2.5-GB single file, which would create an avoidable large-file recovery and integrity boundary even though Spark can write bounded parts.
 
-**Decision:** Version the Gold contract to 1.1 and allow multiple database load JSON parts. Record exact bytes, SHA-256, and newline row count for every load part, and require the loader to reconcile the sum of declared part rows to the expected manifest count before staging. Preserve read compatibility with version 1.0 manifests that contain exactly one undeclared-row load part.
+**Decision:** Version the Gold contract to 1.1 and allow multiple database load JSON parts. Record exact bytes, SHA-256, and newline row count for every load part, and require the loader to reconcile the sum of declared part rows to the expected manifest count before staging. Record requested Spark partitions separately from observed physical data-file counts. Preserve read compatibility with version 1.0 manifests that contain exactly one undeclared-row load part.
 
 **Consequences:** One-million Gold can use bounded load artifacts without changing event grain, content hashes, PostgreSQL staging semantics, or Gold authority. A missing, invalid, or unreconciled part-row declaration fails before database modification. Existing successful 10,000- and 100,000-row manifests remain loadable.

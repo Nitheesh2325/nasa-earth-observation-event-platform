@@ -1,7 +1,7 @@
 import unittest
 from pathlib import Path
 
-from eo_event_platform.gold.build import artifact_entries, sha256_file
+from eo_event_platform.gold.build import artifact_entries, artifact_part_count, sha256_file
 
 
 class GoldBuildTests(unittest.TestCase):
@@ -30,3 +30,14 @@ class GoldBuildTests(unittest.TestCase):
 
             self.assertEqual(2, entries[0]["rows"])
             self.assertEqual(18, entries[0]["bytes"])
+
+    def test_artifact_part_count_reports_physical_files(self) -> None:
+        artifacts = [
+            {"path": "event_detail/_SUCCESS"},
+            {"path": "event_detail/part-00000.parquet"},
+            {"path": "event_detail/part-00001.parquet"},
+            {"path": "load_artifact/part-00000.json"},
+        ]
+
+        self.assertEqual(2, artifact_part_count(artifacts, "event_detail/part-", ".parquet"))
+        self.assertEqual(1, artifact_part_count(artifacts, "load_artifact/part-", ".json"))

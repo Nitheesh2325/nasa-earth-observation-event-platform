@@ -60,6 +60,7 @@ Counts must never imply that replay or synthetic messages are distinct original 
 - Versioned product and run prefixes.
 - Immutable manifest containing object URI, size, SHA-256, row count, schema version, pipeline version, upstream runs, and creation time.
 - Every database load part records its own non-negative row count; the sum of all declared part rows must equal the manifest's expected row count before PostgreSQL staging begins.
+- The manifest distinguishes requested Spark output partitions from actual physical data-file counts; requested partitions must never be reported as observed files.
 - A version 1.0 manifest with exactly one load part and no per-part row field remains readable; partitioned manifests require row counts on every load part.
 - Generated artifacts remain outside Git; compact contracts and evidence are committed.
 
