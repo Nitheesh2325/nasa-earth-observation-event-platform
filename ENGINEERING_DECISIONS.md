@@ -279,3 +279,13 @@
 **Decision:** Treat one million rows as the final local serving scale gate under the current laptop configuration. Preserve the successful volume as evidence and execute the already planned five-million and ten-million gates only in the approved AWS phases with explicit budgets, capacity bounds, monitoring, and teardown controls.
 
 **Consequences:** Phase 6 closes with a defensible local end-to-end scale result without converting a near-capacity success into an unsafe larger claim. Local tests and representative fixtures remain valid for development, while larger serving performance, concurrency, backup, and recovery claims require the planned cloud environment.
+
+## ED-029: Run Airflow locally in its supported Linux runtime
+
+**Status:** Accepted
+
+**Context:** Phase 7 targets a Windows/WSL2 laptop. Airflow 3.3.0 installs under Python 3.12 on Windows, but its SDK import requires POSIX process behavior including `os.register_at_fork`; Airflow itself warns that native Windows is unsupported and directs Windows users to WSL2 or Linux containers.
+
+**Decision:** Pin Airflow 3.3.0 with its official Python 3.12 constraints and execute DAG parsing, contract tests, and local `dag.test()` in the official `apache/airflow:3.3.0-python3.12` Linux image. Keep the Airflow application environment separate from the verified project environment. Use ignored SQLite only for the bounded local integration gate, not as a production metadata-database claim.
+
+**Consequences:** Phase 7 uses a supported runtime without adding a provider, plugin, scheduler service, or architecture branch. Container startup materially dominates the four-record orchestration gate and is reported separately from compact stage-receipt durations. A deployed Airflow environment will require its production metadata database and executor configuration in the later approved deployment work.

@@ -1,5 +1,16 @@
 # Changelog
 
+## Phase 7 - Airflow orchestration and operational metadata
+
+- Added one Airflow 3.3.0 TaskFlow DAG with the fixed extraction, canonicalization, replay, Spark, Gold, PostgreSQL, verification, and finalization chain.
+- Added bounded JSON-schema parameters, one-active-run protection, bounded retries, explicit task timeouts, an eight-hour DAG timeout, and default fail-closed dependency propagation.
+- Added deterministic logical-date-derived orchestration identities and atomic, checksum-linked stage receipts outside Git.
+- Added same-identity success reuse, immutable-input conflict checks, recorded failed attempts, retry recovery, and final run reconciliation.
+- Verified three DAG topology/policy tests in the official Linux image and sixty-five non-Airflow tests in the project environment.
+- Completed a nine-task, four-record `dag.test()` integration execution and a same-logical-date idempotent rerun with seven successful receipts retained at attempt one.
+- Documented the reproduced native-Windows incompatibility and standardized the supported official Linux-container runtime.
+- Stopped all transient integration containers and kept Airflow runtime metadata and environments outside Git.
+
 ## Phase 6G.6 - One-million compact PostgreSQL/PostGIS gate
 
 - Removed only the verified disposable prior serving volume after its evidence was committed and rebuilt an empty database from the admitted one-million Gold 1.1 manifest.

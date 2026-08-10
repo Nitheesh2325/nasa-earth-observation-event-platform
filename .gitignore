@@ -12,6 +12,7 @@ __pycache__/
 .mypy_cache/
 .ruff_cache/
 .venv/
+.venv-airflow/
 venv/
 dist/
 build/
@@ -34,6 +35,7 @@ metastore_db/
 derby.log
 airflow/logs/
 airflow/airflow.db
+data/local/airflow/
 postgres-data/
 
 # Logs and reports generated during runs

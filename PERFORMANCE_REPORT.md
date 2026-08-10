@@ -317,6 +317,28 @@ Same-checkpoint recovery processed zero new rows, reported zero lag, and preserv
 
 Rejected-topic publishing, dead-letter behavior, controlled failure recovery, and streaming compaction remain unmeasured. Million-record advancement is not authorized.
 
+## Phase 7 Airflow Local Integration Gate
+
+**Status:** Passed
+
+The official `apache/airflow:3.3.0-python3.12` Linux image executed the complete nine-task DAG with a four-record integration profile. This profile validates orchestration behavior only and does not repeat or replace any Phase 6 data-scale measurement.
+
+| Metric | Value |
+|---|---:|
+| Airflow image digest | `sha256:96e99f25815f533b298a4d53f283adf5c84c27334ea16ef232777cb800bddf10` |
+| Airflow image size | 662,061,731 bytes |
+| DAG tasks | 9 |
+| Processing-stage receipts | 7 |
+| Integration records | 4 |
+| Successful / failed stages | 7 / 0 |
+| First measured DAG test wall interval | 13.895 seconds |
+| Same-identity final rerun wall interval | 14.034 seconds |
+| Summed receipt execution time | 0.000754 seconds |
+| Local Airflow SQLite metadata size | 958,464 bytes |
+| Operational manifest size | 5,371 bytes |
+
+The Airflow wall intervals run from DAG creation logging to the final successful state and include local task-runner/API overhead. Docker image startup and initial metadata migration are excluded. The receipt timer covers only the deterministic integration stage body; it must not be compared with NASA, Spark, Gold, or PostgreSQL processing throughput. The same logical date and parameters produced orchestration ID `d0ccaf3e94455f2e03e76de99773f1119e5d62ea5fb958062c062c4d3b73195e`; the final rerun retained every successful stage at attempt one.
+
 ## 100,000-Record Compact PostgreSQL Direct-Load Gate
 
 **Status:** Passed

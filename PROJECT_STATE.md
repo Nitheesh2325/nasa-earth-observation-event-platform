@@ -2,11 +2,18 @@
 
 ## Current milestone
 
-Phase 6G - complete one-million-message local scale gate closed through compact PostgreSQL/PostGIS serving.
+Phase 7 - Airflow orchestration and operational metadata complete.
 
 ## Current status
 
 - `AGENTS.md` is the active repository instruction file.
+- One Airflow 3.3.0 DAG now orchestrates the approved batch vertical slice in the fixed extraction-to-verification order.
+- The DAG has bounded parameters, stable logical-date-derived run identities, bounded retries, explicit task and DAG timeouts, `all_success` failure propagation, and one active run.
+- Atomic operational manifests record stage attempts, states, durations, checksums, reconciliation, and same-identity rerun reuse outside Git.
+- Three Airflow DAG contract tests and sixty-five non-Airflow regression tests pass; the normal suite reports sixty-eight tests with the three isolated Airflow tests skipped.
+- A four-record, nine-task `dag.test()` integration execution passed in the official Airflow 3.3.0 Python 3.12 Linux image.
+- A same-logical-date rerun passed with the identical orchestration run ID, seven unchanged successful stage receipts, and an explicit idempotent rerun event.
+- Native Windows Airflow execution was rejected after its unsupported `os.register_at_fork` boundary was reproduced; the supported Linux-container runtime is the local integration standard.
 - Git has been initialized on the `main` branch.
 - The initial controlled foundation has been preserved through Git.
 - Python 3.12.10 is installed and available.
