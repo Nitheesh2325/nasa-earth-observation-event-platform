@@ -1,5 +1,16 @@
 # Changelog
 
+## Phase 6G.5 - One-million governed Gold gate
+
+- Versioned the Gold contract to 1.1 with partitioned, checksum-addressed PostgreSQL load artifacts and exact per-part row reconciliation.
+- Preserved backward compatibility with the successful version 1.0 single-part manifests.
+- Preserved a non-admitted first execution that exposed requested partitions being reported as observed physical files.
+- Corrected the manifest to separate requested partitions from actual Parquet and JSON data-file counts.
+- Built the admitted one-million Gold run into four Parquet files and four database load files with exact read-back reconciliation.
+- Independently hashed all manifest artifacts and independently verified one million unique replay events, 10,000 underlying detections, complete replay sequences and iterations, lineage, schedule, and zero synthetic rows.
+- Recorded runtime, throughput, storage, sampled memory, disk, failed-attempt, zero-cloud-cost, and limitation evidence.
+- Increased the complete automated suite to fifty-nine passing tests and stopped all pipeline services.
+
 ## Phase 6G.4 - One-million Structured Streaming gate
 
 - Verified every preserved producer start/end offset remained available before launching the digest-pinned Spark-Kafka runtime.

@@ -1,5 +1,21 @@
 # Performance Report
 
+## 1,000,000-Message Governed Gold Gate
+
+**Status:** Passed
+
+| Metric | Value |
+|---|---:|
+| Silver / Gold / load rows | 1,000,000 / 1,000,000 / 1,000,000 |
+| Build duration | 167.959 seconds |
+| Build throughput | 5,953.83 rows/second |
+| Gold Parquet | 4 files / 181,977,884 bytes |
+| PostgreSQL load JSON | 4 files / 2,269,335,690 bytes |
+| Independent truth verification | 19.951 seconds / 50,121.99 rows/second |
+| Highest sampled Spark memory | 1.946 GiB / 4 GiB |
+
+Manifest admission independently hashed all ten artifacts and reconciled one million declared load rows. A first immutable attempt was preserved but not admitted after exposing requested-versus-observed partition metadata ambiguity. Gold contract 1.1 now records requested partitions separately from physical file counts. These are one million controlled `NASA_REPLAY` messages representing 10,000 NASA detections, not one million original NASA observations.
+
 ## 1,000,000-Message Structured Streaming Gate
 
 **Status:** Passed

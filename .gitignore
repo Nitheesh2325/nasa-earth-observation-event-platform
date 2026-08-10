@@ -39,6 +39,7 @@ postgres-data/
 # Logs and reports generated during runs
 *.log
 reports/generated/
+output/
 
 # Credentials and cloud tooling
 .aws/
@@ -51,4 +52,3 @@ reports/generated/
 .vscode/
 .DS_Store
 Thumbs.db
-

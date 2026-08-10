@@ -2,7 +2,7 @@
 
 ## Status
 
-The controlled repository foundation, bounded NASA FIRMS extraction, and deterministic canonical-event milestone are complete. Distributed processing has not started.
+The local governed pipeline is verified through one-million-message replay generation, Spark batch, Kafka, Spark Structured Streaming recovery, and compact Gold creation. The one-million PostgreSQL/PostGIS rebuild is the current milestone.
 
 ## Mission
 
@@ -21,14 +21,15 @@ Official NASA source -> Python extraction -> Bronze storage -> controlled replay
 
 ## Engineering status
 
-- Architecture: proposed
+- Architecture: implemented locally through governed Gold
 - Repository foundation: complete
 - NASA extraction: bounded 21-record smoke test passed
 - Canonical events: 21 accepted, 0 rejected, 0 duplicate; deterministic rerun passed
-- Local vertical slice: not started
+- Local vertical slice: passed through PostgreSQL/PostGIS at 100,000 replay messages
 - AWS deployment: not authorized
-- Largest verified extraction: 21 original NASA records
-- Largest verified canonicalization: 21 original NASA records
-- Largest completed scale gate: none yet
+- Largest verified official NASA selection: 10,000 original NASA detections
+- Largest verified replay processing gate: 1,000,000 messages representing 10,000 NASA detections exactly 100 times each
+- Largest completed serving gate: 100,000 replay messages
+- Current gate: Phase 6G.6 one-million compact PostgreSQL/PostGIS rebuild
 
-No performance, production-readiness, or cloud-deployment claims should be inferred until supported by recorded evidence.
+Local measurements and limitations are recorded in `PERFORMANCE_REPORT.md` and `reports/quality/`. No cloud-deployment claim should be inferred.

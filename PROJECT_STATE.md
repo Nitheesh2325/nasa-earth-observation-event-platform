@@ -2,7 +2,7 @@
 
 ## Current milestone
 
-Phase 6G.4 - one-million-message Spark Structured Streaming and recovery gate complete.
+Phase 6G.5 - one-million-message governed Gold gate complete.
 
 ## Current status
 
@@ -162,6 +162,14 @@ Phase 6G.4 - one-million-message Spark Structured Streaming and recovery gate co
 - Streaming produced 246 Bronze, 1,312 Silver, and 41 rejected Parquet files; Gold compaction is mandatory.
 - Peak observed Spark memory was 3.600 GiB of 4 GiB, prohibiting a larger local streaming claim without a new capacity decision.
 - Fifty-four automated tests pass. Kafka, Spark, and PostgreSQL are stopped; Kafka and checkpoint evidence remain preserved.
+- Gold contract 1.1 partitions the PostgreSQL JSON load boundary and requires exact per-part bytes, SHA-256, and rows to reconcile before staging while preserving version 1.0 single-part compatibility.
+- A first immutable one-million Gold attempt reconciled all rows but was not admitted because its manifest reported requested partitions as if they were observed physical files; the attempt remains preserved.
+- The corrected admitted Gold run `80083cae-e529-462f-bf06-f7576bbc1ecc` processed 1,000,000 batch Silver rows into 1,000,000 Gold Parquet and 1,000,000 load-artifact rows in 167.959 seconds.
+- The admitted output contains four Gold Parquet files totaling 181,977,884 bytes and four checksum-addressed JSON load files totaling 2,269,335,690 bytes.
+- Independent manifest admission hashed all ten artifacts and reconciled exactly 1,000,000 declared load rows; manifest SHA-256 is `43ada13e40f14ffcdbd93d76702ee0d5918be7a666235a902375a860b491ffb9`.
+- Independent Spark truth verification found 1,000,000 unique replay events, 10,000 detections exactly 100 times each, complete sequences and iterations, zero synthetic rows, zero null parents, and zero invalid batch-profile rows in 19.951 seconds.
+- Highest sampled Spark memory during the admitted build was 1.946 GiB of 4 GiB; the container exited zero without OOM.
+- Fifty-nine automated tests pass. Spark, Kafka, and PostgreSQL are stopped; both immutable Gold attempts remain outside Git.
 
 ## Approved mission
 
@@ -169,11 +177,11 @@ Build a professional batch and streaming data-engineering platform that processe
 
 ## Current gate
 
-Phase 6G.4 is complete. Standing owner approval authorizes Phase 6G.5, subject to governed Gold manifest, checksum, compaction, truth, read-back, resource, and runtime reconciliation rules.
+Phase 6G.5 is complete. Standing owner approval authorizes Phase 6G.6, subject to a clean compact PostgreSQL/PostGIS rebuild and full count, identity, detection-frequency, geometry, aggregate, role, rollback, idempotency, query-plan, storage, WAL, runtime, and resource reconciliation.
 
 ## Next proposed milestone
 
-Phase 6G.5 - build compact governed Gold and its database load artifact from the admitted 32-file one-million batch Silver output, then reconcile manifest checksums, counts, truth, file layout, runtime, and resources. Keep Kafka and PostgreSQL stopped.
+Phase 6G.6 - rebuild an empty compact PostgreSQL/PostGIS serving database from the admitted one-million Gold manifest, then reconcile staging, insertion, serving truth, geometry, aggregates, security, rollback, idempotency, plans, latency, storage, WAL, runtime, and resources. Keep Kafka and Spark stopped.
 
 ## Known constraints
 
