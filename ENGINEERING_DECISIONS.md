@@ -349,3 +349,13 @@
 **Decision:** Use one JSON CloudFormation template as the Phase 9B foundation source of truth. Lock it to `us-east-1`, apply explicit cost and capacity ceilings, retain evidence buckets and their KMS key against stack deletion, and keep deployment parameters external. Use `emr-8.0.0` as the service/API release label for the previously selected EMR 8.0.0 Spark runtime. Perform local structural and policy tests before any authenticated service-side validation or change set.
 
 **Consequences:** The foundation adds no dependency and can be reviewed as ordinary JSON. CloudFormation requires `CAPABILITY_NAMED_IAM` for the named runtime role, and live schema/policy/readiness verification still requires an approved AWS identity. Retention prevents accidental evidence deletion but means teardown must inventory the retained buckets/key and obtain separate approval before destroying them.
+
+## ED-036: Release Version 1.0 at the verified local boundary
+
+**Status:** Accepted - 2026-08-11
+
+**Context:** The complete platform is verified locally through one million events. Deterministic 10-million replay generation and independent verification passed, but the bounded 10M Spark attempt reached the measured JVM heap ceiling. AWS definitions exist without deployment or cost.
+
+**Decision:** Release `v1.0.0-local` with one million as the full-platform claim, 10 million as generation/read-back evidence only, and the failed Spark attempt as an explicit resource boundary. Defer authenticated AWS deployment and managed 5M/10M execution to Version 1.1. Use repository-native CI and recovery gates to protect the released truth.
+
+**Consequences:** The portfolio remains reproducible and honest about scale. Version 1.0 makes no 10M Spark or AWS-runtime claim, incurs $0.00 AWS cost, and requires no unsafe local memory increase. Future cloud evidence must pass the existing budget, identity, reconciliation, and teardown controls before it can supersede this release boundary.

@@ -1,5 +1,14 @@
 # AWS Cost Report
 
+## Version 1.0 Local release
+
+**AWS resources created:** 0
+
+**AWS workload executions:** 0
+**Actual AWS cost:** **$0.00**
+
+The AWS architecture and CloudFormation foundation are prepared and locally validated only. Live deployment, managed 5M/10M execution, actual cloud-performance evidence, and teardown evidence are deferred to Version 1.1 and require explicit approval. Version 1.0 Local makes no AWS runtime claim.
+
 ## Phase 9A planning baseline
 
 **As of:** 2026-08-10  

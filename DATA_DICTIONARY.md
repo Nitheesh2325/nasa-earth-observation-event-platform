@@ -20,7 +20,7 @@
 
 ## Status
 
-Version 1 baseline. Field definitions will be expanded only when their implementation milestone begins.
+Version 1.0 Local contract. The release preserves explicit message, detection, replay, and synthetic distinctions across storage, serving, API, and dashboard layers.
 
 ## Identity and lineage
 

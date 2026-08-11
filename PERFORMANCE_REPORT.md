@@ -1,5 +1,36 @@
 # Performance Report
 
+## Version 1.0 Local verified boundary
+
+| Workload | Status | Result |
+|---|---|---:|
+| Complete local platform | Passed | 1,000,000 replay events / 10,000 detections / 100 iterations |
+| 1M Spark batch | Passed | 149.502 s / 6,688.88 events/s |
+| 1M governed Gold | Passed | 167.959 s / 1,000,000 rows |
+| 1M PostgreSQL/PostGIS rebuild | Passed | 408.006 s / 2,450.94 rows/s |
+| 10M replay generation, run 1 | Passed | 490.562 s / 20,384.79 events/s |
+| 10M replay generation, run 2 | Passed | 461.594 s / 21,664.05 events/s |
+| 10M independent read-back | Passed | 1,819.625 s / 5,495.64 events/s |
+| 10M local Spark | Not proven | Java heap ceiling after approximately 629 s |
+| AWS execution | Not run | $0.00 actual cost |
+
+Both 10M generation artifacts contained exactly 10,000,000 controlled replay events, were 18,445,760,890 bytes, and shared SHA-256 `50096fd62383d1c00b14b87fb65daf8ed64a6feb2fbf101099d10d202e55b762`. Independent verification reconciled 10,000 unique underlying NASA detections, 1,000 complete replay iterations, unique event identities, `NASA_REPLAY` classification, and zero synthetic events.
+
+The bounded 10M Spark attempt used 4 CPUs, a 5 GiB container, a 3 GiB JVM heap, and 128 partitions. It failed at the verified heap boundary, so no output, acceptance, rejection, duplicate, or throughput result is admitted. No retry with more local memory is authorized.
+
+## Local recovery/restart gate
+
+| Check | Result |
+|---|---:|
+| Kafka first/restart healthy time | 21.183 s / 8.798 s |
+| Kafka replay offsets before/after | 1,200,109 / 1,200,109 |
+| PostgreSQL first/restart healthy time | 7.321 s / 6.760 s |
+| Serving rows before/after | 1,000,000 / 1,000,000 |
+| Unique detections before/after | 10,000 / 10,000 |
+| Governed daily/lineage totals | 1,000,000 / 1,000,000 |
+
+Recovery preserved the successful manifest identity and all reconciled serving truth. Kafka and PostgreSQL were stopped after verification. These are single-node local recovery measurements, not availability or disaster-recovery claims.
+
 ## Phase 9B AWS Foundation Checkpoint
 
 **Status:** Local definition verified; no cloud runtime executed.

@@ -1,8 +1,10 @@
 # NASA Earth Observation Event Intelligence Platform
 
-## Status
+## Version 1.0 Local
 
-The local governed pipeline is verified end to end at one million controlled replay messages through Spark batch, Kafka, Spark Structured Streaming recovery, compact Gold, PostgreSQL/PostGIS serving, Airflow orchestration, a bounded read-only FastAPI layer with a replaceable aggregate cache, and a recruiter-ready Streamlit dashboard.
+Version 1.0 Local is a production-style data-engineering portfolio release. The complete platform is verified end to end at **1,000,000 controlled replay events**, representing 10,000 original NASA FIRMS detections replayed exactly 100 times. The verified path includes deterministic replay, Spark batch, Kafka, Spark Structured Streaming recovery, governed Gold, PostgreSQL/PostGIS, Airflow, read-only FastAPI, bounded caching, and a Streamlit dashboard.
+
+The separate 10-million experiment proves deterministic generation and independent read-back of **10,000 original NASA detections replayed 1,000 times**. It does not prove local 10M Spark processing: the bounded attempt reached a verified JVM heap ceiling and produced no admitted Spark output. AWS architecture and infrastructure definitions are prepared but were not deployed. Actual AWS project cost is **$0.00**. Managed 5M and 10M execution is deferred to Version 1.1.
 
 ## Mission
 
@@ -15,9 +17,11 @@ The final workload will contain a documented mixture of:
 - Controlled replay events
 - Explicitly labeled synthetic scale-test records
 
-## Planned flow
+## Architecture
 
 Official NASA source -> Python extraction -> Bronze storage -> controlled replay and synthetic generation -> Kafka -> Spark validation, deduplication, and enrichment -> Silver Parquet -> Gold aggregates -> PostgreSQL/PostGIS -> API and dashboard.
+
+The detailed component diagram, storage contracts, trust boundaries, and deployment boundary are in [ARCHITECTURE.md](ARCHITECTURE.md).
 
 ## Engineering status
 
@@ -26,21 +30,57 @@ Official NASA source -> Python extraction -> Bronze storage -> controlled replay
 - NASA extraction: bounded 21-record smoke test passed
 - Canonical events: 21 accepted, 0 rejected, 0 duplicate; deterministic rerun passed
 - Local vertical slice: passed through PostgreSQL/PostGIS at 100,000 replay messages
-- AWS deployment: Phase 9B foundation locally implemented; authenticated deployment not started and actual cost $0.00
+- AWS deployment: architecture and IaC prepared; no authenticated deployment, resources, or workload; actual cost $0.00
 - Largest verified official NASA selection: 10,000 original NASA detections
 - Largest verified replay processing gate: 1,000,000 messages representing 10,000 NASA detections exactly 100 times each
 - Largest completed serving gate: 1,000,000 replay messages representing 10,000 NASA detections
 - Airflow orchestration: one fixed production-style DAG; bounded integration and same-identity rerun passed
-- FastAPI: five GET-only endpoints; one-million-row integration, permissions, GiST plan, and latency gates passed
-- Current gate: Phase 9B local foundation verified; live AWS verification awaits explicit approval and authentication
+- FastAPI: six GET-only endpoints; one-million-row integration, permissions, GiST plan, and latency gates passed
+- 10M local experiment: deterministic JSONL generation and independent verification passed; bounded Spark attempt failed at the JVM heap ceiling and is not an admitted scale result
+- Current release: `v1.0.0-local`; cloud 5M/10M execution is deferred to Version 1.1
 
 Local measurements and limitations are recorded in `PERFORMANCE_REPORT.md` and `reports/quality/`. No cloud-deployment claim should be inferred.
 
-## AWS Phase 9A
+## Verified scale and performance
+
+| Gate | Verified result | Key measurement |
+|---|---|---:|
+| 1M complete local platform | Passed end to end | Spark batch 149.502 s; 6,688.88 events/s |
+| 1M governed Gold | Passed | 167.959 s; 1,000,000 reconciled rows |
+| 1M PostgreSQL/PostGIS rebuild | Passed | 408.006 s; 2,450.94 rows/s |
+| 10M deterministic replay generation | Passed twice | 490.562 s and 461.594 s |
+| 10M independent read-back | Passed | 1,819.625 s; 5,495.64 events/s |
+| 10M local Spark | Not proven | JVM heap ceiling after approximately 629 s; no admitted output |
+| AWS | Not executed | $0.00 actual cost |
+
+See [PERFORMANCE_REPORT.md](PERFORMANCE_REPORT.md) and [EVIDENCE_INDEX.md](EVIDENCE_INDEX.md) for the complete measurements and immutable evidence references.
+
+## Local setup and demo
+
+1. Install Python 3.12, Java 17, Docker Desktop, and Docker Compose.
+2. Create a project-local virtual environment and install the exact packages in `requirements.lock`.
+3. Copy `.env.example` to an ignored `.env` and supply only local credentials; never commit it.
+4. Validate the repository with `python tools/repository_audit.py` and run `python -m unittest discover -s tests -p "test_*.py"`.
+5. Start only the required bounded Docker Compose service. Follow the phase evidence documents for governed replay, Spark, Kafka, PostgreSQL, Airflow, API, and dashboard demonstrations.
+6. Run FastAPI with `uvicorn eo_event_platform.api.app:app`, then start the dashboard with `python -m streamlit run src/eo_event_platform/dashboard/app.py`.
+
+Generated datasets belong under ignored local storage and must never be committed. The repository contains representative fixtures and evidence only.
+
+## Recruiter walkthrough
+
+- Begin with the architecture and scale-truth table above.
+- Show the one-million reconciliation and performance evidence.
+- Demonstrate bounded API and dashboard views using the preserved serving projection.
+- Explain the 10M Spark OOM as an experimentally measured local capacity boundary, not a success claim.
+- Close with recovery evidence, CI controls, least-privilege API access, and the $0 AWS ledger.
+
+Quantified resume bullets and interview talking points are in [INTERVIEW_GUIDE.md](INTERVIEW_GUIDE.md). The screenshots below are admitted Version 1.0 documentation assets.
+
+## AWS boundary
 
 The planning-only AWS contract is documented in `docs/phase_9/PHASE_9A_AWS_EXECUTION_PLAN.md`. It fixes one-region private execution through encrypted S3, EMR Serverless, temporary RDS PostgreSQL/PostGIS, one-off Fargate loader/verifier tasks, CloudWatch, and a budget-first teardown process. The required cost ledger is `AWS_COST_REPORT.md`.
 
-No AWS resource has been created. Managed Kafka, Kubernetes, public API/dashboard hosting, and always-on compute are outside the Version 1.0 cloud scale gate.
+No AWS resource has been created. Managed execution is deferred to Version 1.1 and requires a new explicit approval, authenticated preflight, confirmed budget, live validation, and teardown evidence.
 
 The deployable foundation is under `infrastructure/aws/`. It uses AWS-native CloudFormation, is locked to `us-east-1`, starts no job, and contains no credential or real notification address. Local validation and tests can run without AWS access. Live validation, deployment, notification confirmation, and teardown require an explicitly approved MFA-backed AWS session.
 

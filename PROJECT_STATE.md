@@ -2,9 +2,17 @@
 
 ## Current milestone
 
-Phase 9B - AWS foundation implemented and locally validated; live deployment pending explicit approval and authentication.
+Version 1.0 Local release closure: local platform, CI definition, recovery evidence, documentation, and recruiter assets.
 
 ## Current status
+
+- The complete local platform is proven end to end at 1,000,000 controlled replay events representing 10,000 original NASA detections exactly 100 times each.
+- The 10,000,000-event experiment proves deterministic generation twice and independent read-back for 10,000 original NASA detections replayed exactly 1,000 times.
+- Local 10M Spark processing is not proven. The bounded 3 GiB JVM / 5 GiB container attempt reached a verified Java heap ceiling after approximately 629 seconds and produced no admitted output.
+- AWS architecture and infrastructure definitions are prepared but not deployed. No AWS resources or workloads exist and actual project cost is $0.00.
+- Managed 5M and 10M execution is deferred to Version 1.1. No Version 1.1 work is authorized by this release.
+- Version 1.0 Local includes a GitHub Actions workflow for locked dependencies, tests, package/import validation, Docker/Compose validation, repository auditing, secret scanning, data-exclusion validation, and documentation-link validation.
+- Kafka and PostgreSQL stop/restart recovery preserved exact offsets, serving truth, governed aggregates, and the admitted load identity. All temporary services were stopped after verification.
 
 - Phase 9B now has separate budget-first and platform-foundation CloudFormation templates, inert parameter/job examples, local validation, authenticated inventory, confirmation-gated deployment/teardown, eight infrastructure contract tests, and explicit live closure criteria.
 - The foundation defines the $50 budget, $25/$40 billing alarms, required tags, KMS, private encrypted/versioned S3, private regional networking, least-privilege EMR runtime role, bounded EMR 8.0.0 Spark application, encrypted logs, failure alarm, and dashboard.
@@ -231,18 +239,18 @@ Build a professional batch and streaming data-engineering platform that processe
 
 ## Current gate
 
-Phase 6G is complete. The full local one-million scale gate has passed through replay generation, Spark batch, Kafka, Structured Streaming recovery, governed Gold, and compact PostgreSQL/PostGIS serving.
+Version 1.0 Local release candidate. The one-million full-platform gate and 10-million deterministic generation/read-back experiment are closed with their distinct claims preserved.
 
-## Next proposed milestone
+## Deferred milestone
 
-Phase 7 - design and implement Airflow orchestration and operational metadata for the proven vertical slice. Phase 7 has not started.
+Version 1.1: explicitly approved AWS deployment, budget confirmation, authenticated validation, managed 5M gate, managed 10M gate, actual-cost evidence, and teardown evidence.
 
 ## Known constraints
 
 - The laptop has 16 GB RAM; Docker currently has approximately 7.6 GB available.
 - The project workspace is on a mechanical D: drive, so Spark shuffle and file-heavy operations may be slower.
-- The 5-million and 10-million execution environments will be chosen from measured earlier-gate results.
-- AWS deployment is prohibited until the local 10,000-record vertical slice passes.
+- The local 10M Spark attempt reached its bounded JVM heap ceiling; another laptop attempt is prohibited without a new capacity decision.
+- AWS deployment and managed scale execution require explicit Version 1.1 approval.
 - Major dependencies require approval before installation.
 - The verified live extraction contains 21 original NASA records and is not a scale-gate result.
 - Near-real-time NASA data may later be superseded by standard-processing data.

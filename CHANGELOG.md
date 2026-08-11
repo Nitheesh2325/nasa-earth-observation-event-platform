@@ -1,5 +1,15 @@
 # Changelog
 
+## Version 1.0.0 Local - 2026-08-11
+
+- Closed the recruiter-ready local platform at a verified one-million-event full end-to-end boundary.
+- Recorded deterministic 10-million replay generation and independent verification separately from the failed local Spark attempt.
+- Preserved the 10M JVM heap ceiling as a measured limitation; admitted no Spark output or throughput claim.
+- Added GitHub Actions gates for locked installation, tests, package/import validation, representative integration-safe tests, Docker/Compose contracts, secret scanning, generated-data exclusion, and documentation links.
+- Verified Kafka and PostgreSQL stop/restart recovery with unchanged offsets, serving counts, aggregates, load identity, and idempotency evidence.
+- Added the permanent architecture, evidence index, interview guide, recovery report, release documentation, setup/demo instructions, screenshots, performance summary, and quantified resume bullets.
+- Kept all generated scale data outside Git, created no AWS resources, executed no AWS workload, and retained actual AWS cost at $0.00.
+
 ## Phase 9B - AWS foundation local implementation checkpoint
 
 - Added one region-locked AWS-native CloudFormation foundation for an account-wide budget, billing alarms, tagging, KMS, private S3, private networking/endpoints, least-privilege EMR runtime access, bounded EMR Serverless, encrypted logs, failure visibility, and dashboarding.
