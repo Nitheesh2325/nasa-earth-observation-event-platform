@@ -2,11 +2,17 @@
 
 ## Current milestone
 
-Phase 8B - bounded replaceable API caching boundary complete.
+Phase 8C.1 - bounded operational status API complete. Dashboard implementation has not started.
 
 ## Current status
 
 - `AGENTS.md` is the active repository instruction file.
+- `GET /v1/platform/status` is the single operational endpoint and exposes only bounded dashboard-required metadata.
+- A one-row serving view projects the latest successful Gold/load reconciliation without granting the API role access to underlying load-control tables.
+- Existing immutable Phase 7 manifests provide latest Airflow state and last-successful execution time through a 1,000-manifest read bound.
+- The endpoint exposes cache configuration and entry count but never keys, values, paths, credentials, SQL, secrets, or infrastructure configuration.
+- Eighteen focused API tests, five live one-million-row PostgreSQL tests, three isolated Airflow tests, and the complete regression suite pass.
+- Thirty local requests measured operational-status latency at 38.396 ms p50 and 52.392 ms p95.
 - Only the bounded platform-summary and daily-aggregate responses are cached after request and response validation.
 - The in-process cache uses deterministic versioned keys, a 60-second TTL, 256-entry bound, 65,536-byte entry bound, 4,194,304-byte total bound, and LRU eviction.
 - `Cache-Control: no-cache` and `no-store` bypass both reads and writes; cache failures fall through to the unchanged read-only PostgreSQL repository.

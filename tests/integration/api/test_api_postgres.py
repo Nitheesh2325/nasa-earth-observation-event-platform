@@ -57,6 +57,23 @@ class ApiPostgresIntegrationTests(unittest.TestCase):
                 with self.assertRaises(psycopg.errors.ReadOnlySqlTransaction):
                     connection.execute(statement)
 
+        with psycopg.connect(DSN, autocommit=True) as connection:
+            with self.assertRaises(psycopg.errors.InsufficientPrivilege):
+                connection.execute("SELECT * FROM load_control.database_load_run")
+
+    def test_operational_status_is_bounded_safe_and_reconciled(self):
+        response = self.client.get("/v1/platform/status")
+        self.assertEqual(response.status_code, 200, response.text)
+        body = response.json()
+        self.assertEqual(body["latest_airflow_status"], "SUCCEEDED")
+        self.assertEqual(body["quality_gate_status"], "PASSED")
+        self.assertEqual(body["latest_gold_version"], "1.1.0")
+        self.assertTrue(body["cache_enabled"])
+        self.assertGreater(body["cache_ttl_seconds"], 0)
+        self.assertEqual(len(body["latest_manifest_sha256"]), 64)
+        forbidden = {"path", "sql", "credential", "cache_key", "secret", "infrastructure"}
+        self.assertTrue(forbidden.isdisjoint(body))
+
     def test_all_endpoints_preserve_replay_truth_and_activity_time(self):
         summary = self.client.get("/v1/summary")
         self.assertEqual(summary.status_code, 200, summary.text)

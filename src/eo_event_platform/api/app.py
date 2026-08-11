@@ -5,11 +5,13 @@ from __future__ import annotations
 import json
 import logging
 import os
+from pathlib import Path as FilePath
 from typing import Annotated, Any
 
 import psycopg
 from fastapi import Depends, FastAPI, HTTPException, Path, Query, Request
 from fastapi.responses import JSONResponse
+from pydantic import ValidationError
 
 from .cache import BoundedTTLCache, CacheBackend, DEFAULT_TTL_SECONDS, cache_bypassed, deterministic_cache_key
 from .models import (
@@ -20,13 +22,17 @@ from .models import (
     LineageResponse,
     PageQuery,
     PlatformSummaryResponse,
+    PlatformStatusResponse,
     ReadinessResponse,
     SummaryQuery,
+    StatusQuery,
 )
 from .repository import ApiRepository
+from .status import OperationalMetadataReader, PlatformStatusService
 
 
 LOGGER = logging.getLogger(__name__)
+API_VERSION = "1.0.0"
 
 
 def get_repository(request: Request) -> ApiRepository:
@@ -37,17 +43,26 @@ def create_app(
     repository: ApiRepository | None = None,
     cache_backend: CacheBackend | None = None,
     cache_ttl_seconds: float = DEFAULT_TTL_SECONDS,
+    status_service: PlatformStatusService | None = None,
 ) -> FastAPI:
     if cache_ttl_seconds <= 0:
         raise ValueError("cache TTL must be positive")
     application = FastAPI(
         title="ASTRAYAN Earth Observation Event API",
-        version="1.0.0",
+        version=API_VERSION,
         description="Read-only serving API with explicit NASA original, replay, and synthetic truth.",
     )
     application.state.repository = repository or ApiRepository(os.environ.get("EO_API_DATABASE_DSN", ""))
     application.state.cache_backend = cache_backend if cache_backend is not None else BoundedTTLCache()
     application.state.cache_ttl_seconds = cache_ttl_seconds
+    metadata_root_value = os.environ.get("EO_OPERATIONAL_METADATA_ROOT")
+    application.state.status_service = status_service if status_service is not None else PlatformStatusService(
+        application.state.repository,
+        OperationalMetadataReader(FilePath(metadata_root_value) if metadata_root_value else None),
+        application.state.cache_backend,
+        cache_ttl_seconds,
+        API_VERSION,
+    )
 
     def cached_aggregate(request: Request, namespace: str, filters: Any, loader: Any, response_type: Any) -> Any:
         bypass = cache_bypassed(request.headers.get("cache-control"))
@@ -91,6 +106,13 @@ def create_app(
             return repo.readiness()
         except PermissionError as exc:
             raise HTTPException(status_code=503, detail="database role is not ready") from exc
+
+    @application.get("/v1/platform/status", response_model=PlatformStatusResponse, tags=["operations"])
+    def platform_status(_query: Annotated[StatusQuery, Query()], request: Request) -> Any:
+        try:
+            return PlatformStatusResponse.model_validate(request.app.state.status_service.status())
+        except (RuntimeError, ValidationError) as exc:
+            raise HTTPException(status_code=503, detail="operational metadata unavailable") from exc
 
     @application.get("/v1/summary", response_model=PlatformSummaryResponse, tags=["serving"])
     def platform_summary(

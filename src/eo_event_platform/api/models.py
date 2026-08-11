@@ -97,6 +97,32 @@ class ReadinessResponse(StrictModel):
     read_only: bool
 
 
+class StatusQuery(StrictModel):
+    pass
+
+
+class PlatformStatusResponse(StrictModel):
+    last_successful_pipeline_run: datetime
+    latest_airflow_run_id: str = Field(min_length=1, max_length=256)
+    latest_airflow_status: Literal["SUCCEEDED", "FAILED", "RUNNING"]
+    latest_manifest_id: str = Field(min_length=1, max_length=128)
+    latest_manifest_sha256: str = Field(pattern=r"^[0-9a-f]{64}$")
+    latest_gold_version: str = Field(min_length=1, max_length=32)
+    cache_enabled: bool
+    cache_ttl_seconds: float = Field(gt=0)
+    cache_entries: int | None = Field(default=None, ge=0)
+    api_version: str = Field(min_length=1, max_length=32)
+    platform_version: str = Field(min_length=1, max_length=128)
+    data_freshness: datetime
+    quality_gate_status: Literal["PASSED", "FAILED"]
+
+    @model_validator(mode="after")
+    def validate_status_timestamps(self):
+        if self.last_successful_pipeline_run.tzinfo is None or self.data_freshness.tzinfo is None:
+            raise ValueError("operational timestamps must include a timezone")
+        return self
+
+
 class PlatformSummaryResponse(StrictModel):
     time_semantics: Literal["activity_time"] = "activity_time"
     event_message_count: int

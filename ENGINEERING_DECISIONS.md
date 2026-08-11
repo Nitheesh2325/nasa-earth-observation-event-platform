@@ -309,3 +309,13 @@
 **Decision:** Cache only validated successful summary and daily responses behind a byte-oriented backend protocol. Use canonical validated request JSON for versioned SHA-256 keys, a 60-second TTL, LRU eviction, at most 256 entries, at most 65,536 bytes per entry, and at most 4,194,304 serialized bytes. Honor standard `Cache-Control: no-cache` and `no-store` as read/write bypass directives. Treat every cache read, decode, or write failure as a fall-through to PostgreSQL without changing the API response contract.
 
 **Consequences:** A future backend can replace the local implementation without route or schema changes. The process-local cache is intentionally non-distributed and non-durable; each worker has independent bounded state. Readiness, lineage, bounding-box detail, invalid requests, and failed database or response operations remain uncached.
+
+## ED-032: Expose operational metadata through one safe API projection
+
+**Status:** Accepted
+
+**Context:** The approved dashboard must use only FastAPI, but Phase 8A did not expose Airflow, governed manifest, load-quality, cache-status, or freshness metadata. Direct dashboard access to PostgreSQL, Airflow files, or cache internals would violate the serving boundary.
+
+**Decision:** Add exactly one GET-only `/v1/platform/status` endpoint. Project latest successful Gold/load reconciliation through a one-row `serving` view, read existing immutable Phase 7 manifests under a 1,000-file bound, and expose only cache configuration plus aggregate entry count. Retain forced-read-only API sessions and deny the runtime role direct access to underlying `load_control` tables. Fail closed with a generic 503 when operational metadata is absent, invalid, or over its bound.
+
+**Consequences:** Phase 8C can consume all required operational fields through FastAPI without duplicating business logic or exposing paths, keys, values, credentials, SQL, secrets, or infrastructure configuration. Local file-backed Airflow status requires `EO_OPERATIONAL_METADATA_ROOT`; a deployed orchestration environment must provide the same immutable manifest contract through its mounted operational metadata boundary.

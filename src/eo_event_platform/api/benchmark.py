@@ -75,6 +75,7 @@ def run(dsn: str, repeats: int) -> dict[str, Any]:
     )
     workloads = {
         "readiness": ("/health/ready", None, None),
+        "platform_status": ("/v1/platform/status", None, None),
         "platform_summary_cache_hit": ("/v1/summary", None, None),
         "platform_summary_bypass": ("/v1/summary", None, {"Cache-Control": "no-cache"}),
         "daily_activity": (

@@ -1,5 +1,14 @@
 # Changelog
 
+## Phase 8C.1 - Operational status API
+
+- Added exactly one GET-only operational route at `/v1/platform/status` with an explicit strict response schema and no accepted query parameters.
+- Added a one-row read-only serving view over the latest successful Gold/load reconciliation while preserving denial of underlying load-control tables to the API role.
+- Composed latest Airflow status and last-successful time from existing immutable Phase 7 manifests under a 1,000-manifest bound.
+- Exposed only safe cache configuration and aggregate entry count; no cache contents, keys, paths, credentials, SQL, secrets, or infrastructure configuration are returned.
+- Added safe 503 failure handling for missing, malformed, over-bound, or unsuccessful operational metadata.
+- Passed focused API, complete regression, live one-million-row PostgreSQL, and isolated Airflow suites and recorded 30-request endpoint latency.
+
 ## Phase 8B - Bounded replaceable API cache
 
 - Added a thread-safe in-process TTL/LRU cache behind a replaceable byte-oriented backend contract with explicit entry-count, entry-size, and total-byte limits.

@@ -26,9 +26,26 @@ EVENT = {
 }
 
 
-class FakeRepository:
+class FakeStatusService:
     def readiness(self):
         return {"status": "ready", "database": "reachable", "database_role": "eo_api_runtime", "read_only": True}
+
+    def status(self):
+        return {
+            "last_successful_pipeline_run": NOW,
+            "latest_airflow_run_id": "manual__test",
+            "latest_airflow_status": "SUCCEEDED",
+            "latest_manifest_id": "gold-test",
+            "latest_manifest_sha256": "a" * 64,
+            "latest_gold_version": "1.1",
+            "cache_enabled": True,
+            "cache_ttl_seconds": 60.0,
+            "cache_entries": 0,
+            "api_version": "1.0.0",
+            "platform_version": "test-revision",
+            "data_freshness": NOW,
+            "quality_gate_status": "PASSED",
+        }
 
     def summary(self, _query):
         return {
@@ -74,7 +91,8 @@ class FakeRepository:
 class ApiEndpointTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        cls.client = TestClient(create_app(FakeRepository()))
+        service = FakeStatusService()
+        cls.client = TestClient(create_app(service, status_service=service))
 
     def test_required_endpoints_and_truth_fields(self):
         self.assertEqual(self.client.get("/health/ready").status_code, 200)
@@ -91,11 +109,15 @@ class ApiEndpointTests(unittest.TestCase):
         ).json()
         self.assertEqual(bbox["type"], "FeatureCollection")
         self.assertEqual(bbox["features"][0]["geometry"]["coordinates"], [20.0, 10.0])
+        status = self.client.get("/v1/platform/status").json()
+        self.assertEqual(status["quality_gate_status"], "PASSED")
+        self.assertNotIn("manifest_path", status)
 
     def test_invalid_limits_coordinates_ranges_and_extra_parameters_fail(self):
         self.assertEqual(self.client.get("/v1/lineages/x?limit=101").status_code, 422)
         self.assertEqual(self.client.get("/v1/daily?start_date=2026-08-01&end_date=2026-08-01&limit=201").status_code, 422)
         self.assertEqual(self.client.get("/v1/summary?unknown=value").status_code, 422)
+        self.assertEqual(self.client.get("/v1/platform/status?unknown=value").status_code, 422)
         invalid = self.client.get(
             "/v1/events/bbox?min_longitude=30&min_latitude=0&max_longitude=20&max_latitude=10"
             "&start_time=2026-08-01T00:00:00Z&end_time=2026-08-02T00:00:00Z"
@@ -105,7 +127,7 @@ class ApiEndpointTests(unittest.TestCase):
     def test_openapi_has_explicit_response_schemas_and_no_write_routes(self):
         schema = self.client.get("/openapi.json").json()
         paths = schema["paths"]
-        self.assertEqual(set(paths), {"/health/ready", "/v1/summary", "/v1/daily", "/v1/lineages/{lineage_root_id}", "/v1/events/bbox"})
+        self.assertEqual(set(paths), {"/health/ready", "/v1/platform/status", "/v1/summary", "/v1/daily", "/v1/lineages/{lineage_root_id}", "/v1/events/bbox"})
         self.assertTrue(all(set(operations) == {"get"} for operations in paths.values()))
         for operations in paths.values():
             self.assertIn("$ref", operations["get"]["responses"]["200"]["content"]["application/json"]["schema"])

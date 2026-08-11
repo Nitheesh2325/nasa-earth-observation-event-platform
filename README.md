@@ -32,7 +32,7 @@ Official NASA source -> Python extraction -> Bronze storage -> controlled replay
 - Largest completed serving gate: 1,000,000 replay messages representing 10,000 NASA detections
 - Airflow orchestration: one fixed production-style DAG; bounded integration and same-identity rerun passed
 - FastAPI: five GET-only endpoints; one-million-row integration, permissions, GiST plan, and latency gates passed
-- Current gate: Phase 8B complete; dashboard work has not started
+- Current gate: Phase 8C.1 operational status API complete; dashboard work has not started
 
 Local measurements and limitations are recorded in `PERFORMANCE_REPORT.md` and `reports/quality/`. No cloud-deployment claim should be inferred.
 
@@ -49,6 +49,7 @@ The `integration` profile is capped at 100 records and verifies orchestration, X
 The Version 1.0 API exposes only:
 
 - `GET /health/ready`
+- `GET /v1/platform/status`
 - `GET /v1/summary`
 - `GET /v1/daily`
 - `GET /v1/lineages/{lineage_root_id}`
@@ -56,7 +57,9 @@ The Version 1.0 API exposes only:
 
 All event activity filters use `coalesce(scheduled_replay_timestamp, event_timestamp)`. Observation timestamps remain separately labeled. Lineage and spatial results use seek cursors with maximum limits of 100 and 500 respectively; daily aggregates are limited to 200 rows, bounding-box activity ranges to seven days, and summary/daily ranges to 31 days.
 
-Set `EO_API_DATABASE_DSN` to the untracked `eo_api_runtime` credential and run `uvicorn eo_event_platform.api.app:app`. The readiness endpoint refuses an owner, superuser, or writable database session. API responses never expose raw object paths, governed hashes, database errors, or credentials.
+Set `EO_API_DATABASE_DSN` to the untracked `eo_api_runtime` credential and run `uvicorn eo_event_platform.api.app:app`. The readiness endpoint refuses an owner, superuser, or writable database session. Event-serving responses never expose raw object paths, governed event hashes, database errors, or credentials; the operational endpoint exposes only the explicitly approved Gold manifest checksum.
+
+Set `EO_OPERATIONAL_METADATA_ROOT` to the Phase 7 immutable run-manifest directory for the operational endpoint. `/v1/platform/status` combines that bounded metadata with the safe one-row PostgreSQL operational view and cache aggregate status. It returns no filesystem paths, cache keys or values, credentials, SQL, secrets, or infrastructure configuration.
 
 ## API cache Phase 8B
 

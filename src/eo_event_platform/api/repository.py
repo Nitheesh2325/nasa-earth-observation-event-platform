@@ -50,6 +50,13 @@ class ApiRepository:
             raise PermissionError("database session is not the approved read-only API role")
         return {"status": "ready", "database": "reachable", "database_role": row["database_role"], "read_only": True}
 
+    def platform_status(self) -> dict[str, Any]:
+        with self.connection() as connection:
+            row = connection.execute("SELECT * FROM serving.platform_operational_status").fetchone()
+        if row is None:
+            raise RuntimeError("operational database metadata is unavailable")
+        return row
+
     @staticmethod
     def _filters(query: SummaryQuery | DailyQuery | BoundingBoxQuery) -> tuple[list[str], list[Any]]:
         conditions: list[str] = []

@@ -1,5 +1,11 @@
 # Performance Report
 
+## Phase 8C.1 Operational Status API Gate
+
+**Status:** Passed
+
+Thirty warm, sequential, in-process single-client requests against the preserved one-million-row database measured 38.396 ms p50, 52.392 ms p95, and 54.174 ms p99. Each request used the forced-read-only API role, read one row from the safe operational serving view, inspected the bounded immutable Airflow metadata set, and read only aggregate cache statistics. Measurements exclude network transport, concurrency, and dashboard rendering.
+
 ## Phase 8B Bounded API Cache Gate
 
 **Status:** Passed

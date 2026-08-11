@@ -1,5 +1,23 @@
 # Data Dictionary
 
+## Operational status API
+
+| Field | Type | Source and meaning |
+|---|---|---|
+| `last_successful_pipeline_run` | timezone timestamp | Completion time of the most recent successful immutable Phase 7 run manifest |
+| `latest_airflow_run_id` | string | Most recent Airflow run identifier from bounded Phase 7 metadata |
+| `latest_airflow_status` | enum | `SUCCEEDED`, `FAILED`, or `RUNNING` from the latest immutable run manifest |
+| `latest_manifest_id` | string | Governed Gold run identifier for the latest successful database load |
+| `latest_manifest_sha256` | 64-character hex | Governed Gold manifest checksum stored in load control |
+| `latest_gold_version` | string | Gold contract version of the latest successful load |
+| `cache_enabled` | boolean | Whether the API cache boundary is active |
+| `cache_ttl_seconds` | positive number | Active aggregate-cache TTL |
+| `cache_entries` | nonnegative integer or null | Aggregate entry count when supported by the replaceable backend |
+| `api_version` | string | FastAPI contract version |
+| `platform_version` | string | Pipeline version recorded by the governed Gold run |
+| `data_freshness` | timezone timestamp | Completion time of the latest successful database load |
+| `quality_gate_status` | enum | `PASSED` only when manifest, staging, inserted, and already-present counts reconcile |
+
 ## Status
 
 Version 1 baseline. Field definitions will be expanded only when their implementation milestone begins.
