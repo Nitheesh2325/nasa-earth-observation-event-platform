@@ -1,5 +1,6 @@
 # Secrets and local environment
 .env
+AGENTS.md
 .env.*
 !.env.example
 *.pem

@@ -337,9 +337,8 @@ Deployment is blocked by any public data resource, wildcard data-plane policy, u
 ## Phase 9A verification record
 
 - Repository inspected at baseline commit `4a36a4d33db1da8376355c23027f90e60c9a2cae`.
-- Architecture reconciled with `AGENTS.md`, ED-004, ED-018 through ED-023, ED-028, and the Phase 6 AWS serving topology.
+- Architecture reconciled with the project constraints, ED-004, ED-018 through ED-023, ED-028, and the Phase 6 AWS serving topology.
 - Official AWS pricing/service pages were checked on 2026-08-10; execution-day pricing remains mandatory.
 - No AWS CLI, SDK, Console, CloudFormation, Terraform, or service API call was executed.
 - No credential was requested, displayed, written, or committed.
 - Actual AWS cost at Phase 9A completion: `$0.00`.
-

@@ -23,7 +23,6 @@ Version 1.0 Local release closure: local platform, CI definition, recovery evide
 - The plan excludes managed Kafka, Kubernetes, public API/dashboard hosting, and continuously running compute from Version 1.0 AWS scope.
 - The 5M gate is strictly before the 10M gate; each must reconcile identities, underlying detections, replay/synthetic truth, counts, quality, runtime, cost, recovery, and teardown.
 - No AWS resources or credentials were created or used. Actual AWS project cost remains $0.00.
-- `AGENTS.md` is the active repository instruction file.
 - Streamlit 1.61.1 provides one professional dark dashboard that consumes only the six approved FastAPI routes.
 - Mission, pipeline truth, daily activity, health/cache/Airflow, bounded geospatial, and detection-lineage views render verified one-million-row API data.
 - Geospatial requests remain bounded to seven activity days and 500 points; lineage responses remain bounded to 100 events; daily responses remain bounded to 200 aggregate rows.
