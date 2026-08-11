@@ -1,0 +1,208 @@
+{
+  "AWSTemplateFormatVersion": "2010-09-09",
+  "Description": "ASTRAYAN Phase 9B private AWS data-platform foundation. Creates no scale data and starts no jobs.",
+  "Metadata": {
+    "Phase": "9B",
+    "ArchitectureDecision": "ED-034",
+    "ExpectedMonthlyCostLimitUsd": 50,
+    "ManagedBy": "CloudFormation"
+  },
+  "Parameters": {
+    "AlertTopicArn": {
+      "Type": "String",
+      "Description": "Verified SNS topic ARN output from the Phase 9B cost-controls stack.",
+      "AllowedPattern": "^arn:aws:sns:us-east-1:[0-9]{12}:astrayan-v1-operations-alerts$"
+    },
+    "OwnerTag": {
+      "Type": "String",
+      "Default": "Nitheesh2325",
+      "AllowedPattern": "^[A-Za-z0-9._-]+$"
+    },
+    "ExpiresAt": {
+      "Type": "String",
+      "Description": "UTC teardown deadline in YYYY-MM-DD format.",
+      "AllowedPattern": "^20[0-9]{2}-(0[1-9]|1[0-2])-([0-2][0-9]|3[0-1])$"
+    },
+    "EmrReleaseLabel": {
+      "Type": "String",
+      "Default": "emr-8.0.0",
+      "AllowedValues": ["emr-8.0.0"]
+    }
+  },
+  "Rules": {
+    "SingleApprovedRegion": {
+      "Assertions": [
+        {
+          "Assert": {"Fn::Equals": [{"Ref": "AWS::Region"}, "us-east-1"]},
+          "AssertDescription": "Phase 9B may deploy only in us-east-1."
+        }
+      ]
+    }
+  },
+  "Resources": {
+    "DataKey": {
+      "Type": "AWS::KMS::Key",
+      "DeletionPolicy": "Retain",
+      "UpdateReplacePolicy": "Retain",
+      "Properties": {
+        "Description": "ASTRAYAN V1 data, log, artifact, and evidence encryption key",
+        "EnableKeyRotation": true,
+        "PendingWindowInDays": 30,
+        "KeyPolicy": {
+          "Version": "2012-10-17",
+          "Statement": [
+            {"Sid": "AccountAdministration", "Effect": "Allow", "Principal": {"AWS": {"Fn::Sub": "arn:${AWS::Partition}:iam::${AWS::AccountId}:root"}}, "Action": "kms:*", "Resource": "*"},
+            {"Sid": "CloudWatchLogsUse", "Effect": "Allow", "Principal": {"Service": {"Fn::Sub": "logs.${AWS::Region}.amazonaws.com"}}, "Action": ["kms:Encrypt", "kms:Decrypt", "kms:ReEncrypt*", "kms:GenerateDataKey*", "kms:DescribeKey"], "Resource": "*", "Condition": {"ArnLike": {"kms:EncryptionContext:aws:logs:arn": {"Fn::Sub": "arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:log-group:/astrayan/v1/*"}}}}
+          ]
+        },
+        "Tags": [
+          {"Key": "Project", "Value": "ASTRAYAN"}, {"Key": "Environment", "Value": "portfolio-v1"}, {"Key": "Owner", "Value": {"Ref": "OwnerTag"}},
+          {"Key": "ManagedBy", "Value": "CloudFormation"}, {"Key": "CostCenter", "Value": "portfolio"}, {"Key": "Gate", "Value": "foundation"}, {"Key": "ExpiresAt", "Value": {"Ref": "ExpiresAt"}}
+        ]
+      }
+    },
+    "DataKeyAlias": {"Type": "AWS::KMS::Alias", "Properties": {"AliasName": "alias/astrayan-v1-data", "TargetKeyId": {"Ref": "DataKey"}}},
+    "DataBucket": {
+      "Type": "AWS::S3::Bucket",
+      "DeletionPolicy": "Retain",
+      "UpdateReplacePolicy": "Retain",
+      "Properties": {
+        "BucketName": {"Fn::Sub": "astrayan-${AWS::AccountId}-${AWS::Region}-data"},
+        "BucketEncryption": {"ServerSideEncryptionConfiguration": [{"BucketKeyEnabled": true, "ServerSideEncryptionByDefault": {"KMSMasterKeyID": {"Fn::GetAtt": ["DataKey", "Arn"]}, "SSEAlgorithm": "aws:kms"}}]},
+        "OwnershipControls": {"Rules": [{"ObjectOwnership": "BucketOwnerEnforced"}]},
+        "PublicAccessBlockConfiguration": {"BlockPublicAcls": true, "BlockPublicPolicy": true, "IgnorePublicAcls": true, "RestrictPublicBuckets": true},
+        "VersioningConfiguration": {"Status": "Enabled"},
+        "LifecycleConfiguration": {"Rules": [
+          {"Id": "AbortIncompleteMultipartUploads", "Status": "Enabled", "AbortIncompleteMultipartUpload": {"DaysAfterInitiation": 7}},
+          {"Id": "ExpireNoncurrentVersions", "Status": "Enabled", "NoncurrentVersionExpiration": {"NoncurrentDays": 30}},
+          {"Id": "TransientReplayExpiration", "Status": "Enabled", "Prefix": "bronze/replay/", "ExpirationInDays": 30},
+          {"Id": "TransientPostgresLoadExpiration", "Status": "Enabled", "Prefix": "gold-transient/postgres_load/", "ExpirationInDays": 30},
+          {"Id": "EvidenceArchive", "Status": "Enabled", "Prefix": "evidence/", "Transitions": [{"StorageClass": "STANDARD_IA", "TransitionInDays": 30}, {"StorageClass": "GLACIER_IR", "TransitionInDays": 90}]}
+        ]},
+        "Tags": [
+          {"Key": "Project", "Value": "ASTRAYAN"}, {"Key": "Environment", "Value": "portfolio-v1"}, {"Key": "Owner", "Value": {"Ref": "OwnerTag"}},
+          {"Key": "ManagedBy", "Value": "CloudFormation"}, {"Key": "CostCenter", "Value": "portfolio"}, {"Key": "Gate", "Value": "foundation"}, {"Key": "ExpiresAt", "Value": {"Ref": "ExpiresAt"}}
+        ]
+      }
+    },
+    "LogBucket": {
+      "Type": "AWS::S3::Bucket",
+      "DeletionPolicy": "Retain",
+      "UpdateReplacePolicy": "Retain",
+      "Properties": {
+        "BucketName": {"Fn::Sub": "astrayan-${AWS::AccountId}-${AWS::Region}-logs"},
+        "BucketEncryption": {"ServerSideEncryptionConfiguration": [{"BucketKeyEnabled": true, "ServerSideEncryptionByDefault": {"KMSMasterKeyID": {"Fn::GetAtt": ["DataKey", "Arn"]}, "SSEAlgorithm": "aws:kms"}}]},
+        "OwnershipControls": {"Rules": [{"ObjectOwnership": "BucketOwnerEnforced"}]},
+        "PublicAccessBlockConfiguration": {"BlockPublicAcls": true, "BlockPublicPolicy": true, "IgnorePublicAcls": true, "RestrictPublicBuckets": true},
+        "VersioningConfiguration": {"Status": "Enabled"},
+        "LifecycleConfiguration": {"Rules": [
+          {"Id": "AbortIncompleteMultipartUploads", "Status": "Enabled", "AbortIncompleteMultipartUpload": {"DaysAfterInitiation": 7}},
+          {"Id": "ExpireLogs", "Status": "Enabled", "ExpirationInDays": 30},
+          {"Id": "ExpireNoncurrentLogs", "Status": "Enabled", "NoncurrentVersionExpiration": {"NoncurrentDays": 14}}
+        ]},
+        "Tags": [
+          {"Key": "Project", "Value": "ASTRAYAN"}, {"Key": "Environment", "Value": "portfolio-v1"}, {"Key": "Owner", "Value": {"Ref": "OwnerTag"}},
+          {"Key": "ManagedBy", "Value": "CloudFormation"}, {"Key": "CostCenter", "Value": "portfolio"}, {"Key": "Gate", "Value": "foundation"}, {"Key": "ExpiresAt", "Value": {"Ref": "ExpiresAt"}}
+        ]
+      }
+    },
+    "DataBucketPolicy": {
+      "Type": "AWS::S3::BucketPolicy",
+      "Properties": {
+        "Bucket": {"Ref": "DataBucket"},
+        "PolicyDocument": {"Version": "2012-10-17", "Statement": [
+          {"Sid": "DenyInsecureTransport", "Effect": "Deny", "Principal": "*", "Action": "s3:*", "Resource": [{"Fn::GetAtt": ["DataBucket", "Arn"]}, {"Fn::Sub": "${DataBucket.Arn}/*"}], "Condition": {"Bool": {"aws:SecureTransport": "false"}}}
+        ]}
+      }
+    },
+    "LogBucketPolicy": {
+      "Type": "AWS::S3::BucketPolicy",
+      "Properties": {
+        "Bucket": {"Ref": "LogBucket"},
+        "PolicyDocument": {"Version": "2012-10-17", "Statement": [
+          {"Sid": "DenyInsecureTransport", "Effect": "Deny", "Principal": "*", "Action": "s3:*", "Resource": [{"Fn::GetAtt": ["LogBucket", "Arn"]}, {"Fn::Sub": "${LogBucket.Arn}/*"}], "Condition": {"Bool": {"aws:SecureTransport": "false"}}}
+        ]}
+      }
+    },
+    "EmrLogGroup": {"Type": "AWS::Logs::LogGroup", "Properties": {"LogGroupName": "/astrayan/v1/emr-serverless", "KmsKeyId": {"Fn::GetAtt": ["DataKey", "Arn"]}, "RetentionInDays": 30, "Tags": [{"Key": "Project", "Value": "ASTRAYAN"}, {"Key": "Environment", "Value": "portfolio-v1"}, {"Key": "Owner", "Value": {"Ref": "OwnerTag"}}, {"Key": "ManagedBy", "Value": "CloudFormation"}, {"Key": "CostCenter", "Value": "portfolio"}, {"Key": "Gate", "Value": "foundation"}, {"Key": "ExpiresAt", "Value": {"Ref": "ExpiresAt"}}]}},
+    "LoaderLogGroup": {"Type": "AWS::Logs::LogGroup", "Properties": {"LogGroupName": "/astrayan/v1/ecs/loader", "KmsKeyId": {"Fn::GetAtt": ["DataKey", "Arn"]}, "RetentionInDays": 30}},
+    "VerifierLogGroup": {"Type": "AWS::Logs::LogGroup", "Properties": {"LogGroupName": "/astrayan/v1/ecs/verifier", "KmsKeyId": {"Fn::GetAtt": ["DataKey", "Arn"]}, "RetentionInDays": 30}},
+    "EmrErrorMetricFilter": {
+      "Type": "AWS::Logs::MetricFilter",
+      "Properties": {"LogGroupName": {"Ref": "EmrLogGroup"}, "FilterPattern": "ERROR", "MetricTransformations": [{"MetricNamespace": "ASTRAYAN/V1", "MetricName": "EmrLogErrors", "MetricValue": "1", "DefaultValue": 0}]}
+    },
+    "EmrFailureAlarm": {
+      "Type": "AWS::CloudWatch::Alarm",
+      "Properties": {"AlarmName": "astrayan-v1-emr-log-errors", "AlarmDescription": "EMR Serverless emitted an ERROR log entry.", "Namespace": "ASTRAYAN/V1", "MetricName": "EmrLogErrors", "Statistic": "Sum", "Period": 60, "EvaluationPeriods": 1, "Threshold": 0, "ComparisonOperator": "GreaterThanThreshold", "TreatMissingData": "notBreaching", "AlarmActions": [{"Ref": "AlertTopicArn"}]}
+    },
+    "Vpc": {
+      "Type": "AWS::EC2::VPC",
+      "Properties": {"CidrBlock": "10.42.0.0/16", "EnableDnsHostnames": true, "EnableDnsSupport": true, "InstanceTenancy": "default", "Tags": [{"Key": "Name", "Value": "astrayan-v1"}, {"Key": "Project", "Value": "ASTRAYAN"}, {"Key": "Environment", "Value": "portfolio-v1"}, {"Key": "Owner", "Value": {"Ref": "OwnerTag"}}, {"Key": "ManagedBy", "Value": "CloudFormation"}, {"Key": "CostCenter", "Value": "portfolio"}, {"Key": "Gate", "Value": "foundation"}, {"Key": "ExpiresAt", "Value": {"Ref": "ExpiresAt"}}]}
+    },
+    "PrivateSubnetA": {"Type": "AWS::EC2::Subnet", "Properties": {"VpcId": {"Ref": "Vpc"}, "CidrBlock": "10.42.10.0/24", "AvailabilityZone": {"Fn::Select": [0, {"Fn::GetAZs": ""}]}, "MapPublicIpOnLaunch": false, "Tags": [{"Key": "Name", "Value": "astrayan-private-a"}, {"Key": "Project", "Value": "ASTRAYAN"}]}},
+    "PrivateSubnetB": {"Type": "AWS::EC2::Subnet", "Properties": {"VpcId": {"Ref": "Vpc"}, "CidrBlock": "10.42.20.0/24", "AvailabilityZone": {"Fn::Select": [1, {"Fn::GetAZs": ""}]}, "MapPublicIpOnLaunch": false, "Tags": [{"Key": "Name", "Value": "astrayan-private-b"}, {"Key": "Project", "Value": "ASTRAYAN"}]}},
+    "PrivateRouteTable": {"Type": "AWS::EC2::RouteTable", "Properties": {"VpcId": {"Ref": "Vpc"}, "Tags": [{"Key": "Name", "Value": "astrayan-private"}, {"Key": "Project", "Value": "ASTRAYAN"}]}},
+    "PrivateSubnetARoute": {"Type": "AWS::EC2::SubnetRouteTableAssociation", "Properties": {"RouteTableId": {"Ref": "PrivateRouteTable"}, "SubnetId": {"Ref": "PrivateSubnetA"}}},
+    "PrivateSubnetBRoute": {"Type": "AWS::EC2::SubnetRouteTableAssociation", "Properties": {"RouteTableId": {"Ref": "PrivateRouteTable"}, "SubnetId": {"Ref": "PrivateSubnetB"}}},
+    "EndpointSecurityGroup": {"Type": "AWS::EC2::SecurityGroup", "Properties": {"GroupDescription": "HTTPS from ASTRAYAN private subnets to interface endpoints", "VpcId": {"Ref": "Vpc"}, "SecurityGroupIngress": [{"IpProtocol": "tcp", "FromPort": 443, "ToPort": 443, "CidrIp": "10.42.0.0/16"}], "SecurityGroupEgress": [], "Tags": [{"Key": "Name", "Value": "astrayan-endpoints"}, {"Key": "Project", "Value": "ASTRAYAN"}]}},
+    "EmrSecurityGroup": {"Type": "AWS::EC2::SecurityGroup", "Properties": {"GroupDescription": "ASTRAYAN EMR Serverless workers; no inbound traffic", "VpcId": {"Ref": "Vpc"}, "SecurityGroupEgress": [{"IpProtocol": "tcp", "FromPort": 443, "ToPort": 443, "CidrIp": "0.0.0.0/0", "Description": "HTTPS only; private route table has no internet or NAT route"}], "Tags": [{"Key": "Name", "Value": "astrayan-emr"}, {"Key": "Project", "Value": "ASTRAYAN"}]}},
+    "S3Endpoint": {"Type": "AWS::EC2::VPCEndpoint", "Properties": {"VpcId": {"Ref": "Vpc"}, "VpcEndpointType": "Gateway", "ServiceName": {"Fn::Sub": "com.amazonaws.${AWS::Region}.s3"}, "RouteTableIds": [{"Ref": "PrivateRouteTable"}], "PolicyDocument": {"Version": "2012-10-17", "Statement": [{"Effect": "Allow", "Principal": "*", "Action": ["s3:GetObject", "s3:PutObject", "s3:ListBucket", "s3:GetBucketLocation"], "Resource": [{"Fn::GetAtt": ["DataBucket", "Arn"]}, {"Fn::Sub": "${DataBucket.Arn}/*"}, {"Fn::GetAtt": ["LogBucket", "Arn"]}, {"Fn::Sub": "${LogBucket.Arn}/*"}]}]}}},
+    "LogsEndpoint": {"Type": "AWS::EC2::VPCEndpoint", "Properties": {"VpcId": {"Ref": "Vpc"}, "VpcEndpointType": "Interface", "ServiceName": {"Fn::Sub": "com.amazonaws.${AWS::Region}.logs"}, "PrivateDnsEnabled": true, "SubnetIds": [{"Ref": "PrivateSubnetA"}, {"Ref": "PrivateSubnetB"}], "SecurityGroupIds": [{"Ref": "EndpointSecurityGroup"}]}},
+    "StsEndpoint": {"Type": "AWS::EC2::VPCEndpoint", "Properties": {"VpcId": {"Ref": "Vpc"}, "VpcEndpointType": "Interface", "ServiceName": {"Fn::Sub": "com.amazonaws.${AWS::Region}.sts"}, "PrivateDnsEnabled": true, "SubnetIds": [{"Ref": "PrivateSubnetA"}, {"Ref": "PrivateSubnetB"}], "SecurityGroupIds": [{"Ref": "EndpointSecurityGroup"}]}},
+    "EcrApiEndpoint": {"Type": "AWS::EC2::VPCEndpoint", "Properties": {"VpcId": {"Ref": "Vpc"}, "VpcEndpointType": "Interface", "ServiceName": {"Fn::Sub": "com.amazonaws.${AWS::Region}.ecr.api"}, "PrivateDnsEnabled": true, "SubnetIds": [{"Ref": "PrivateSubnetA"}, {"Ref": "PrivateSubnetB"}], "SecurityGroupIds": [{"Ref": "EndpointSecurityGroup"}]}},
+    "EcrDkrEndpoint": {"Type": "AWS::EC2::VPCEndpoint", "Properties": {"VpcId": {"Ref": "Vpc"}, "VpcEndpointType": "Interface", "ServiceName": {"Fn::Sub": "com.amazonaws.${AWS::Region}.ecr.dkr"}, "PrivateDnsEnabled": true, "SubnetIds": [{"Ref": "PrivateSubnetA"}, {"Ref": "PrivateSubnetB"}], "SecurityGroupIds": [{"Ref": "EndpointSecurityGroup"}]}},
+    "SecretsEndpoint": {"Type": "AWS::EC2::VPCEndpoint", "Properties": {"VpcId": {"Ref": "Vpc"}, "VpcEndpointType": "Interface", "ServiceName": {"Fn::Sub": "com.amazonaws.${AWS::Region}.secretsmanager"}, "PrivateDnsEnabled": true, "SubnetIds": [{"Ref": "PrivateSubnetA"}, {"Ref": "PrivateSubnetB"}], "SecurityGroupIds": [{"Ref": "EndpointSecurityGroup"}]}},
+    "EmrRuntimeRole": {
+      "Type": "AWS::IAM::Role",
+      "Properties": {
+        "RoleName": "AstrayanEmrRuntimeRole",
+        "AssumeRolePolicyDocument": {"Version": "2012-10-17", "Statement": [{"Effect": "Allow", "Principal": {"Service": "emr-serverless.amazonaws.com"}, "Action": "sts:AssumeRole"}]},
+        "Policies": [{"PolicyName": "AstrayanEmrRuntimePolicy", "PolicyDocument": {"Version": "2012-10-17", "Statement": [
+          {"Sid": "ListGovernedBuckets", "Effect": "Allow", "Action": ["s3:ListBucket", "s3:GetBucketLocation"], "Resource": [{"Fn::GetAtt": ["DataBucket", "Arn"]}, {"Fn::GetAtt": ["LogBucket", "Arn"]}], "Condition": {"StringLike": {"s3:prefix": ["artifacts/*", "bronze/*", "silver/*", "gold/*", "quarantine/*", "evidence/*", "emr-serverless/*"]}}},
+          {"Sid": "ReadAdmittedInputs", "Effect": "Allow", "Action": ["s3:GetObject", "s3:GetObjectVersion"], "Resource": [{"Fn::Sub": "${DataBucket.Arn}/artifacts/*"}, {"Fn::Sub": "${DataBucket.Arn}/bronze/*"}]},
+          {"Sid": "WriteGovernedOutputs", "Effect": "Allow", "Action": ["s3:PutObject", "s3:AbortMultipartUpload"], "Resource": [{"Fn::Sub": "${DataBucket.Arn}/silver/*"}, {"Fn::Sub": "${DataBucket.Arn}/gold/*"}, {"Fn::Sub": "${DataBucket.Arn}/quarantine/*"}, {"Fn::Sub": "${DataBucket.Arn}/evidence/*"}, {"Fn::Sub": "${LogBucket.Arn}/emr-serverless/*"}]},
+          {"Sid": "UseProjectKey", "Effect": "Allow", "Action": ["kms:Decrypt", "kms:Encrypt", "kms:GenerateDataKey", "kms:DescribeKey"], "Resource": [{"Fn::GetAtt": ["DataKey", "Arn"]}]},
+          {"Sid": "DescribeLogGroupsUnavoidable", "Effect": "Allow", "Action": ["logs:DescribeLogGroups"], "Resource": "*"},
+          {"Sid": "WriteProjectLogs", "Effect": "Allow", "Action": ["logs:CreateLogStream", "logs:DescribeLogStreams", "logs:PutLogEvents"], "Resource": [{"Fn::Sub": "${EmrLogGroup.Arn}:*"}]},
+          {"Sid": "PublishProjectMetrics", "Effect": "Allow", "Action": ["cloudwatch:PutMetricData"], "Resource": "*", "Condition": {"StringEquals": {"cloudwatch:namespace": "ASTRAYAN/V1"}}}
+        ]}}],
+        "Tags": [{"Key": "Project", "Value": "ASTRAYAN"}, {"Key": "Environment", "Value": "portfolio-v1"}, {"Key": "Owner", "Value": {"Ref": "OwnerTag"}}, {"Key": "ManagedBy", "Value": "CloudFormation"}, {"Key": "CostCenter", "Value": "portfolio"}, {"Key": "Gate", "Value": "foundation"}, {"Key": "ExpiresAt", "Value": {"Ref": "ExpiresAt"}}]
+      }
+    },
+    "EmrApplication": {
+      "Type": "AWS::EMRServerless::Application",
+      "Properties": {
+        "Name": "astrayan-spark-v1",
+        "ReleaseLabel": {"Ref": "EmrReleaseLabel"},
+        "Type": "SPARK",
+        "Architecture": "X86_64",
+        "AutoStartConfiguration": {"Enabled": true},
+        "AutoStopConfiguration": {"Enabled": true, "IdleTimeoutMinutes": 10},
+        "MaximumCapacity": {"Cpu": "16 vCPU", "Memory": "64 GB", "Disk": "200 GB"},
+        "NetworkConfiguration": {"SubnetIds": [{"Ref": "PrivateSubnetA"}, {"Ref": "PrivateSubnetB"}], "SecurityGroupIds": [{"Ref": "EmrSecurityGroup"}]},
+        "MonitoringConfiguration": {
+          "ManagedPersistenceMonitoringConfiguration": {"Enabled": true, "EncryptionKeyArn": {"Fn::GetAtt": ["DataKey", "Arn"]}},
+          "CloudWatchLoggingConfiguration": {"Enabled": true, "EncryptionKeyArn": {"Fn::GetAtt": ["DataKey", "Arn"]}, "LogGroupName": {"Ref": "EmrLogGroup"}, "LogStreamNamePrefix": "applications"},
+          "S3MonitoringConfiguration": {"EncryptionKeyArn": {"Fn::GetAtt": ["DataKey", "Arn"]}, "LogUri": {"Fn::Sub": "s3://${LogBucket}/emr-serverless/"}}
+        },
+        "RuntimeConfiguration": [{"Classification": "spark-defaults", "Properties": {"spark.dynamicAllocation.enabled": "true", "spark.dynamicAllocation.maxExecutors": "3", "spark.dynamicAllocation.executorIdleTimeout": "60s", "spark.executor.instances": "1", "spark.sql.shuffle.partitions": "64", "spark.sql.adaptive.enabled": "true"}}],
+        "Tags": [{"Key": "Project", "Value": "ASTRAYAN"}, {"Key": "Environment", "Value": "portfolio-v1"}, {"Key": "Owner", "Value": {"Ref": "OwnerTag"}}, {"Key": "ManagedBy", "Value": "CloudFormation"}, {"Key": "CostCenter", "Value": "portfolio"}, {"Key": "Gate", "Value": "foundation"}, {"Key": "ExpiresAt", "Value": {"Ref": "ExpiresAt"}}]
+      }
+    },
+    "OperationsDashboard": {
+      "Type": "AWS::CloudWatch::Dashboard",
+      "Properties": {"DashboardName": "ASTRAYAN-V1-Foundation", "DashboardBody": {"Fn::Sub": "{\"widgets\":[{\"type\":\"metric\",\"x\":0,\"y\":0,\"width\":12,\"height\":6,\"properties\":{\"region\":\"${AWS::Region}\",\"title\":\"EMR Serverless allocated capacity\",\"metrics\":[[\"AWS/EMRServerless\",\"WorkerCpuAllocated\",\"ApplicationId\",\"${EmrApplication}\"],[\".\",\"WorkerMemoryAllocated\",\".\",\".\"]],\"period\":60,\"stat\":\"Sum\"}},{\"type\":\"metric\",\"x\":12,\"y\":0,\"width\":12,\"height\":6,\"properties\":{\"region\":\"${AWS::Region}\",\"title\":\"ASTRAYAN failures and quality\",\"metrics\":[[\"ASTRAYAN/V1\",\"EmrLogErrors\"],[\".\",\"QualityGateFailure\"]],\"period\":60,\"stat\":\"Sum\"}}]}"}}
+    }
+  },
+  "Outputs": {
+    "DataBucketName": {"Value": {"Ref": "DataBucket"}},
+    "LogBucketName": {"Value": {"Ref": "LogBucket"}},
+    "KmsKeyArn": {"Value": {"Fn::GetAtt": ["DataKey", "Arn"]}},
+    "EmrApplicationId": {"Value": {"Ref": "EmrApplication"}},
+    "EmrRuntimeRoleArn": {"Value": {"Fn::GetAtt": ["EmrRuntimeRole", "Arn"]}},
+    "EmrMaximumCapacity": {"Value": "16 vCPU / 64 GB / 200 GB"},
+    "BronzePrefix": {"Value": {"Fn::Sub": "s3://${DataBucket}/bronze/"}},
+    "SilverPrefix": {"Value": {"Fn::Sub": "s3://${DataBucket}/silver/"}},
+    "GoldPrefix": {"Value": {"Fn::Sub": "s3://${DataBucket}/gold/"}}
+  }
+}

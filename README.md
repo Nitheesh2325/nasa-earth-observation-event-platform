@@ -26,13 +26,13 @@ Official NASA source -> Python extraction -> Bronze storage -> controlled replay
 - NASA extraction: bounded 21-record smoke test passed
 - Canonical events: 21 accepted, 0 rejected, 0 duplicate; deterministic rerun passed
 - Local vertical slice: passed through PostgreSQL/PostGIS at 100,000 replay messages
-- AWS deployment: Phase 9A execution plan complete; no infrastructure created and actual cost $0.00
+- AWS deployment: Phase 9B foundation locally implemented; authenticated deployment not started and actual cost $0.00
 - Largest verified official NASA selection: 10,000 original NASA detections
 - Largest verified replay processing gate: 1,000,000 messages representing 10,000 NASA detections exactly 100 times each
 - Largest completed serving gate: 1,000,000 replay messages representing 10,000 NASA detections
 - Airflow orchestration: one fixed production-style DAG; bounded integration and same-identity rerun passed
 - FastAPI: five GET-only endpoints; one-million-row integration, permissions, GiST plan, and latency gates passed
-- Current gate: Phase 9A AWS execution plan verified; implementation awaits the next milestone
+- Current gate: Phase 9B local foundation verified; live AWS verification awaits explicit approval and authentication
 
 Local measurements and limitations are recorded in `PERFORMANCE_REPORT.md` and `reports/quality/`. No cloud-deployment claim should be inferred.
 
@@ -41,6 +41,8 @@ Local measurements and limitations are recorded in `PERFORMANCE_REPORT.md` and `
 The planning-only AWS contract is documented in `docs/phase_9/PHASE_9A_AWS_EXECUTION_PLAN.md`. It fixes one-region private execution through encrypted S3, EMR Serverless, temporary RDS PostgreSQL/PostGIS, one-off Fargate loader/verifier tasks, CloudWatch, and a budget-first teardown process. The required cost ledger is `AWS_COST_REPORT.md`.
 
 No AWS resource has been created. Managed Kafka, Kubernetes, public API/dashboard hosting, and always-on compute are outside the Version 1.0 cloud scale gate.
+
+The deployable foundation is under `infrastructure/aws/`. It uses AWS-native CloudFormation, is locked to `us-east-1`, starts no job, and contains no credential or real notification address. Local validation and tests can run without AWS access. Live validation, deployment, notification confirmation, and teardown require an explicitly approved MFA-backed AWS session.
 
 ## Airflow Phase 7
 

@@ -2,10 +2,15 @@
 
 ## Current milestone
 
-Phase 9A - AWS execution plan complete; cloud implementation not started.
+Phase 9B - AWS foundation implemented and locally validated; live deployment pending explicit approval and authentication.
 
 ## Current status
 
+- Phase 9B now has separate budget-first and platform-foundation CloudFormation templates, inert parameter/job examples, local validation, authenticated inventory, confirmation-gated deployment/teardown, eight infrastructure contract tests, and explicit live closure criteria.
+- The foundation defines the $50 budget, $25/$40 billing alarms, required tags, KMS, private encrypted/versioned S3, private regional networking, least-privilege EMR runtime role, bounded EMR 8.0.0 Spark application, encrypted logs, failure alarm, and dashboard.
+- It deliberately defines no scale job, RDS instance, ECS task, MSK/EKS cluster, NAT gateway, load balancer, public endpoint, or application feature.
+- Local infrastructure validation passes. AWS service-side validation, live resource verification, notification confirmation, and teardown evidence require explicit authenticated deployment approval and remain pending.
+- No AWS resource has been created and actual AWS cost remains $0.00.
 - Phase 9A defines the exact `us-east-1` deployment, least-privilege roles, encrypted S3 layout, EMR Serverless capacity, temporary RDS/PostGIS serving gate, Fargate load/verification boundary, CloudWatch controls, $50 budget gate, and ordered teardown.
 - The plan excludes managed Kafka, Kubernetes, public API/dashboard hosting, and continuously running compute from Version 1.0 AWS scope.
 - The 5M gate is strictly before the 10M gate; each must reconcile identities, underlying detections, replay/synthetic truth, counts, quality, runtime, cost, recovery, and teardown.

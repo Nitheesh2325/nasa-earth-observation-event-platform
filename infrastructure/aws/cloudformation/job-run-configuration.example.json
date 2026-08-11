@@ -1,0 +1,27 @@
+{
+  "name": "astrayan-compatibility-smoke",
+  "executionRoleArn": "<EmrRuntimeRoleArn stack output>",
+  "jobDriver": {
+    "sparkSubmit": {
+      "entryPoint": "s3://<DataBucketName>/artifacts/git_sha=<40-char-sha>/application_bundle.zip",
+      "sparkSubmitParameters": "--conf spark.driver.cores=4 --conf spark.driver.memory=16g --conf spark.executor.cores=4 --conf spark.executor.memory=16g --conf spark.dynamicAllocation.maxExecutors=3"
+    }
+  },
+  "configurationOverrides": {
+    "monitoringConfiguration": {
+      "managedPersistenceMonitoringConfiguration": {"enabled": true},
+      "cloudWatchLoggingConfiguration": {
+        "enabled": true,
+        "logGroupName": "/astrayan/v1/emr-serverless",
+        "logStreamNamePrefix": "applications",
+        "encryptionKeyArn": "<KmsKeyArn stack output>"
+      },
+      "s3MonitoringConfiguration": {
+        "logUri": "s3://<LogBucketName>/emr-serverless/",
+        "encryptionKeyArn": "<KmsKeyArn stack output>"
+      }
+    }
+  },
+  "executionTimeoutMinutes": 60,
+  "retryPolicy": {"maxAttempts": 1}
+}

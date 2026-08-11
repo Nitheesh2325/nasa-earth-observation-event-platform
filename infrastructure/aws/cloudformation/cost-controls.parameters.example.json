@@ -1,0 +1,6 @@
+[
+  {"ParameterKey": "NotificationEmail", "ParameterValue": "replace-with-approved-recipient@example.com"},
+  {"ParameterKey": "OwnerTag", "ParameterValue": "Nitheesh2325"},
+  {"ParameterKey": "ExpiresAt", "ParameterValue": "2026-08-31"},
+  {"ParameterKey": "MonthlyBudgetUsd", "ParameterValue": "50"}
+]

@@ -1,0 +1,6 @@
+[
+  {"ParameterKey": "AlertTopicArn", "ParameterValue": "arn:aws:sns:us-east-1:123456789012:astrayan-v1-operations-alerts"},
+  {"ParameterKey": "OwnerTag", "ParameterValue": "Nitheesh2325"},
+  {"ParameterKey": "ExpiresAt", "ParameterValue": "2026-08-31"},
+  {"ParameterKey": "EmrReleaseLabel", "ParameterValue": "emr-8.0.0"}
+]

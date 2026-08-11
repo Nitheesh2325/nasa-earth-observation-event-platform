@@ -1,0 +1,28 @@
+{
+  "AWSTemplateFormatVersion": "2010-09-09",
+  "Description": "ASTRAYAN Phase 9B budget-first cost controls. Deploy and confirm before the foundation stack.",
+  "Parameters": {
+    "NotificationEmail": {"Type": "String", "AllowedPattern": "^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$"},
+    "OwnerTag": {"Type": "String", "Default": "Nitheesh2325", "AllowedPattern": "^[A-Za-z0-9._-]+$"},
+    "ExpiresAt": {"Type": "String", "AllowedPattern": "^20[0-9]{2}-(0[1-9]|1[0-2])-([0-2][0-9]|3[0-1])$"},
+    "MonthlyBudgetUsd": {"Type": "Number", "Default": 50, "MinValue": 50, "MaxValue": 50}
+  },
+  "Rules": {"SingleApprovedRegion": {"Assertions": [{"Assert": {"Fn::Equals": [{"Ref": "AWS::Region"}, "us-east-1"]}, "AssertDescription": "Cost controls must deploy in us-east-1 for billing metrics."}]}},
+  "Resources": {
+    "AlertTopic": {"Type": "AWS::SNS::Topic", "Properties": {"TopicName": "astrayan-v1-operations-alerts", "KmsMasterKeyId": "alias/aws/sns", "Subscription": [{"Endpoint": {"Ref": "NotificationEmail"}, "Protocol": "email"}], "Tags": [{"Key": "Project", "Value": "ASTRAYAN"}, {"Key": "Environment", "Value": "portfolio-v1"}, {"Key": "Owner", "Value": {"Ref": "OwnerTag"}}, {"Key": "ManagedBy", "Value": "CloudFormation"}, {"Key": "CostCenter", "Value": "portfolio"}, {"Key": "Gate", "Value": "cost-controls"}, {"Key": "ExpiresAt", "Value": {"Ref": "ExpiresAt"}}]}},
+    "MonthlyCostBudget": {"Type": "AWS::Budgets::Budget", "Properties": {
+      "Budget": {"BudgetName": "astrayan-v1-monthly-cost", "BudgetLimit": {"Amount": {"Ref": "MonthlyBudgetUsd"}, "Unit": "USD"}, "BudgetType": "COST", "TimeUnit": "MONTHLY"},
+      "NotificationsWithSubscribers": [
+        {"Notification": {"ComparisonOperator": "GREATER_THAN", "NotificationType": "ACTUAL", "Threshold": 50, "ThresholdType": "PERCENTAGE"}, "Subscribers": [{"Address": {"Ref": "NotificationEmail"}, "SubscriptionType": "EMAIL"}]},
+        {"Notification": {"ComparisonOperator": "GREATER_THAN", "NotificationType": "ACTUAL", "Threshold": 80, "ThresholdType": "PERCENTAGE"}, "Subscribers": [{"Address": {"Ref": "NotificationEmail"}, "SubscriptionType": "EMAIL"}]},
+        {"Notification": {"ComparisonOperator": "GREATER_THAN", "NotificationType": "ACTUAL", "Threshold": 100, "ThresholdType": "PERCENTAGE"}, "Subscribers": [{"Address": {"Ref": "NotificationEmail"}, "SubscriptionType": "EMAIL"}]},
+        {"Notification": {"ComparisonOperator": "GREATER_THAN", "NotificationType": "FORECASTED", "Threshold": 80, "ThresholdType": "PERCENTAGE"}, "Subscribers": [{"Address": {"Ref": "NotificationEmail"}, "SubscriptionType": "EMAIL"}]},
+        {"Notification": {"ComparisonOperator": "GREATER_THAN", "NotificationType": "FORECASTED", "Threshold": 100, "ThresholdType": "PERCENTAGE"}, "Subscribers": [{"Address": {"Ref": "NotificationEmail"}, "SubscriptionType": "EMAIL"}]}
+      ],
+      "ResourceTags": [{"Key": "Project", "Value": "ASTRAYAN"}, {"Key": "Environment", "Value": "portfolio-v1"}, {"Key": "Owner", "Value": {"Ref": "OwnerTag"}}, {"Key": "ManagedBy", "Value": "CloudFormation"}, {"Key": "CostCenter", "Value": "portfolio"}, {"Key": "Gate", "Value": "cost-controls"}, {"Key": "ExpiresAt", "Value": {"Ref": "ExpiresAt"}}]
+    }},
+    "BillingAlarm25": {"Type": "AWS::CloudWatch::Alarm", "Properties": {"AlarmName": "astrayan-v1-estimated-charge-25-usd", "Namespace": "AWS/Billing", "MetricName": "EstimatedCharges", "Dimensions": [{"Name": "Currency", "Value": "USD"}], "Statistic": "Maximum", "Period": 21600, "EvaluationPeriods": 1, "Threshold": 25, "ComparisonOperator": "GreaterThanThreshold", "TreatMissingData": "missing", "AlarmActions": [{"Ref": "AlertTopic"}]}},
+    "BillingAlarm40": {"Type": "AWS::CloudWatch::Alarm", "Properties": {"AlarmName": "astrayan-v1-estimated-charge-40-usd", "Namespace": "AWS/Billing", "MetricName": "EstimatedCharges", "Dimensions": [{"Name": "Currency", "Value": "USD"}], "Statistic": "Maximum", "Period": 21600, "EvaluationPeriods": 1, "Threshold": 40, "ComparisonOperator": "GreaterThanThreshold", "TreatMissingData": "missing", "AlarmActions": [{"Ref": "AlertTopic"}]}}
+  },
+  "Outputs": {"AlertTopicArn": {"Value": {"Ref": "AlertTopic"}}, "MonthlyBudgetUsd": {"Value": {"Ref": "MonthlyBudgetUsd"}}}
+}

@@ -46,3 +46,18 @@ Each cloud execution must append a row after billing data becomes available.
 
 No future row may be marked final until Cost Explorer data has settled and the project-tagged resource inventory confirms that no unapproved hourly resource remains.
 
+## Phase 9B local foundation checkpoint
+
+**Actual AWS resources created:** 0
+
+**Actual AWS jobs submitted:** 0
+
+**Actual AWS cost:** **$0.00**
+
+The reproducible CloudFormation foundation is implemented and locally validated. No AWS CLI, authenticated API, change set, stack, budget, alarm, bucket, endpoint, role, KMS key, log group, or EMR application has been created. Live deployment remains blocked pending explicit paid-resource approval and authenticated access.
+
+The committed template fixes the monthly budget at $50 and defines $25/$40 billing alarms. These are definitions only until the stack is deployed and the notification subscription is confirmed.
+
+| Gate | Start/end UTC | Estimate | Accrued | Final gross | Credits | Net | Teardown verified | Evidence |
+|---|---|---:|---:|---:|---:|---:|---|---|
+| Phase 9B local definition | 2026-08-10 | $0.00 local | $0.00 | $0.00 | $0.00 | $0.00 | Not applicable; nothing created | `reports/quality/PHASE_9B_AWS_FOUNDATION_GATE.md` |

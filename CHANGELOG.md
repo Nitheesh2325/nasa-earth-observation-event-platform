@@ -1,5 +1,13 @@
 # Changelog
 
+## Phase 9B - AWS foundation local implementation checkpoint
+
+- Added one region-locked AWS-native CloudFormation foundation for an account-wide budget, billing alarms, tagging, KMS, private S3, private networking/endpoints, least-privilege EMR runtime access, bounded EMR Serverless, encrypted logs, failure visibility, and dashboarding.
+- Added inert deployment parameters and a bounded job-run configuration containing placeholders only.
+- Added local structural validation, authenticated resource inventory, and explicit-confirmation teardown procedures that retain governed buckets and their KMS key.
+- Added eight infrastructure contract tests covering budget-first deployment order, costs, S3 controls, IAM wildcards, private networking, EMR bounds/logging, tags, and prohibited resources.
+- Recorded the live verification boundary: no AWS authentication, service-side validation, resource creation, job submission, or cost occurred.
+
 ## Phase 9A - AWS execution planning
 
 - Defined the exact private `us-east-1` Version 1.0 execution topology for S3, EMR Serverless, temporary RDS/PostGIS, one-off Fargate loading/verification, ECR, KMS, Secrets Manager, CloudWatch, Budgets, and teardown.

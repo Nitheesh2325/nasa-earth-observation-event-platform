@@ -339,3 +339,13 @@
 **Decision:** Execute the 5M gate and then the 10M gate in `us-east-1` using encrypted private S3, `emr-spark-8.0.0`, a temporary private RDS PostgreSQL 16/PostGIS 3.4 instance, and separate one-off Fargate loader and read-only verifier tasks. Enforce zero preinitialized EMR workers, strict capacity/time ceilings, a $50 budget created before compute, immutable evidence, and deletion of hourly resources after each gate. Exclude MSK, EKS, public API/dashboard hosting, NAT gateways, and always-on services.
 
 **Consequences:** The cloud proof remains focused on distributed data processing, serving rebuild, observability, recovery, security, and cost discipline. The time-bounded Single-AZ RDS gate is not an availability claim; a continuously available production deployment would require the already documented Multi-AZ topology. Phase 9A authorizes documentation only, not cloud spend or deployment.
+
+## ED-035: Define the AWS foundation with native CloudFormation
+
+**Status:** Accepted
+
+**Context:** Phase 9B requires reproducible, validated infrastructure but the repository has no approved third-party IaC dependency. The locked architecture uses AWS-native resources and must remain deployable without console drift or committed credentials.
+
+**Decision:** Use one JSON CloudFormation template as the Phase 9B foundation source of truth. Lock it to `us-east-1`, apply explicit cost and capacity ceilings, retain evidence buckets and their KMS key against stack deletion, and keep deployment parameters external. Use `emr-8.0.0` as the service/API release label for the previously selected EMR 8.0.0 Spark runtime. Perform local structural and policy tests before any authenticated service-side validation or change set.
+
+**Consequences:** The foundation adds no dependency and can be reviewed as ordinary JSON. CloudFormation requires `CAPABILITY_NAMED_IAM` for the named runtime role, and live schema/policy/readiness verification still requires an approved AWS identity. Retention prevents accidental evidence deletion but means teardown must inventory the retained buckets/key and obtain separate approval before destroying them.

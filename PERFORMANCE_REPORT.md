@@ -1,5 +1,23 @@
 # Performance Report
 
+## Phase 9B AWS Foundation Checkpoint
+
+**Status:** Local definition verified; no cloud runtime executed.
+
+| Metric | Value |
+|---|---:|
+| CloudFormation resources defined | 32 |
+| AWS resources created | 0 |
+| AWS workload executions | 0 |
+| Actual AWS cost | $0.00 |
+| Infrastructure contract tests | 8 passed |
+| EMR maximum capacity | 16 vCPU / 64 GB / 200 GB |
+| Preinitialized EMR capacity | 0 |
+| EMR idle auto-stop | 10 minutes |
+| CloudWatch log retention | 30 days |
+
+No throughput, latency, managed-runtime compatibility, readiness, or teardown performance claim is made. Those measurements require the explicitly approved live Phase 9B closure.
+
 ## Phase 9A AWS Planning Gate
 
 **Status:** Planning verified; no workload executed.
