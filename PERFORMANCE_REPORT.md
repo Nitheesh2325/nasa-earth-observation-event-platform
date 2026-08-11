@@ -1,5 +1,18 @@
 # Performance Report
 
+## Phase 8B Bounded API Cache Gate
+
+**Status:** Passed
+
+Profile: 30 warm, sequential, in-process single-client requests against the preserved one-million-row PostgreSQL/PostGIS database.
+
+| Aggregate workload | Cache-hit p50 ms | Cache-hit p95 ms | PostgreSQL-bypass p50 ms | PostgreSQL-bypass p95 ms | p95 reduction |
+|---|---:|---:|---:|---:|---:|
+| Platform summary | 4.040 | 5.139 | 47.902 | 54.280 | 90.53% |
+| Daily activity | 4.973 | 10.620 | 41.818 | 50.898 | 79.13% |
+
+The final benchmark observed 60 hits, 2 cold misses, 2 entries, 648 serialized bytes, zero evictions, zero expirations, and zero rejected writes. Fixed policy bounds are 60-second TTL, 256 entries, 65,536 bytes per entry, and 4,194,304 total serialized bytes. These measurements exclude network transport and concurrency; the bypass path deliberately forces the existing one-connection-per-request PostgreSQL behavior.
+
 ## 1,000,000-Row Compact PostgreSQL/PostGIS Gate
 
 **Status:** Passed

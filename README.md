@@ -2,7 +2,7 @@
 
 ## Status
 
-The local governed pipeline is verified end to end at one million controlled replay messages through Spark batch, Kafka, Spark Structured Streaming recovery, compact Gold, PostgreSQL/PostGIS serving, Airflow orchestration, and a bounded read-only FastAPI layer.
+The local governed pipeline is verified end to end at one million controlled replay messages through Spark batch, Kafka, Spark Structured Streaming recovery, compact Gold, PostgreSQL/PostGIS serving, Airflow orchestration, and a bounded read-only FastAPI layer with a replaceable aggregate cache.
 
 ## Mission
 
@@ -32,7 +32,7 @@ Official NASA source -> Python extraction -> Bronze storage -> controlled replay
 - Largest completed serving gate: 1,000,000 replay messages representing 10,000 NASA detections
 - Airflow orchestration: one fixed production-style DAG; bounded integration and same-identity rerun passed
 - FastAPI: five GET-only endpoints; one-million-row integration, permissions, GiST plan, and latency gates passed
-- Current gate: Phase 8A complete; caching and dashboard work have not started
+- Current gate: Phase 8B complete; dashboard work has not started
 
 Local measurements and limitations are recorded in `PERFORMANCE_REPORT.md` and `reports/quality/`. No cloud-deployment claim should be inferred.
 
@@ -57,3 +57,7 @@ The Version 1.0 API exposes only:
 All event activity filters use `coalesce(scheduled_replay_timestamp, event_timestamp)`. Observation timestamps remain separately labeled. Lineage and spatial results use seek cursors with maximum limits of 100 and 500 respectively; daily aggregates are limited to 200 rows, bounding-box activity ranges to seven days, and summary/daily ranges to 31 days.
 
 Set `EO_API_DATABASE_DSN` to the untracked `eo_api_runtime` credential and run `uvicorn eo_event_platform.api.app:app`. The readiness endpoint refuses an owner, superuser, or writable database session. API responses never expose raw object paths, governed hashes, database errors, or credentials.
+
+## API cache Phase 8B
+
+Only validated successful platform-summary and daily-aggregate responses use the replaceable in-process cache. The fixed local policy is a 60-second TTL, 256 entries, 65,536 bytes per entry, 4,194,304 total serialized bytes, and LRU eviction. Deterministic keys contain only canonical validated request parameters. `Cache-Control: no-cache` or `no-store` safely bypasses cache reads and writes. Any cache failure falls through to the unchanged read-only PostgreSQL path; health, lineage, bounding-box detail, invalid requests, and failed operations are never cached.

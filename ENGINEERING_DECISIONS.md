@@ -299,3 +299,13 @@
 **Decision:** Preserve `dataset_daily_summary` unchanged as the observation-time contract. Add `dataset_activity_daily_summary` at Gold-run, activity date, dataset, and source-type grain, where activity time is `coalesce(scheduled_replay_timestamp,event_timestamp)`. Maintain it transactionally in the existing PostgreSQL loader. Add one B-tree expression index on activity time plus event ID for bounded filtering and seek pagination. Keep the existing GiST geometry index as the spatial access path.
 
 **Consequences:** The API reports replay activity truthfully without changing completed Phase 6 evidence or inventing a new analytics framework. The one-million preserved dataset reconciles to one activity-date row containing one million replay messages, 10,000 detections, and zero synthetic messages. Future loads perform one additional governed aggregate write and `ANALYZE` step.
+
+## ED-031: Bound and isolate the Version 1.0 API cache
+
+**Status:** Accepted
+
+**Context:** Platform summary and activity-date aggregates are bounded, repeatedly read responses whose values change only when governed Gold is loaded. Health probes and event-detail responses have different freshness, cardinality, and operational semantics. Phase 8B does not authorize an external cache service.
+
+**Decision:** Cache only validated successful summary and daily responses behind a byte-oriented backend protocol. Use canonical validated request JSON for versioned SHA-256 keys, a 60-second TTL, LRU eviction, at most 256 entries, at most 65,536 bytes per entry, and at most 4,194,304 serialized bytes. Honor standard `Cache-Control: no-cache` and `no-store` as read/write bypass directives. Treat every cache read, decode, or write failure as a fall-through to PostgreSQL without changing the API response contract.
+
+**Consequences:** A future backend can replace the local implementation without route or schema changes. The process-local cache is intentionally non-distributed and non-durable; each worker has independent bounded state. Readiness, lineage, bounding-box detail, invalid requests, and failed database or response operations remain uncached.

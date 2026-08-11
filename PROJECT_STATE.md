@@ -2,11 +2,17 @@
 
 ## Current milestone
 
-Phase 8A - Version 1.0 FastAPI read-only serving layer complete.
+Phase 8B - bounded replaceable API caching boundary complete.
 
 ## Current status
 
 - `AGENTS.md` is the active repository instruction file.
+- Only the bounded platform-summary and daily-aggregate responses are cached after request and response validation.
+- The in-process cache uses deterministic versioned keys, a 60-second TTL, 256-entry bound, 65,536-byte entry bound, 4,194,304-byte total bound, and LRU eviction.
+- `Cache-Control: no-cache` and `no-store` bypass both reads and writes; cache failures fall through to the unchanged read-only PostgreSQL repository.
+- Readiness, lineage, bounding-box detail, invalid requests, database failures, and failed response validation are never cached.
+- Thirteen API/cache unit tests, four live one-million-row PostgreSQL tests, three isolated Airflow tests, and the complete regression suite pass.
+- Thirty-sample cache-hit p95 was 5.139 ms for platform summary and 10.620 ms for daily activity, versus 54.280 ms and 50.898 ms through explicit PostgreSQL bypass.
 - FastAPI 0.139.2 and Uvicorn 0.51.0 provide the bounded Version 1.0 read-only API surface.
 - Five GET-only routes cover readiness, platform truth summary, activity-time daily aggregates, paginated detection lineage, and bounded GeoJSON bounding-box search.
 - Request and response schemas reject unknown parameters, invalid coordinates, inverted boxes, ranges over policy limits, malformed cursors, and excessive limits.

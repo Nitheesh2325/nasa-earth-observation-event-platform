@@ -1,5 +1,14 @@
 # Changelog
 
+## Phase 8B - Bounded replaceable API cache
+
+- Added a thread-safe in-process TTL/LRU cache behind a replaceable byte-oriented backend contract with explicit entry-count, entry-size, and total-byte limits.
+- Cached only validated successful platform-summary and daily-aggregate responses; readiness, lineage, bounding-box detail, invalid requests, and failures remain uncached.
+- Added deterministic namespace/version/SHA-256 keys derived only from validated request models and standard `Cache-Control` bypass behavior.
+- Preserved FastAPI contracts and read-only PostgreSQL fallback when cache reads, decoding, or writes fail.
+- Added six cache-boundary tests covering hits, misses, expiration, bypass, deterministic keys, bounds, exclusions, backend failure, and fallback.
+- Passed the complete regression, isolated Airflow, and one-million-row PostgreSQL integration gates and recorded 30-sample cache-hit versus bypass latency.
+
 ## Phase 8A - FastAPI read-only serving layer
 
 - Added FastAPI 0.139.2 and Uvicorn 0.51.0 with explicit request, response, pagination, GeoJSON, truth-classification, and activity-time contracts.

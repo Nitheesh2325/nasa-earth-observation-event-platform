@@ -1,4 +1,4 @@
-"""Run the fixed single-client Phase 8A API latency and plan workload."""
+"""Run the fixed single-client Phase 8B API cache latency and plan workload."""
 
 from __future__ import annotations
 
@@ -14,6 +14,7 @@ import psycopg
 from fastapi.testclient import TestClient
 
 from eo_event_platform.api.app import create_app
+from eo_event_platform.api.cache import BoundedTTLCache
 from eo_event_platform.api.models import BoundingBoxQuery
 from eo_event_platform.api.repository import ApiRepository
 
@@ -23,11 +24,17 @@ def percentile(values: list[float], fraction: float) -> float:
     return ordered[min(len(ordered) - 1, round((len(ordered) - 1) * fraction))]
 
 
-def timings(client: TestClient, path: str, params: dict[str, Any] | None, repeats: int) -> dict[str, float]:
+def timings(
+    client: TestClient,
+    path: str,
+    params: dict[str, Any] | None,
+    repeats: int,
+    headers: dict[str, str] | None = None,
+) -> dict[str, float]:
     durations = []
     for _ in range(repeats):
         started = time.perf_counter()
-        response = client.get(path, params=params)
+        response = client.get(path, params=params, headers=headers)
         duration = (time.perf_counter() - started) * 1000
         if response.status_code != 200:
             raise RuntimeError(f"benchmark request failed: {path} {response.status_code}")
@@ -48,7 +55,8 @@ def plan_index_names(node: dict[str, Any]) -> list[str]:
 
 def run(dsn: str, repeats: int) -> dict[str, Any]:
     repository = ApiRepository(dsn)
-    client = TestClient(create_app(repository))
+    cache = BoundedTTLCache()
+    client = TestClient(create_app(repository, cache))
     with psycopg.connect(dsn, autocommit=True) as connection:
         sample = connection.execute(
             """SELECT lineage_root_id, longitude, latitude,
@@ -66,21 +74,31 @@ def run(dsn: str, repeats: int) -> dict[str, Any]:
         limit=100,
     )
     workloads = {
-        "readiness": ("/health/ready", None),
-        "platform_summary": ("/v1/summary", None),
+        "readiness": ("/health/ready", None, None),
+        "platform_summary_cache_hit": ("/v1/summary", None, None),
+        "platform_summary_bypass": ("/v1/summary", None, {"Cache-Control": "no-cache"}),
         "daily_activity": (
             "/v1/daily",
             {"start_date": activity.date().isoformat(), "end_date": activity.date().isoformat()},
+            None,
         ),
-        "detection_lineage": (f"/v1/lineages/{sample[0]}", {"limit": 100}),
-        "spatial_bbox": ("/v1/events/bbox", bbox.model_dump(exclude_none=True)),
+        "daily_activity_bypass": (
+            "/v1/daily",
+            {"start_date": activity.date().isoformat(), "end_date": activity.date().isoformat()},
+            {"Cache-Control": "no-cache"},
+        ),
+        "detection_lineage": (f"/v1/lineages/{sample[0]}", {"limit": 100}, None),
+        "spatial_bbox": ("/v1/events/bbox", bbox.model_dump(exclude_none=True), None),
     }
     # One warm-up request per endpoint precedes the measured samples.
-    for path, params in workloads.values():
-        response = client.get(path, params=params)
+    for path, params, headers in workloads.values():
+        response = client.get(path, params=params, headers=headers)
         if response.status_code != 200:
             raise RuntimeError(f"warm-up failed: {path} {response.status_code}")
-    latency = {name: timings(client, path, params, repeats) for name, (path, params) in workloads.items()}
+    latency = {
+        name: timings(client, path, params, repeats, headers)
+        for name, (path, params, headers) in workloads.items()
+    }
 
     statement, params = repository.bbox_sql_for_plan(bbox)
     with psycopg.connect(dsn, autocommit=True) as connection:
@@ -96,6 +114,7 @@ def run(dsn: str, repeats: int) -> dict[str, Any]:
         "profile": "local_in_process_single_client",
         "repeats": repeats,
         "latency": latency,
+        "cache": cache.snapshot().__dict__,
         "bbox_plan": {
             "planning_time_ms": plan["Planning Time"],
             "execution_time_ms": plan["Execution Time"],
