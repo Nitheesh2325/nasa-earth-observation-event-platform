@@ -1,5 +1,15 @@
 # Changelog
 
+## Phase 8C.2 - Version 1.0 Streamlit dashboard
+
+- Added Streamlit 1.61.1 with a pinned, dependency-clean Python 3.12 runtime.
+- Added one responsive dark dashboard consuming only the six approved FastAPI GET routes through validated Pydantic contracts.
+- Added mission, pipeline truth, daily activity, health/cache/Airflow, bounded geospatial, and bounded lineage views.
+- Preserved original/replay/synthetic distinctions and displayed underlying detections separately from event-message volume.
+- Added explicit loading, empty, input-validation, API-unavailable, and service-error states without production mocks or placeholder widgets.
+- Added nine dashboard/API-client tests covering rendering, failure, empty data, 200-row daily data, map filters, and lineage search.
+- Verified the live one-million API in the browser, captured three documentation screenshots, measured render interactions, and confirmed a 900-pixel desktop breakpoint without horizontal overflow.
+
 ## Phase 8C.1 - Operational status API
 
 - Added exactly one GET-only operational route at `/v1/platform/status` with an explicit strict response schema and no accepted query parameters.

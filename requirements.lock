@@ -1,7 +1,9 @@
 # Reproducible Phase 3 local runtime resolved on 2026-08-06.
 # Update only through an approved dependency milestone.
 confluent-kafka==2.15.0
+httpx==0.28.1
 psycopg==3.3.4
 psycopg-binary==3.3.4
 py4j==0.10.9.9
 pyspark==4.0.2
+streamlit==1.61.1

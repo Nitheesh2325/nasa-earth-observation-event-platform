@@ -1,5 +1,18 @@
 # Performance Report
 
+## Phase 8C.2 Dashboard Gate
+
+**Status:** Passed
+
+| Live browser workload | Result |
+|---|---:|
+| Overview reload to daily-chart-ready, 10 samples | 1,731 ms median / 2,500 ms p95 |
+| Bounded global map, 250 replay points | 2,079 ms |
+| Detection lineage, 100 replay events | 311 ms |
+| Responsive desktop breakpoint | 900x800, zero horizontal overflow |
+
+The overview measurement includes Streamlit reconnect/rerun, three initial FastAPI calls, cached daily aggregate retrieval, validation, and rendering in the local in-app browser. Map and lineage timings include the Streamlit rerun, FastAPI request, response validation, and visual rendering. These are sequential local browser measurements against the preserved one-million-row database, not concurrency, WAN, or cloud claims.
+
 ## Phase 8C.1 Operational Status API Gate
 
 **Status:** Passed

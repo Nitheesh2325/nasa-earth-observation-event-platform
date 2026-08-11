@@ -2,7 +2,7 @@
 
 ## Status
 
-The local governed pipeline is verified end to end at one million controlled replay messages through Spark batch, Kafka, Spark Structured Streaming recovery, compact Gold, PostgreSQL/PostGIS serving, Airflow orchestration, and a bounded read-only FastAPI layer with a replaceable aggregate cache.
+The local governed pipeline is verified end to end at one million controlled replay messages through Spark batch, Kafka, Spark Structured Streaming recovery, compact Gold, PostgreSQL/PostGIS serving, Airflow orchestration, a bounded read-only FastAPI layer with a replaceable aggregate cache, and a recruiter-ready Streamlit dashboard.
 
 ## Mission
 
@@ -32,7 +32,7 @@ Official NASA source -> Python extraction -> Bronze storage -> controlled replay
 - Largest completed serving gate: 1,000,000 replay messages representing 10,000 NASA detections
 - Airflow orchestration: one fixed production-style DAG; bounded integration and same-identity rerun passed
 - FastAPI: five GET-only endpoints; one-million-row integration, permissions, GiST plan, and latency gates passed
-- Current gate: Phase 8C.1 operational status API complete; dashboard work has not started
+- Current gate: Phase 8C.2 Version 1.0 dashboard complete
 
 Local measurements and limitations are recorded in `PERFORMANCE_REPORT.md` and `reports/quality/`. No cloud-deployment claim should be inferred.
 
@@ -64,3 +64,19 @@ Set `EO_OPERATIONAL_METADATA_ROOT` to the Phase 7 immutable run-manifest directo
 ## API cache Phase 8B
 
 Only validated successful platform-summary and daily-aggregate responses use the replaceable in-process cache. The fixed local policy is a 60-second TTL, 256 entries, 65,536 bytes per entry, 4,194,304 total serialized bytes, and LRU eviction. Deterministic keys contain only canonical validated request parameters. `Cache-Control: no-cache` or `no-store` safely bypasses cache reads and writes. Any cache failure falls through to the unchanged read-only PostgreSQL path; health, lineage, bounding-box detail, invalid requests, and failed operations are never cached.
+
+## Dashboard Phase 8C.2
+
+The dark, desktop-first Streamlit dashboard consumes only the six documented FastAPI GET routes. It presents mission and pipeline truth, daily activity, health/cache/Airflow status, a seven-day and 500-point bounded geospatial explorer, and a 100-event bounded lineage search. It contains no database connection, SQL, local operational metadata read, production mock, or copied aggregation logic.
+
+Set `EO_DASHBOARD_API_BASE_URL` to the FastAPI origin and run:
+
+```text
+python -m streamlit run src/eo_event_platform/dashboard/app.py
+```
+
+![ASTRAYAN dashboard overview](docs/images/dashboard-overview-v1.png)
+
+![ASTRAYAN bounded geospatial explorer](docs/images/dashboard-geospatial-v1.png)
+
+![ASTRAYAN detection lineage](docs/images/dashboard-lineage-v1.png)

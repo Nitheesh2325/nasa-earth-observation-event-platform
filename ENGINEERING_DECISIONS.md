@@ -319,3 +319,13 @@
 **Decision:** Add exactly one GET-only `/v1/platform/status` endpoint. Project latest successful Gold/load reconciliation through a one-row `serving` view, read existing immutable Phase 7 manifests under a 1,000-file bound, and expose only cache configuration plus aggregate entry count. Retain forced-read-only API sessions and deny the runtime role direct access to underlying `load_control` tables. Fail closed with a generic 503 when operational metadata is absent, invalid, or over its bound.
 
 **Consequences:** Phase 8C can consume all required operational fields through FastAPI without duplicating business logic or exposing paths, keys, values, credentials, SQL, secrets, or infrastructure configuration. Local file-backed Airflow status requires `EO_OPERATIONAL_METADATA_ROOT`; a deployed orchestration environment must provide the same immutable manifest contract through its mounted operational metadata boundary.
+
+## ED-033: Use Streamlit as an API-only dashboard
+
+**Status:** Accepted
+
+**Context:** The Version 1.0 portfolio requires an interactive recruiter-facing dashboard, while the serving contract forbids direct PostgreSQL, Airflow-manifest, and cache access from presentation code. Streamlit is already an approved core-stack option and supplies native testing, charts, map integration, forms, and responsive layout in Python.
+
+**Decision:** Pin Streamlit 1.61.1 and implement one desktop-first dark application. Route every value through a validated HTTP client limited to the six approved FastAPI GET routes. Cap daily, map, and lineage interactions at the existing API bounds. Keep classification colors and presentation formatting in the dashboard, but retain all counts, filtering, time semantics, lineage, quality, freshness, and operational logic in FastAPI.
+
+**Consequences:** Recruiters can inspect a cohesive working product without granting the UI database credentials or duplicating SQL and business rules. Streamlit adds its visualization runtime dependencies and process overhead. The local benchmark and screenshots establish sequential rendering behavior only; authentication, public hosting, and concurrency remain later deployment concerns.

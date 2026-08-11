@@ -2,11 +2,19 @@
 
 ## Current milestone
 
-Phase 8C.1 - bounded operational status API complete. Dashboard implementation has not started.
+Phase 8C.2 - recruiter-quality Version 1.0 dashboard complete.
 
 ## Current status
 
 - `AGENTS.md` is the active repository instruction file.
+- Streamlit 1.61.1 provides one professional dark dashboard that consumes only the six approved FastAPI routes.
+- Mission, pipeline truth, daily activity, health/cache/Airflow, bounded geospatial, and detection-lineage views render verified one-million-row API data.
+- Geospatial requests remain bounded to seven activity days and 500 points; lineage responses remain bounded to 100 events; daily responses remain bounded to 200 aggregate rows.
+- Loading, empty, validation, API-unavailable, large-input, map-filter, lineage-search, and successful-render states are verified.
+- The dashboard source contains no psycopg import, SQL, direct database access, local operational metadata access, production mock data, or duplicated aggregate logic.
+- Ten live browser reloads measured 1,731 ms median and 2,500 ms p95 to the daily-chart-ready state; the 250-point map completed in 2,079 ms and 100-event lineage in 311 ms.
+- Three admitted 1280x720 dark-theme screenshots document overview, map, and lineage behavior; a 900x800 breakpoint had no horizontal overflow.
+- Nine dashboard tests and the complete 100-test project discovery pass under the environment-specific boundaries.
 - `GET /v1/platform/status` is the single operational endpoint and exposes only bounded dashboard-required metadata.
 - A one-row serving view projects the latest successful Gold/load reconciliation without granting the API role access to underlying load-control tables.
 - Existing immutable Phase 7 manifests provide latest Airflow state and last-successful execution time through a 1,000-manifest read bound.
