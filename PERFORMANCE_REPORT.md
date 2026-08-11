@@ -1,5 +1,24 @@
 # Performance Report
 
+## Phase 9A AWS Planning Gate
+
+**Status:** Planning verified; no workload executed.
+
+| Metric | Value |
+|---|---:|
+| AWS resources created | 0 |
+| AWS workload executions | 0 |
+| Actual AWS cost | $0.00 |
+| Required monthly budget before deployment | $50 |
+| Combined 5M/10M planning envelope | $33-$45 |
+| 5M EMR maximum capacity | 16 vCPU / 64 GiB |
+| 10M EMR maximum capacity | 32 vCPU / 128 GiB |
+| 5M job timeout | 60 minutes |
+| 10M job timeout | 120 minutes |
+| RDS gate storage | 100 GiB gp3; 200 GiB autoscaling maximum |
+
+These are capacity and cost controls, not performance results. Phase 9A made no cloud-runtime, throughput, latency, availability, or cost claim. Execution-day AWS pricing, quota, compatibility, and budget preflight is mandatory before Phase 9B.
+
 ## Phase 8C.2 Dashboard Gate
 
 **Status:** Passed

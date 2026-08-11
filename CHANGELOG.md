@@ -1,5 +1,13 @@
 # Changelog
 
+## Phase 9A - AWS execution planning
+
+- Defined the exact private `us-east-1` Version 1.0 execution topology for S3, EMR Serverless, temporary RDS/PostGIS, one-off Fargate loading/verification, ECR, KMS, Secrets Manager, CloudWatch, Budgets, and teardown.
+- Defined six least-privilege roles, prefix-scoped S3 contracts, managed Spark capacity ceilings, ordered 5M-before-10M gates, recovery evidence, security blockers, and a sequential implementation checklist.
+- Added the required AWS cost report with a truthful $0.00 actual-cost baseline, a $50 budget requirement, and a $33-$45 combined planning envelope.
+- Explicitly excluded managed Kafka, Kubernetes, public application hosting, and continuously running compute from the cloud scale scope.
+- Created no AWS resources, used no cloud credentials, and incurred no cloud cost.
+
 ## Phase 8C.2 - Version 1.0 Streamlit dashboard
 
 - Added Streamlit 1.61.1 with a pinned, dependency-clean Python 3.12 runtime.

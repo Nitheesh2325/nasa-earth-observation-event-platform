@@ -2,10 +2,14 @@
 
 ## Current milestone
 
-Phase 8C.2 - recruiter-quality Version 1.0 dashboard complete.
+Phase 9A - AWS execution plan complete; cloud implementation not started.
 
 ## Current status
 
+- Phase 9A defines the exact `us-east-1` deployment, least-privilege roles, encrypted S3 layout, EMR Serverless capacity, temporary RDS/PostGIS serving gate, Fargate load/verification boundary, CloudWatch controls, $50 budget gate, and ordered teardown.
+- The plan excludes managed Kafka, Kubernetes, public API/dashboard hosting, and continuously running compute from Version 1.0 AWS scope.
+- The 5M gate is strictly before the 10M gate; each must reconcile identities, underlying detections, replay/synthetic truth, counts, quality, runtime, cost, recovery, and teardown.
+- No AWS resources or credentials were created or used. Actual AWS project cost remains $0.00.
 - `AGENTS.md` is the active repository instruction file.
 - Streamlit 1.61.1 provides one professional dark dashboard that consumes only the six approved FastAPI routes.
 - Mission, pipeline truth, daily activity, health/cache/Airflow, bounded geospatial, and detection-lineage views render verified one-million-row API data.
@@ -57,7 +61,7 @@ Phase 8C.2 - recruiter-quality Version 1.0 dashboard complete.
 - All 21 verified NASA rows canonicalized successfully with unique stable identities.
 - A repeat canonicalization produced byte-identical canonical event output.
 - Local NASA source and generated event data remain excluded from Git.
-- No AWS resources have been created.
+- No AWS resources have been created; Phase 9A is documentation and planning evidence only.
 - Spark dependency research selected PySpark 4.0.2 for parity with the target `emr-spark-8.0.0` runtime.
 - The deterministic Standard Processing acquisition and exact 10,000-record selection contract is documented.
 - PySpark 4.0.2 and Py4J 0.10.9.9 are installed in the ignored project-local virtual environment.

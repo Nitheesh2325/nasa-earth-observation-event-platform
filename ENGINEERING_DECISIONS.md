@@ -329,3 +329,13 @@
 **Decision:** Pin Streamlit 1.61.1 and implement one desktop-first dark application. Route every value through a validated HTTP client limited to the six approved FastAPI GET routes. Cap daily, map, and lineage interactions at the existing API bounds. Keep classification colors and presentation formatting in the dashboard, but retain all counts, filtering, time semantics, lineage, quality, freshness, and operational logic in FastAPI.
 
 **Consequences:** Recruiters can inspect a cohesive working product without granting the UI database credentials or duplicating SQL and business rules. Streamlit adds its visualization runtime dependencies and process overhead. The local benchmark and screenshots establish sequential rendering behavior only; authentication, public hosting, and concurrency remain later deployment concerns.
+
+## ED-034: Use a temporary private AWS scale-gate environment
+
+**Status:** Accepted
+
+**Context:** The local pipeline is verified through one million replay messages, but measured Spark and PostgreSQL memory prohibit safe 5M and 10M laptop gates. Version 1.0 requires S3, EMR Serverless, CloudWatch, governed PostgreSQL/PostGIS loading, actual cost evidence, and teardown without expanding into a continuously hosted application platform.
+
+**Decision:** Execute the 5M gate and then the 10M gate in `us-east-1` using encrypted private S3, `emr-spark-8.0.0`, a temporary private RDS PostgreSQL 16/PostGIS 3.4 instance, and separate one-off Fargate loader and read-only verifier tasks. Enforce zero preinitialized EMR workers, strict capacity/time ceilings, a $50 budget created before compute, immutable evidence, and deletion of hourly resources after each gate. Exclude MSK, EKS, public API/dashboard hosting, NAT gateways, and always-on services.
+
+**Consequences:** The cloud proof remains focused on distributed data processing, serving rebuild, observability, recovery, security, and cost discipline. The time-bounded Single-AZ RDS gate is not an availability claim; a continuously available production deployment would require the already documented Multi-AZ topology. Phase 9A authorizes documentation only, not cloud spend or deployment.
