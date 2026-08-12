@@ -1,12 +1,12 @@
 # NASA Earth Observation Event Intelligence Platform
 
-I built this project around NASA FIRMS data to explore the full lifecycle of a geospatial event pipeline: ingestion, replay, batch and streaming processing, orchestration, serving, and visualization. The complete local pipeline is verified at **1,000,000 replay events** derived from 10,000 NASA detections.
+I built this project around NASA FIRMS data to explore the full lifecycle of a geospatial event pipeline: ingestion, replay, batch and streaming processing, orchestration, serving, and visualization. I verified the complete local pipeline with **1,000,000 replay events** derived from 10,000 NASA FIRMS detections.
 
 **Python • Apache Kafka • Apache Spark • Airflow • PostgreSQL/PostGIS • FastAPI • Streamlit • Docker**
 
 ## Why I Built This
 
-NASA FIRMS provides real-world observations with timestamps, geographic coordinates, and measurement fields. I wanted to build more than a one-step ETL script, so I used that data to test event identity, lineage, deduplication, recovery, geospatial queries, and repeatable performance measurements across an end-to-end data system.
+NASA FIRMS provides real-world observations with timestamps, geographic coordinates, and measurement fields. I wanted to go beyond a basic ETL pipeline, so I used that data to work through event identity, lineage, deduplication, deterministic replay, recovery, geospatial queries, and repeatable performance testing across an end-to-end system.
 
 Replay events are always labeled separately from their underlying NASA detections. This makes it possible to test larger workloads without presenting replayed messages as new observations.
 
@@ -35,16 +35,13 @@ Airflow coordinates extraction, transformation, replay, Spark processing, Gold g
 
 ## What I Built
 
-- A bounded Python extractor that records source checksums and keeps the NASA API key out of logs and Git.
-- A canonical event model with explicit schemas, stable event IDs, detection IDs, source classification, and lineage.
-- A deterministic replay generator for repeatable Kafka, Spark, and scale tests.
-- Spark batch and Structured Streaming jobs for validation, deduplication, enrichment, and partitioned Parquet output.
-- Explicit Kafka topics for replay, rejected events, and dead-letter records, with stable keys and bounded retries.
-- Silver and Gold datasets with row counts and checksums that can be independently reconciled.
-- A compact PostgreSQL/PostGIS serving model rebuilt from Gold data, with spatial and lineage indexes.
-- One Airflow DAG with bounded parameters, retries, timeouts, stable run IDs, and safe reruns.
-- Six read-only FastAPI endpoints for health, status, summaries, daily activity, spatial search, and lineage.
-- A bounded cache for aggregate queries and a Streamlit dashboard that uses only the API.
+- A controlled Python ingestion path that checksums NASA FIRMS source data and keeps the API key out of logs and Git.
+- A canonical event schema with stable event and detection IDs, source classification, lineage, and deterministic replay.
+- Kafka topics for replay, rejected events, and dead-letter records, using stable keys and bounded retries.
+- Spark batch and Structured Streaming jobs for schema validation, deduplication, enrichment, and partitioned Silver/Gold Parquet.
+- A compact PostgreSQL/PostGIS serving model with spatial and lineage indexes, rebuilt from Gold data.
+- One Airflow DAG for the batch workflow, with bounded retries, timeouts, run metadata, and safe reruns.
+- Six read-only FastAPI endpoints, a bounded aggregate cache, and a Streamlit dashboard that uses only the API.
 
 ## Results
 
@@ -57,7 +54,7 @@ The one-million and ten-million results measure different parts of the project:
 | Spark batch | 149.502 seconds |
 | Measured Spark throughput | 6,688.88 events/second |
 | PostgreSQL/PostGIS | 1M-row validation passed |
-| **Separate 10M dataset experiment** | Generation and independent verification passed |
+| **10M deterministic replay experiment** | Generation and independent verification passed |
 | 10M Spark processing | Not completed; local JVM memory limit exceeded |
 | AWS deployment | Not deployed |
 | Actual AWS cost | **$0.00** |
@@ -75,20 +72,16 @@ The dashboard does not connect directly to PostgreSQL. Every displayed value com
 
 ## Engineering Decisions
 
-- **Deterministic IDs:** Stable event and lineage identities make reruns, deduplication, and independent verification possible.
-- **Idempotent processing:** Run identities, checksums, staged database loads, and conflict detection prevent silent duplication or overwrite.
-- **Schema validation:** Explicit schemas keep malformed coordinates, timestamps, classifications, and required fields out of Silver data.
-- **Replay/source separation:** Event counts and underlying NASA detection counts are reported independently so scale claims remain clear.
-- **Parquet between processing and serving:** Columnar Silver and Gold data remain the analytical source, while PostgreSQL is rebuildable.
-- **PostGIS for spatial queries:** The source data is geographic, and GiST indexes support the dashboard's bounded map searches.
-- **Read-only API access:** FastAPI uses a non-owner database role, parameterized SQL, response schemas, and strict result limits.
-- **Bounded caching:** Only successful aggregate queries are cached, with fixed TTL, entry, and memory limits.
-- **Airflow orchestration:** One DAG captures task order, retries, timeouts, run metadata, and rerun behavior without adding a framework around Airflow.
-- **Recovery:** Kafka offsets, Spark checkpoints, Airflow receipts, and database load identities are checked after restart.
+- **Deterministic identities:** I used stable event, detection, and lineage IDs so reruns can be deduplicated and reconciled against the source.
+- **Idempotent processing:** Checksums, stable run identities, staged database loads, and conflict detection prevent silent duplication or overwrite.
+- **Replay/source separation:** Replay events and underlying NASA detections are counted independently, which keeps every scale claim clear.
+- **PostGIS serving:** I chose PostGIS because the data is geographic and the dashboard needs indexed bounding-box and lineage queries.
+- **Read-only API boundary:** FastAPI uses a non-owner database role, parameterized SQL, strict limits, and a bounded cache for successful aggregate queries.
+- **Orchestration and recovery:** Airflow records task order, retries, timeouts, and reruns; recovery checks also cover Kafka offsets, Spark checkpoints, and database load identity.
 
 ## Reliability and Testing
 
-The repository has unit tests for ingestion, identity, replay, Spark schemas, Kafka behavior, Gold generation, database loading, API validation, caching, infrastructure definitions, and dashboard states. Integration evidence covers Kafka offsets, Spark output read-back, PostGIS query plans, read-only database permissions, Airflow reruns, and service recovery.
+Unit tests cover ingestion, identity, replay, Spark schemas, Kafka behavior, Gold generation, database loading, API validation, caching, infrastructure definitions, and dashboard states. Integration checks reconcile Kafka offsets and Spark output, validate PostGIS queries and database permissions, and exercise Airflow reruns and service recovery.
 
 GitHub Actions installs pinned dependencies, checks imports and packaging, runs the portable test suite, validates Docker and Compose files, scans for secrets, checks documentation links, and rejects tracked generated datasets. The local release suite ran 108 tests: 100 passed and eight environment-dependent tests were skipped in the portable environment.
 
@@ -104,7 +97,6 @@ py -3.12 -m venv .venv
 python -m pip install --requirement requirements.lock
 python -m pip install --no-deps --editable .
 Copy-Item .env.example .env
-python tools/repository_audit.py
 python -m unittest discover -s tests -p "test_*.py"
 ```
 
