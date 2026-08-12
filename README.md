@@ -1,116 +1,96 @@
 # NASA Earth Observation Event Intelligence Platform
 
-I built this batch and streaming data platform to turn NASA FIRMS observations into traceable, queryable Earth Observation events. The complete system is verified locally at **1,000,000 events**, using Python, Kafka, Spark, Airflow, PostgreSQL/PostGIS, FastAPI, and Streamlit.
+I built this project around NASA FIRMS data to explore the full lifecycle of a geospatial event pipeline: ingestion, replay, batch and streaming processing, orchestration, serving, and visualization. The complete local pipeline is verified at **1,000,000 replay events** derived from 10,000 NASA detections.
 
-> **Scale at a glance:** 1M events verified through the full platform · 10K underlying NASA detections · 6,688.88 events/s in the 1M Spark batch · deterministic 10M generation verified separately
+**Python • Apache Kafka • Apache Spark • Airflow • PostgreSQL/PostGIS • FastAPI • Streamlit • Docker**
 
 ## Why I Built This
 
-Earth Observation data is a useful engineering workload because it combines geospatial fields, time-based processing, lineage, and meaningful data-quality constraints. I chose NASA FIRMS VIIRS data and built the surrounding system to demonstrate the parts of data engineering that are often missing from simple ETL demos: deterministic identities, replayable workloads, batch and streaming paths, recovery, serving, and measurable scale boundaries.
+NASA FIRMS provides real-world observations with timestamps, geographic coordinates, and measurement fields. I wanted to build more than a one-step ETL script, so I used that data to test event identity, lineage, deduplication, recovery, geospatial queries, and repeatable performance measurements across an end-to-end data system.
 
-The project never treats replayed messages as new NASA observations. It keeps event volume separate from the 10,000 underlying NASA detections used for the scale tests.
-
-## What the Platform Does
-
-1. Extracts a bounded NASA FIRMS dataset and stores immutable Bronze data with checksums.
-2. Converts source rows into explicit canonical events with stable identities and lineage.
-3. Generates controlled replay events for repeatable scale and streaming tests.
-4. Validates, deduplicates, and enriches events with Spark batch and Structured Streaming.
-5. Writes partitioned Silver Parquet and governed Gold outputs.
-6. Rebuilds a compact PostgreSQL/PostGIS serving layer from admitted Gold data.
-7. Orchestrates the batch path with Airflow and serves bounded read-only queries through FastAPI.
-8. Presents operational, temporal, geospatial, and lineage views in Streamlit.
+Replay events are always labeled separately from their underlying NASA detections. This makes it possible to test larger workloads without presenting replayed messages as new observations.
 
 ## Architecture
 
 ```mermaid
 flowchart LR
     NASA["NASA FIRMS"] --> INGEST["Python ingestion"]
-    INGEST --> BRONZE["Bronze + manifests"]
+    INGEST --> BRONZE["Bronze data"]
     BRONZE --> REPLAY["Deterministic replay"]
     REPLAY --> KAFKA["Kafka"]
     REPLAY --> BATCH["Spark batch"]
     KAFKA --> STREAM["Structured Streaming"]
-    BATCH --> SILVER["Silver Parquet"]
-    STREAM --> SILVER
-    SILVER --> GOLD["Gold datasets"]
-    GOLD --> POSTGIS["PostgreSQL + PostGIS"]
-    POSTGIS --> API["Read-only FastAPI"]
-    API --> CACHE["Bounded cache"]
-    CACHE --> DASH["Streamlit dashboard"]
-    AIRFLOW["Airflow"] --> INGEST
+    BATCH --> PARQUET["Silver / Gold Parquet"]
+    STREAM --> PARQUET
+    PARQUET --> POSTGIS["PostgreSQL + PostGIS"]
+    POSTGIS --> API["FastAPI + cache"]
+    API --> DASH["Streamlit"]
+    AIRFLOW["Airflow orchestration"] --> INGEST
     AIRFLOW --> API
 ```
 
-NASA FIRMS → Python ingestion → Kafka → Spark / Structured Streaming → Silver / Gold → PostgreSQL/PostGIS → Airflow → FastAPI → bounded cache → Streamlit
+NASA FIRMS → ingestion → Kafka → Spark → Parquet → PostgreSQL/PostGIS → FastAPI → Streamlit
 
-See [ARCHITECTURE.md](ARCHITECTURE.md) for component boundaries, storage contracts, and the AWS deployment design.
+Airflow coordinates extraction, transformation, replay, Spark processing, Gold generation, database loading, and verification. [ARCHITECTURE.md](ARCHITECTURE.md) describes the components and storage boundaries in more detail.
+
+## What I Built
+
+- A bounded Python extractor that records source checksums and keeps the NASA API key out of logs and Git.
+- A canonical event model with explicit schemas, stable event IDs, detection IDs, source classification, and lineage.
+- A deterministic replay generator for repeatable Kafka, Spark, and scale tests.
+- Spark batch and Structured Streaming jobs for validation, deduplication, enrichment, and partitioned Parquet output.
+- Explicit Kafka topics for replay, rejected events, and dead-letter records, with stable keys and bounded retries.
+- Silver and Gold datasets with row counts and checksums that can be independently reconciled.
+- A compact PostgreSQL/PostGIS serving model rebuilt from Gold data, with spatial and lineage indexes.
+- One Airflow DAG with bounded parameters, retries, timeouts, stable run IDs, and safe reruns.
+- Six read-only FastAPI endpoints for health, status, summaries, daily activity, spatial search, and lineage.
+- A bounded cache for aggregate queries and a Streamlit dashboard that uses only the API.
+
+## Results
+
+The one-million and ten-million results measure different parts of the project:
+
+| Measurement | Verified result |
+|---|---:|
+| **Complete local pipeline** | **1,000,000 replay events** |
+| Underlying NASA FIRMS detections | 10,000 |
+| Spark batch | 149.502 seconds |
+| Measured Spark throughput | 6,688.88 events/second |
+| PostgreSQL/PostGIS | 1M-row validation passed |
+| **Separate 10M dataset experiment** | Generation and independent verification passed |
+| 10M Spark processing | Not completed; local JVM memory limit exceeded |
+| AWS deployment | Not deployed |
+| Actual AWS cost | **$0.00** |
+
+The complete system—including Kafka, Spark, Gold, PostgreSQL/PostGIS, Airflow, FastAPI, cache, and dashboard—was tested with one million events. The separate 10M experiment proved deterministic generation and read-back only; it is not a 10M Spark or serving claim. Full measurements are recorded in [PERFORMANCE_REPORT.md](PERFORMANCE_REPORT.md).
 
 ## Dashboard
 
 | Mission overview | Geospatial explorer | Detection lineage |
 |---|---|---|
-| ![Mission overview showing platform status and event metrics](docs/images/dashboard-overview-v1.png) | ![Bounded geospatial explorer showing replay events](docs/images/dashboard-geospatial-v1.png) | ![Detection lineage showing source and replay chain](docs/images/dashboard-lineage-v1.png) |
-| Platform health, data freshness, source classification, and daily activity | PostGIS-backed bounding-box queries with time and source filters | Source detection, replay chain, timestamps, and classifications |
+| ![Dashboard mission overview](docs/images/dashboard-overview-v1.png) | ![Dashboard geospatial explorer](docs/images/dashboard-geospatial-v1.png) | ![Dashboard detection lineage](docs/images/dashboard-lineage-v1.png) |
+| Health, freshness, source types, and activity | Bounded PostGIS queries with map filters | Original detection and replay history |
 
-The dashboard reads only the six bounded FastAPI endpoints. It contains no direct database connection, hidden SQL, or duplicated aggregation logic.
+The dashboard does not connect directly to PostgreSQL. Every displayed value comes from a validated, bounded FastAPI response.
 
-## Key Engineering Decisions
+## Engineering Decisions
 
-- **Deterministic replay:** I used controlled replay to test scale and streaming behavior without misrepresenting replay events as original observations.
-- **Explicit schemas and identities:** Stable event, detection, and lineage IDs make deduplication and reconciliation independently verifiable.
-- **Gold as the authority:** Parquet remains the governed analytical record; PostgreSQL/PostGIS is a rebuildable serving projection.
-- **Idempotent loading:** Manifest checksums, staged promotion, and content-conflict detection make reruns safe and observable.
-- **PostGIS serving:** GiST-backed spatial queries support bounded map requests without introducing a separate geospatial service.
-- **Least-privilege API:** FastAPI uses a forced read-only database role, parameterized SQL, strict limits, and validated request/response models.
-- **Replaceable caching:** Only bounded aggregate responses are cached, with fixed TTL and memory limits plus safe PostgreSQL fallback.
-- **Operational recovery:** Kafka offsets, Spark checkpoints, Airflow receipts, and database load identities preserve truth across restarts and reruns.
+- **Deterministic IDs:** Stable event and lineage identities make reruns, deduplication, and independent verification possible.
+- **Idempotent processing:** Run identities, checksums, staged database loads, and conflict detection prevent silent duplication or overwrite.
+- **Schema validation:** Explicit schemas keep malformed coordinates, timestamps, classifications, and required fields out of Silver data.
+- **Replay/source separation:** Event counts and underlying NASA detection counts are reported independently so scale claims remain clear.
+- **Parquet between processing and serving:** Columnar Silver and Gold data remain the analytical source, while PostgreSQL is rebuildable.
+- **PostGIS for spatial queries:** The source data is geographic, and GiST indexes support the dashboard's bounded map searches.
+- **Read-only API access:** FastAPI uses a non-owner database role, parameterized SQL, response schemas, and strict result limits.
+- **Bounded caching:** Only successful aggregate queries are cached, with fixed TTL, entry, and memory limits.
+- **Airflow orchestration:** One DAG captures task order, retries, timeouts, run metadata, and rerun behavior without adding a framework around Airflow.
+- **Recovery:** Kafka offsets, Spark checkpoints, Airflow receipts, and database load identities are checked after restart.
 
-## Verified Results
+## Reliability and Testing
 
-The two scale claims are intentionally separate:
+The repository has unit tests for ingestion, identity, replay, Spark schemas, Kafka behavior, Gold generation, database loading, API validation, caching, infrastructure definitions, and dashboard states. Integration evidence covers Kafka offsets, Spark output read-back, PostGIS query plans, read-only database permissions, Airflow reruns, and service recovery.
 
-| Scope | Verified result |
-|---|---:|
-| **Full platform** | **1,000,000 events end to end** |
-| Underlying NASA FIRMS detections | 10,000 |
-| Replay frequency in the 1M gate | 100 events per detection |
-| 1M Spark batch | 149.502 seconds |
-| 1M Spark throughput | 6,688.88 events/second |
-| 1M governed Gold rows | 1,000,000 reconciled |
-| 1M PostgreSQL/PostGIS rebuild | 408.006 seconds; passed |
-| **Generation and verification only** | **10,000,000 deterministic replay events** |
-| 10M generation | Verified twice with identical SHA-256 |
-| 10M independent read-back | Verified |
-| 10M local Spark | Not claimed; reached the measured JVM memory boundary |
-| AWS deployment and workload | Not run |
-| Actual AWS cost | **$0.00** |
-
-The 10M experiment used 10,000 NASA detections replayed 1,000 times. Generation and independent verification passed, but the bounded local Spark attempt exhausted its 3 GiB JVM heap before producing an admitted output. The complete platform claim therefore remains one million events. Detailed measurements are in [PERFORMANCE_REPORT.md](PERFORMANCE_REPORT.md).
-
-## Reliability & Data Quality
-
-- Canonical schemas validate required fields, types, coordinates, timestamps, and classifications.
-- Stable identities support deterministic deduplication and replay reconciliation.
-- Every scale gate distinguishes original, replay, and explicitly synthetic events.
-- Manifests record row counts, checksums, run identities, and output locations.
-- Spark, Kafka offsets, Parquet read-back, Gold manifests, and serving counts reconcile independently.
-- Identical database reloads insert zero rows; conflicting content fails transactionally.
-- Recovery tests preserve Kafka offsets, serving counts, aggregates, and load identity after restart.
-- GitHub Actions validates dependencies, tests, imports, container definitions, secrets, documentation links, and generated-data exclusions.
-
-## Tech Stack
-
-| Area | Technologies |
-|---|---|
-| Ingestion and contracts | Python 3.12, NASA FIRMS API, JSON/JSONL, explicit schemas |
-| Streaming | Apache Kafka 4.3.1 in KRaft mode, Spark Structured Streaming |
-| Distributed processing | PySpark 4.0.2, Apache Spark, Parquet |
-| Orchestration | Apache Airflow 3.3.0 |
-| Serving | PostgreSQL 16, PostGIS 3.4, FastAPI, bounded in-process cache |
-| Presentation | Streamlit |
-| Platform | Docker Compose, GitHub Actions |
-| Cloud design | AWS S3, EMR Serverless, CloudWatch, KMS, IAM, CloudFormation |
+GitHub Actions installs pinned dependencies, checks imports and packaging, runs the portable test suite, validates Docker and Compose files, scans for secrets, checks documentation links, and rejects tracked generated datasets. The local release suite ran 108 tests: 100 passed and eight environment-dependent tests were skipped in the portable environment.
 
 ## Running Locally
 
@@ -128,32 +108,34 @@ python tools/repository_audit.py
 python -m unittest discover -s tests -p "test_*.py"
 ```
 
-Add the local NASA FIRMS key and database credentials to the ignored `.env` file. Generated datasets, checkpoints, databases, and runtime logs remain outside Git. The detailed execution plans under `docs/` describe the bounded Kafka, Spark, PostgreSQL, Airflow, API, and dashboard runs.
+Add the NASA FIRMS key and local database credentials to the ignored `.env` file. Generated data, checkpoints, databases, and logs remain outside Git. The execution notes under `docs/` contain the bounded commands for individual services.
 
-To run the serving applications after preparing the local database:
+After preparing the local PostgreSQL database:
 
 ```powershell
 uvicorn eo_event_platform.api.app:app
 python -m streamlit run src/eo_event_platform/dashboard/app.py
 ```
 
-## Repository Guide
+## Project Structure
 
-| Document | Purpose |
-|---|---|
-| [ARCHITECTURE.md](ARCHITECTURE.md) | System design, component boundaries, and data flow |
-| [PERFORMANCE_REPORT.md](PERFORMANCE_REPORT.md) | Runtime, throughput, storage, latency, and resource measurements |
-| [EVIDENCE_INDEX.md](EVIDENCE_INDEX.md) | Index of scale, quality, recovery, and serving evidence |
-| [INTERVIEW_GUIDE.md](INTERVIEW_GUIDE.md) | Concise project narrative, tradeoffs, and quantified resume bullets |
-| [DATA_DICTIONARY.md](DATA_DICTIONARY.md) | Event, lineage, time, location, and serving definitions |
-| [ENGINEERING_DECISIONS.md](ENGINEERING_DECISIONS.md) | Architectural decisions and their consequences |
+```text
+├── contracts/       Event, source, Kafka, Silver, and Gold contracts
+├── dags/            Airflow orchestration
+├── docs/            Technical decisions, data definitions, evidence, and execution notes
+├── infrastructure/  Docker Compose, database migrations, and AWS definitions
+├── reports/quality/ Verification and performance evidence
+├── src/              Python ingestion, processing, serving, and dashboard packages
+├── tests/            Unit, integration, and representative fixtures
+├── ARCHITECTURE.md
+├── PERFORMANCE_REPORT.md
+└── README.md
+```
 
-## Engineering Tradeoffs & Limitations
+## Limitations and Next Steps
 
-This is a laptop-scale local release, not a high-availability production deployment. The complete platform is proven at one million events on bounded local services. The separate 10M experiment established that deterministic generation and verification fit locally while Spark processing exceeded the safe JVM memory envelope; I retained that result as a measured capacity boundary instead of increasing memory or claiming an incomplete run.
+The 10M Spark run exceeded the JVM heap available on my local machine. Because of that measured limit, complete local validation remains at one million events; the 10M result covers deterministic generation and independent verification only.
 
-Local Kafka is a single KRaft broker and does not demonstrate broker failover. Performance measurements are sequential local benchmarks, not multi-user or cloud latency claims. AWS infrastructure is defined and locally validated, but no AWS resources were deployed and no cloud workload was executed.
+Local Kafka uses one KRaft broker, so it does not demonstrate broker failover or high availability. The recorded timings are local, sequential measurements rather than multi-user load tests.
 
-## Future Work
-
-Version 1.1 is intentionally limited to the already designed cloud execution: deploy the budget-controlled AWS foundation, run EMR Serverless compatibility checks, close managed 5M and 10M gates in order, capture CloudWatch and actual-cost evidence, and verify teardown. Version 1.0 incurred **$0.00** in AWS cost.
+AWS infrastructure for S3, EMR Serverless, CloudWatch, IAM, KMS, and cost controls is designed and locally validated but has not been deployed. Future work is to run managed 5M and 10M Spark tests in order, capture actual cloud cost and monitoring evidence, and tear the resources down. Current AWS cost is **$0.00**.

@@ -2,7 +2,7 @@
 
 ## Version 1.0 Local architecture
 
-ASTRAYAN is a governed Earth Observation event platform built around NASA FIRMS VIIRS data. The complete local path is verified at one million controlled replay messages derived from 10,000 distinct NASA detections. A separate ten-million replay-generation experiment is verified, while its Spark batch attempt is explicitly blocked by the measured local JVM heap ceiling.
+This Earth Observation event platform is built around NASA FIRMS VIIRS data. The complete local path is verified at one million controlled replay messages derived from 10,000 distinct NASA detections. A separate ten-million replay-generation experiment is verified, while Spark processing at that scale exceeded the measured local JVM heap limit.
 
 ```mermaid
 flowchart LR

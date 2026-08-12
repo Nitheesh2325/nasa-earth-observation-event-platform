@@ -21,9 +21,9 @@ SECRET_PATTERNS = {
 FORBIDDEN_TRACKED_PREFIXES = ("data/local/", "data/generated/", "data/bronze/", "data/silver/", "data/gold/")
 FORBIDDEN_TRACKED_SUFFIXES = (".parquet", ".tfstate", ".pem", ".key")
 LINK_DOCUMENTS = {
-    "README.md", "ARCHITECTURE.md", "PROJECT_STATE.md", "DATA_DICTIONARY.md",
-    "ENGINEERING_DECISIONS.md", "PERFORMANCE_REPORT.md", "AWS_COST_REPORT.md",
-    "INTERVIEW_GUIDE.md", "CHANGELOG.md", "EVIDENCE_INDEX.md",
+    "README.md", "ARCHITECTURE.md", "PERFORMANCE_REPORT.md",
+    "docs/DATA_DICTIONARY.md", "docs/ENGINEERING_DECISIONS.md",
+    "docs/AWS_COST_REPORT.md", "docs/EVIDENCE_INDEX.md",
 }
 
 
