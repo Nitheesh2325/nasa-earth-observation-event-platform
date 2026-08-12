@@ -23,7 +23,7 @@ FORBIDDEN_TRACKED_SUFFIXES = (".parquet", ".tfstate", ".pem", ".key")
 LINK_DOCUMENTS = {
     "README.md", "ARCHITECTURE.md", "PERFORMANCE_REPORT.md",
     "docs/DATA_DICTIONARY.md", "docs/ENGINEERING_DECISIONS.md",
-    "docs/AWS_COST_REPORT.md", "docs/EVIDENCE_INDEX.md",
+    "docs/AWS_DESIGN.md", "reports/VERIFICATION_RESULTS.md",
 }
 
 

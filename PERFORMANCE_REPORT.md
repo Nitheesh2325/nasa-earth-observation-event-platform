@@ -14,11 +14,11 @@
 | 10M local Spark | Not proven | Java heap ceiling after approximately 629 s |
 | AWS execution | Not run | $0.00 actual cost |
 
-Both 10M generation artifacts contained exactly 10,000,000 controlled replay events, were 18,445,760,890 bytes, and shared SHA-256 `50096fd62383d1c00b14b87fb65daf8ed64a6feb2fbf101099d10d202e55b762`. Independent verification reconciled 10,000 unique underlying NASA detections, 1,000 complete replay iterations, unique event identities, `NASA_REPLAY` classification, and zero synthetic events.
+Both 10M generation artifacts contained exactly 10,000,000 controlled replay events, were 18,445,760,890 bytes, and shared SHA-256 `50096a05162ead1c72b879997d23bc16dc382905e8eea937b7e1ee30548952cc`. Independent verification reconciled 10,000 unique underlying NASA detections, 1,000 complete replay iterations, unique event identities, `NASA_REPLAY` classification, and zero synthetic events.
 
 The bounded 10M Spark attempt used 4 CPUs, a 5 GiB container, a 3 GiB JVM heap, and 128 partitions. It failed at the verified heap boundary, so no output, acceptance, rejection, duplicate, or throughput result is admitted. No retry with more local memory is authorized.
 
-## Local recovery/restart gate
+## Local Recovery and Restart
 
 | Check | Result |
 |---|---:|
@@ -31,7 +31,7 @@ The bounded 10M Spark attempt used 4 CPUs, a 5 GiB container, a 3 GiB JVM heap, 
 
 Recovery preserved the successful manifest identity and all reconciled serving truth. Kafka and PostgreSQL were stopped after verification. These are single-node local recovery measurements, not availability or disaster-recovery claims.
 
-## Phase 9B AWS Foundation Checkpoint
+## AWS Infrastructure Definitions
 
 **Status:** Local definition verified; no cloud runtime executed.
 
@@ -47,9 +47,9 @@ Recovery preserved the successful manifest identity and all reconciled serving t
 | EMR idle auto-stop | 10 minutes |
 | CloudWatch log retention | 30 days |
 
-No throughput, latency, managed-runtime compatibility, readiness, or teardown performance claim is made. Those measurements require the explicitly approved live Phase 9B closure.
+No throughput, latency, managed-runtime compatibility, readiness, or teardown performance claim is made. Those measurements require an explicitly approved live deployment.
 
-## Phase 9A AWS Planning Gate
+## AWS Managed-Execution Plan
 
 **Status:** Planning verified; no workload executed.
 
@@ -66,9 +66,9 @@ No throughput, latency, managed-runtime compatibility, readiness, or teardown pe
 | 10M job timeout | 120 minutes |
 | RDS gate storage | 100 GiB gp3; 200 GiB autoscaling maximum |
 
-These are capacity and cost controls, not performance results. Phase 9A made no cloud-runtime, throughput, latency, availability, or cost claim. Execution-day AWS pricing, quota, compatibility, and budget preflight is mandatory before Phase 9B.
+These are capacity and cost controls, not performance results. Planning made no cloud-runtime, throughput, latency, availability, or cost claim. Execution-day AWS pricing, quota, compatibility, and budget preflight is mandatory before deployment.
 
-## Phase 8C.2 Dashboard Gate
+## Dashboard Browser Measurements
 
 **Status:** Passed
 
@@ -81,13 +81,13 @@ These are capacity and cost controls, not performance results. Phase 9A made no 
 
 The overview measurement includes Streamlit reconnect/rerun, three initial FastAPI calls, cached daily aggregate retrieval, validation, and rendering in the local in-app browser. Map and lineage timings include the Streamlit rerun, FastAPI request, response validation, and visual rendering. These are sequential local browser measurements against the preserved one-million-row database, not concurrency, WAN, or cloud claims.
 
-## Phase 8C.1 Operational Status API Gate
+## Operational Status API
 
 **Status:** Passed
 
 Thirty warm, sequential, in-process single-client requests against the preserved one-million-row database measured 38.396 ms p50, 52.392 ms p95, and 54.174 ms p99. Each request used the forced-read-only API role, read one row from the safe operational serving view, inspected the bounded immutable Airflow metadata set, and read only aggregate cache statistics. Measurements exclude network transport, concurrency, and dashboard rendering.
 
-## Phase 8B Bounded API Cache Gate
+## Bounded API Cache
 
 **Status:** Passed
 
@@ -100,7 +100,7 @@ Profile: 30 warm, sequential, in-process single-client requests against the pres
 
 The final benchmark observed 60 hits, 2 cold misses, 2 entries, 648 serialized bytes, zero evictions, zero expirations, and zero rejected writes. Fixed policy bounds are 60-second TTL, 256 entries, 65,536 bytes per entry, and 4,194,304 total serialized bytes. These measurements exclude network transport and concurrency; the bypass path deliberately forces the existing one-connection-per-request PostgreSQL behavior.
 
-## 1,000,000-Row Compact PostgreSQL/PostGIS Gate
+## 1,000,000-Row Compact PostgreSQL/PostGIS
 
 **Status:** Passed
 
@@ -119,7 +119,7 @@ The final benchmark observed 60 hits, 2 cold misses, 2 entries, 648 serialized b
 
 Warm local p95 was 143.746 ms for full-detail source summary, 378.860 ms for a broad spatial bounding box, 2.383 ms for a 100-event lineage lookup, and 1.963 ms for the governed daily aggregate. The verifier confirmed one million unique replay events, 10,000 detections exactly 100 times each, zero synthetic rows, complete replay ranges, valid PostGIS geometry, aggregates, roles, conflict rollback, and load controls. These are local single-client measurements, not cloud or concurrency claims.
 
-## 1,000,000-Message Governed Gold Gate
+## 1,000,000-Message Governed Gold
 
 **Status:** Passed
 
@@ -135,7 +135,7 @@ Warm local p95 was 143.746 ms for full-detail source summary, 378.860 ms for a b
 
 Manifest admission independently hashed all ten artifacts and reconciled one million declared load rows. A first immutable attempt was preserved but not admitted after exposing requested-versus-observed partition metadata ambiguity. Gold contract 1.1 now records requested partitions separately from physical file counts. These are one million controlled `NASA_REPLAY` messages representing 10,000 NASA detections, not one million original NASA observations.
 
-## 1,000,000-Message Structured Streaming Gate
+## 1,000,000-Message Structured Streaming
 
 **Status:** Passed
 
@@ -154,7 +154,7 @@ Manifest admission independently hashed all ten artifacts and reconciled one mil
 
 The run wrote 246 Bronze files (417,298,297 bytes), 1,312 Silver files (483,632,931 bytes), and 41 empty-outcome rejected files (231,404 bytes). The very small Silver files and 90% sampled memory utilization make five-million local streaming execution inappropriate. A failed verifier attempt exposed a batch-only schema assumption; explicit batch/streaming verification profiles corrected it without changing output.
 
-## 1,000,000-Message Kafka Replay Gate
+## 1,000,000-Message Kafka Replay
 
 **Status:** Passed
 
@@ -172,7 +172,7 @@ The run wrote 246 Bronze files (417,298,297 bytes), 1,312 Silver files (483,632,
 
 All six partitions were within -3.40% to +3.02% of the mean. Diagnostic success now fails closed on offset, identity, detection frequency, replay sequence/iteration, source type, synthetic flag, JSON, duplicate, and key/lineage checks. This remains a sequential single-broker local measurement rather than a replicated production throughput claim.
 
-## 1,000,000-Message Spark Batch Gate
+## 1,000,000-Message Spark Batch
 
 **Status:** Passed
 
@@ -190,7 +190,7 @@ Spark 4.0.2 processed the admitted million-message replay artifact with four CPU
 
 The run reconciled all output read-backs and independent truth checks. Throughput improved from 1,633.13 rows/second at 100,000 records because fixed work was further amortized and replay data compressed efficiently. The 93.62% memory high-water observation prohibits extrapolating this local configuration to five million records.
 
-## 1,000,000-Message Replay Generation Gate
+## 1,000,000-Message Replay Generation
 
 **Status:** Passed
 
@@ -205,7 +205,7 @@ The run reconciled all output read-backs and independent truth checks. Throughpu
 
 Independent full-artifact verification completed in 53.154 seconds at 18,813.13 rows/second. It recomputed all identities and schedule positions, verified exactly 100 events for each of 10,000 detections, preserved original fields, replay-only classification, zero synthetic flags, bytes, and checksum. This is local JSON generation and validation throughput, not Spark, Kafka, source, or end-to-end throughput.
 
-## PostgreSQL/PostGIS 100,000-row storage A/B gate
+## PostgreSQL/PostGIS 100,000-Row Storage A/B
 
 - Compact B retained 47 materialized columns and removed only duplicated `event_payload` JSONB.
 - All 100,000 rows were identical after excluding only that field; missing rows and identity/hash/lineage mismatches were zero.
@@ -214,9 +214,9 @@ Independent full-artifact verification completed in 53.154 seconds at 18,813.13 
 - After equal `VACUUM (ANALYZE)`, compact p95 versus full p95 was 18.700 versus 17.247 ms for summary, 9.618 versus 10.851 ms for spatial, and 3.366 versus 4.332 ms for lineage.
 - Compact B met the maximum 20% p95 regression rule and is selected for direct-loader implementation.
 - The 13.503-second `INSERT ... SELECT` materialization is not a direct Gold bulk-load benchmark.
-- Full evidence: `reports/quality/POSTGIS_100000_STORAGE_AB_GATE.md`.
+- Consolidated evidence: `reports/VERIFICATION_RESULTS.md`.
 
-## PostgreSQL/PostGIS 100,000-row replay serving gate
+## PostgreSQL/PostGIS 100,000-Row Replay Serving
 
 - Gold transformation: 100,000 replay Silver rows to reconciled Gold Parquet and load artifact in 94.243 seconds (1,061.09 rows/second).
 - Database bulk load: 100,000 staged and inserted rows in 63.627 seconds (1,571.65 rows/second).
@@ -226,9 +226,9 @@ Independent full-artifact verification completed in 53.154 seconds at 18,813.13 
 - Warm local p95: daily aggregate 2.727 ms, lineage 3.841 ms, spatial bounding box 6.756 ms, and source summary 12.479 ms.
 - One lineage p99 sample reached 1,100.932 ms despite a 0.111-ms measured plan execution; the outlier is retained as local host/runtime noise.
 - Full JSONB duplication caused material TOAST and WAL amplification and must be evaluated before the one-million gate.
-- Full evidence: `reports/quality/POSTGIS_100000_SERVING_GATE.md`.
+- Consolidated evidence: `reports/VERIFICATION_RESULTS.md`.
 
-## PostgreSQL/PostGIS 10,000-row serving gate
+## PostgreSQL/PostGIS 10,000-Row Serving
 
 - Gold transformation: 10,000 Silver rows to reconciled Gold Parquet and load artifact in 22.243 seconds.
 - Database bulk load: 10,000 staged and inserted rows in 3.839 seconds.
@@ -236,13 +236,13 @@ Independent full-artifact verification completed in 53.154 seconds at 18,813.13 
 - Database size: 57,422,307 bytes; event-detail relation: 34,136,064 bytes, including 5,750,784 index bytes.
 - Warm local query p95: daily aggregate 2.548 ms, lineage 2.823 ms, spatial bounding box 2.823 ms, and source summary 6.296 ms.
 - Observed idle post-verification memory: 93.28 MiB within a 2-GiB container limit.
-- Full evidence and limitations: `reports/quality/POSTGIS_10000_SERVING_GATE.md`.
+- Consolidated evidence and limitations: `reports/VERIFICATION_RESULTS.md`.
 
 ## Measurement Policy
 
 Each governed scale gate records the exact input checksum, pipeline revision, runtime, throughput, Spark configuration, output counts, output size, read-back counts, and known hardware limitations. Results from different environments are not treated as directly comparable unless their configurations are equivalent.
 
-## 10,000-Record Bronze-to-Silver Gate
+## 10,000-Record Bronze-to-Silver
 
 **Status:** Passed
 
@@ -311,7 +311,7 @@ This result proves correctness at the first scale gate. It is not a cloud benchm
 - Docker and the Windows-to-Linux bind mount add overhead not representative of EMR Serverless.
 - No shuffle, partition, or cache tuning conclusion is justified from a single small run.
 
-## 100,000-Message Replay Generation Gate
+## 100,000-Message Replay Generation
 
 **Status:** Passed
 
@@ -329,7 +329,7 @@ This measures local JSON replay generation and hashing only. It is not Spark pro
 
 The measured size fell within the planned 170-190 MB range. Physical run identifiers and wall-clock manifest fields differ; governed event bytes remain identical.
 
-## 100,000-Message Bronze-to-Silver Gate
+## 100,000-Message Bronze-to-Silver
 
 **Status:** Passed
 
@@ -352,7 +352,7 @@ Observed throughput increased from 277.56 to 1,633.13 records per second while v
 
 Independent Silver verification confirmed 100,000 replay IDs, 10,000 detection IDs, complete replay sequence and iteration ranges, correct non-synthetic replay classification, schedule boundaries, and the required derived fields.
 
-## 100,000-Message Kafka Replay Gate
+## 100,000-Message Kafka Replay
 
 **Status:** Passed
 
@@ -379,7 +379,7 @@ Per-partition delivery was `[16,460, 16,100, 16,920, 17,170, 16,250, 17,100]`. A
 
 The broker used approximately 523.7 MiB of its 1.5-GiB limit during post-run capture. The observed CPU snapshot was 183% of Docker's single-core scale while the container was capped at two CPUs. Producer and diagnostic consumer timers are application-level boundaries; Docker startup, broker warm-up, and evidence commands are excluded. This single-node local result does not measure replication, failover, authentication, sustained lag, or concurrent Spark consumption.
 
-## 100,000-Message Structured Streaming Gate
+## 100,000-Message Structured Streaming
 
 **Status:** Passed
 
@@ -413,15 +413,15 @@ The output footprint was 60 Bronze Parquet files totaling 45,790,714 bytes, 161 
 
 Same-checkpoint recovery processed zero new rows, reported zero lag, and preserved all counts and file sizes. Recovery plus independent Silver verification completed in 47.846 seconds.
 
-## Next Measurement
+## 100,000-Message Streaming Limitations
 
-Rejected-topic publishing, dead-letter behavior, controlled failure recovery, and streaming compaction remain unmeasured. Million-record advancement is not authorized.
+At this measurement boundary, rejected-topic publishing, dead-letter behavior, controlled failure recovery, and streaming compaction remained unmeasured. Later component sections record the independently verified larger workloads.
 
-## Phase 7 Airflow Local Integration Gate
+## Airflow Local Integration
 
 **Status:** Passed
 
-The official `apache/airflow:3.3.0-python3.12` Linux image executed the complete nine-task DAG with a four-record integration profile. This profile validates orchestration behavior only and does not repeat or replace any Phase 6 data-scale measurement.
+The official `apache/airflow:3.3.0-python3.12` Linux image executed the complete nine-task DAG with a four-record integration profile. This profile validates orchestration behavior only and does not repeat or replace any one-million data-scale measurement.
 
 | Metric | Value |
 |---|---:|
@@ -439,7 +439,7 @@ The official `apache/airflow:3.3.0-python3.12` Linux image executed the complete
 
 The Airflow wall intervals run from DAG creation logging to the final successful state and include local task-runner/API overhead. Docker image startup and initial metadata migration are excluded. The receipt timer covers only the deterministic integration stage body; it must not be compared with NASA, Spark, Gold, or PostgreSQL processing throughput. The same logical date and parameters produced orchestration ID `d0ccaf3e94455f2e03e76de99773f1119e5d62ea5fb958062c062c4d3b73195e`; the final rerun retained every successful stage at attempt one.
 
-## Phase 8A FastAPI Read-Only Gate
+## FastAPI Read-Only Serving
 
 **Status:** Passed
 
@@ -459,7 +459,7 @@ The API role was `eo_api_runtime`, inherited `eo_api_readonly`, was not a superu
 
 The activity aggregate occupied 32,768 bytes and the activity-time seek index occupied 122,724,352 bytes. Final database size was 1,902,440,931 bytes. The stopped-service snapshot showed 583.7 MiB PostgreSQL memory of the 2-GiB limit; this idle snapshot is not a peak measurement.
 
-## 100,000-Record Compact PostgreSQL Direct-Load Gate
+## 100,000-Record Compact PostgreSQL Direct Load
 
 **Status:** Passed
 
@@ -476,4 +476,4 @@ The compact production projection rebuilt an empty database directly from the go
 | Physical database directory | 513,425,863 bytes |
 | Container memory snapshot | 357.7 MiB / 2 GiB |
 
-Warm local p95 latency was 71.921 ms for a full-detail source summary, 13.362 ms for the spatial bounding box, 2.432 ms for lineage lookup, and 2.394 ms for the daily aggregate. The full-detail summary is not the intended dashboard path; governed aggregates should serve that workload. See `reports/quality/POSTGIS_100000_COMPACT_DIRECT_GATE.md` for truth, rollback, plans, security, and limitations.
+Warm local p95 latency was 71.921 ms for a full-detail source summary, 13.362 ms for the spatial bounding box, 2.432 ms for lineage lookup, and 2.394 ms for the daily aggregate. The full-detail summary is not the intended dashboard path; governed aggregates should serve that workload. See `reports/VERIFICATION_RESULTS.md` for truth, rollback, plans, security, and limitations.

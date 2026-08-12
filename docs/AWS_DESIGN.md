@@ -6,6 +6,18 @@
 
 This document describes how the verified local pipeline can be tested on managed AWS infrastructure. It does not authorize deployment by itself. Deployment can begin only after the owner authorizes spend and the budget, identity, quota, and teardown preflight has passed.
 
+### Actual deployment and cost status
+
+| Fact | Verified status |
+|---|---:|
+| AWS resources actually created | 0 |
+| AWS workloads actually executed | 0 |
+| Actual AWS cost | **$0.00** |
+
+The CloudFormation foundation is implemented and locally validated only. No AWS CLI, authenticated service API, change set, stack, budget, alarm, bucket, endpoint, role, KMS key, log group, or EMR application has been created. Live deployment, managed 5M/10M execution, cloud-performance evidence, and teardown evidence remain future work and require explicit approval.
+
+The `$50` monthly budget, `$25`/`$40` billing alarms, and `$33-$45` combined 5M/10M envelope below are planning controls and estimates, not actual spend. Free-tier credits are not used to justify affordability; any future execution must record gross cost and credits separately after Cost Explorer data settles.
+
 ## 1. Exact AWS architecture
 
 ### Scope
@@ -276,7 +288,7 @@ These are planning bounds, not quotes. EMR Serverless bills consumed vCPU, memor
 - Inventory all project-tagged resources with AWS Resource Groups Tagging API and service-specific lists.
 - Confirm zero running EMR applications/jobs, ECS tasks/services, RDS instances/restores, interface endpoints, NAT gateways, load balancers, or public IPs.
 - Confirm only explicitly retained S3 objects, RDS snapshot (during its seven-day window), KMS key, Budget, and SNS remain.
-- Record final Cost Explorer actuals after billing data settles; `AWS_COST_REPORT.md` must distinguish estimated, accrued, and final cost.
+- Record final Cost Explorer actuals after billing data settles in the governed execution evidence, distinguishing estimated, accrued, and final cost.
 - A teardown is incomplete while an hourly resource remains.
 
 ## 9. Security review

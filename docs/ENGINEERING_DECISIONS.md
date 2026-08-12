@@ -1,6 +1,6 @@
 # Engineering Decisions
 
-This document explains the choices that shape the platform and the tradeoffs behind them. Detailed field definitions live in [DATA_DICTIONARY.md](DATA_DICTIONARY.md), measured results in [PERFORMANCE_REPORT.md](../PERFORMANCE_REPORT.md), and supporting evidence in [EVIDENCE_INDEX.md](EVIDENCE_INDEX.md).
+This document explains the choices that shape the platform and the tradeoffs behind them. Detailed field definitions live in [DATA_DICTIONARY.md](DATA_DICTIONARY.md), measured results in [PERFORMANCE_REPORT.md](../PERFORMANCE_REPORT.md), and supporting evidence in [VERIFICATION_RESULTS.md](../reports/VERIFICATION_RESULTS.md).
 
 ## Deterministic event identity and lineage
 

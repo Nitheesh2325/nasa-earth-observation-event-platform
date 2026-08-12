@@ -116,7 +116,8 @@ python -m streamlit run src/eo_event_platform/dashboard/app.py
 ├── dags/            Airflow orchestration
 ├── docs/            Technical decisions, data definitions, evidence, and execution notes
 ├── infrastructure/  Docker Compose, database migrations, and AWS definitions
-├── reports/quality/ Verification and performance evidence
+├── reports/        Consolidated verification evidence
+│   └── VERIFICATION_RESULTS.md
 ├── src/              Python ingestion, processing, serving, and dashboard packages
 ├── tests/            Unit, integration, and representative fixtures
 ├── ARCHITECTURE.md
