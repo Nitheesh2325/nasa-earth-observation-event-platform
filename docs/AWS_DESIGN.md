@@ -1,10 +1,10 @@
-# Phase 9A AWS Execution Plan
+# AWS Deployment Design
 
-## Status and authority
+## Status
 
-**Status:** Verified planning baseline; no infrastructure created and no AWS workload executed.
+**Status:** Designed and locally validated; no infrastructure created and no AWS workload executed.
 
-This document is the implementation contract for the Version 1.0 AWS scale gates. It preserves the approved architecture and does not authorize deployment by itself. Phase 9B may begin only after the owner authorizes spend and the budget, identity, quota, and teardown preflight has passed.
+This document describes how the verified local pipeline can be tested on managed AWS infrastructure. It does not authorize deployment by itself. Deployment can begin only after the owner authorizes spend and the budget, identity, quota, and teardown preflight has passed.
 
 ## 1. Exact AWS architecture
 
@@ -24,7 +24,7 @@ This document is the implementation contract for the Version 1.0 AWS scale gates
 - Network: one VPC (`10.42.0.0/16`) with two private subnets (`10.42.10.0/24`, `10.42.20.0/24`) in distinct Availability Zones. No public database, public subnet, NAT gateway, internet gateway, bastion, ALB, or inbound SSH.
 - Private connectivity: S3 gateway endpoint plus interface endpoints for ECR API, ECR Docker, CloudWatch Logs, Secrets Manager, and STS. Endpoints are created only for the execution window and removed during teardown.
 
-Managed Kafka, EKS, Glue, Athena, Redshift, Lambda, a public FastAPI tier, and cloud dashboard hosting are outside Version 1.0 Phase 9. Local Kafka evidence is already complete; adding MSK would introduce cost and scope without being required for the cloud scale proof.
+Managed Kafka, EKS, Glue, Athena, Redshift, Lambda, a public FastAPI tier, and cloud dashboard hosting are outside this design. Local Kafka evidence is already complete; adding MSK would introduce cost and scope without being required for the cloud scale test.
 
 ### Service dependency diagram
 
@@ -81,7 +81,7 @@ flowchart LR
 | RDS PostgreSQL | 1 | Per serving gate | Private, encrypted, PostgreSQL 16, PostGIS 3.4, 100 GiB gp3, deletion protection during gate |
 | CloudWatch dashboard | 1 | Execution window | Cost, EMR, loader, RDS, and quality signals |
 
-RDS uses Single-AZ only for the explicitly labeled, time-bounded portfolio scale gate. It is not a high-availability production claim. A real continuously available production deployment must use Multi-AZ as already specified in the Phase 6 architecture.
+RDS uses Single-AZ only for the explicitly labeled, time-bounded portfolio scale test. It is not a high-availability production claim. A continuously available deployment would require Multi-AZ.
 
 ## 2. IAM roles and policies
 
@@ -89,7 +89,7 @@ No long-lived IAM access key is permitted. Human access uses an MFA-protected fe
 
 | Role | Trusted principal | Allowed actions | Explicitly excluded |
 |---|---|---|---|
-| `AstrayanDeploymentRole` | Approved SSO permission set | Create/update/delete only the named Phase 9 resources; `iam:PassRole` only for roles below | Account administration, users/access keys, unrelated resources, wildcard pass-role |
+| `AstrayanDeploymentRole` | Approved SSO permission set | Create/update/delete only the named project resources; `iam:PassRole` only for roles below | Account administration, users/access keys, unrelated resources, wildcard pass-role |
 | `AstrayanEmrRuntimeRole` | EMR Serverless | Read admitted Bronze/artifacts; write only run-scoped Silver, Gold, quarantine, evidence, and EMR logs; KMS use; scoped CloudWatch metrics | Secrets, RDS, IAM, other buckets, delete admitted inputs |
 | `AstrayanEcsExecutionRole` | ECS tasks | Pull the named ECR image, decrypt it, create/write the named task log groups, retrieve only injected secret values | S3 data access, RDS data access, infrastructure mutation |
 | `AstrayanLoaderTaskRole` | ECS tasks | Read one admitted Gold run and manifest; read one loader secret; KMS decrypt; publish namespaced load metrics/evidence | Bronze/Silver writes, database owner use by API, bucket-wide deletes, IAM |
@@ -295,9 +295,9 @@ These are planning bounds, not quotes. EMR Serverless bills consumed vCPU, memor
 
 Deployment is blocked by any public data resource, wildcard data-plane policy, unconfirmed budget notification, unscanned critical image finding, missing encryption, untracked secret, failed checksum, or unreconciled count.
 
-## 10. Phase 9 implementation checklist
+## 10. Deployment and validation sequence
 
-### 9B - deployment foundation
+### Foundation
 
 1. Reconfirm clean Git state and the admitted one-million baseline.
 2. Reprice the plan in AWS Pricing Calculator and obtain owner spend authorization.
@@ -308,7 +308,7 @@ Deployment is blocked by any public data resource, wildcard data-plane policy, u
 7. Deploy KMS, buckets, logs, VPC/endpoints, roles, ECR, temporary RDS, ECS task definitions, and EMR application in dependency order.
 8. Verify encryption, public-access blocks, routes, security groups, tags, retention, and capacity ceilings.
 
-### 9C - managed compatibility smoke
+### Managed compatibility smoke
 
 9. Package the exact Git SHA and record checksums/digests.
 10. Run the representative Spark fixture on EMR Serverless; reconcile schema and Parquet.
@@ -316,7 +316,7 @@ Deployment is blocked by any public data resource, wildcard data-plane policy, u
 12. Exercise one alarm and capture the SNS notification.
 13. Teardown all hourly smoke resources and verify the inventory/cost snapshot.
 
-### 9D - 5M gate
+### 5M validation
 
 14. Admit the 5M replay manifest and record original/replay/synthetic truth.
 15. Execute the ordered EMR jobs with the 16-vCPU ceiling.
@@ -326,7 +326,7 @@ Deployment is blocked by any public data resource, wildcard data-plane policy, u
 19. Run the full automated suite and close the 5M quality report.
 20. Teardown hourly resources, reconcile actual cost, update required documentation, commit, and obtain gate approval.
 
-### Phase 10 - 10M gate (blocked until 5M closes)
+### 10M validation (only after 5M passes)
 
 21. Confirm 32-vCPU quota and reprice/re-authorize remaining budget.
 22. Admit and execute 10M with the same contracts and the 32-vCPU ceiling.
@@ -334,11 +334,11 @@ Deployment is blocked by any public data resource, wildcard data-plane policy, u
 24. Teardown all hourly resources; reconcile final bill and retained-object inventory.
 25. Run full tests, synchronize all required documentation/evidence, commit the final gate, and prepare GitHub/portfolio release evidence.
 
-## Phase 9A verification record
+## Design verification record
 
 - Repository inspected at baseline commit `4a36a4d33db1da8376355c23027f90e60c9a2cae`.
-- Architecture reconciled with the project constraints, ED-004, ED-018 through ED-023, ED-028, and the Phase 6 AWS serving topology.
+- Architecture reconciled with the local runtime, storage, serving, security, cost, and recovery constraints.
 - Official AWS pricing/service pages were checked on 2026-08-10; execution-day pricing remains mandatory.
 - No AWS CLI, SDK, Console, CloudFormation, Terraform, or service API call was executed.
 - No credential was requested, displayed, written, or committed.
-- Actual AWS cost at Phase 9A completion: `$0.00`.
+- Actual AWS cost at design completion: `$0.00`.

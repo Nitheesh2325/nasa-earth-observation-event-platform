@@ -100,7 +100,7 @@ Copy-Item .env.example .env
 python -m unittest discover -s tests -p "test_*.py"
 ```
 
-Add the NASA FIRMS key and local database credentials to the ignored `.env` file. Generated data, checkpoints, databases, and logs remain outside Git. The execution notes under `docs/` contain the bounded commands for individual services.
+Add the NASA FIRMS key and local database credentials to the ignored `.env` file. Generated data, checkpoints, databases, and logs remain outside Git. Supporting technical documentation and verification reports describe the individual service boundaries.
 
 After preparing the local PostgreSQL database:
 

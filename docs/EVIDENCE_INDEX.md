@@ -17,7 +17,7 @@
 | Operational status API | [Status API gate](../reports/quality/PHASE_8C1_OPERATIONAL_STATUS_GATE.md) |
 | Dashboard | [Dashboard gate](../reports/quality/PHASE_8C2_DASHBOARD_GATE.md) |
 | 10M generation and Spark OOM boundary | [Local 10M batch gate](../reports/quality/LOCAL_10000000_BATCH_GATE.md) |
-| AWS plan, zero spend | [AWS execution plan](phase_9/PHASE_9A_AWS_EXECUTION_PLAN.md), [cost report](AWS_COST_REPORT.md) |
+| AWS plan, zero spend | [AWS deployment design](AWS_DESIGN.md), [cost report](AWS_COST_REPORT.md) |
 | AWS IaC local validation | [AWS foundation gate](../reports/quality/PHASE_9B_AWS_FOUNDATION_GATE.md) |
 | Version 1.0 recovery | [Local recovery gate](../reports/quality/V1_LOCAL_RECOVERY_GATE.md) |
 | Version 1.0 release | [Local release gate](../reports/quality/V1_LOCAL_RELEASE_GATE.md) |

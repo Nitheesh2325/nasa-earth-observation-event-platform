@@ -4,8 +4,8 @@
 
 | Field | Type | Source and meaning |
 |---|---|---|
-| `last_successful_pipeline_run` | timezone timestamp | Completion time of the most recent successful immutable Phase 7 run manifest |
-| `latest_airflow_run_id` | string | Most recent Airflow run identifier from bounded Phase 7 metadata |
+| `last_successful_pipeline_run` | timezone timestamp | Completion time of the most recent successful immutable Airflow run manifest |
+| `latest_airflow_run_id` | string | Most recent Airflow run identifier from bounded orchestration metadata |
 | `latest_airflow_status` | enum | `SUCCEEDED`, `FAILED`, or `RUNNING` from the latest immutable run manifest |
 | `latest_manifest_id` | string | Governed Gold run identifier for the latest successful database load |
 | `latest_manifest_sha256` | 64-character hex | Governed Gold manifest checksum stored in load control |
@@ -105,4 +105,4 @@ The canonical event contract under `contracts/events/v1/` is authoritative for r
 
 Gold Parquet remains authoritative. PostgreSQL/PostGIS is a rebuildable compact serving projection and materializes SRID-4326 point geometry from governed longitude and latitude. The database retains explicit governed fields, hashes, and Gold lineage; it does not duplicate the complete canonical payload as per-row JSONB.
 
-`serving.dataset_daily_summary` retains its Phase 6 observation-date grain. `serving.dataset_activity_daily_summary` uses activity date, dataset, and source type for the Phase 8 API. Neither table changes event truth: counts always distinguish event messages, unique events, underlying detections, original messages, replay messages, and explicitly synthetic messages.
+`serving.dataset_daily_summary` retains its observation-date grain. `serving.dataset_activity_daily_summary` uses activity date, dataset, and source type for the API. Neither table changes event truth: counts always distinguish event messages, unique events, underlying detections, original messages, replay messages, and explicitly synthetic messages.

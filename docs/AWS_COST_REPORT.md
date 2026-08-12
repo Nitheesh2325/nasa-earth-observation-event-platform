@@ -9,7 +9,7 @@
 
 The AWS architecture and CloudFormation foundation are prepared and locally validated only. Live deployment, managed 5M/10M execution, actual cloud-performance evidence, and teardown evidence are deferred to Version 1.1 and require explicit approval. Version 1.0 Local makes no AWS runtime claim.
 
-## Phase 9A planning baseline
+## Planning baseline
 
 **As of:** 2026-08-10  
 **Region:** `us-east-1`  
@@ -17,7 +17,7 @@ The AWS architecture and CloudFormation foundation are prepared and locally vali
 **Actual AWS workload executions:** 0  
 **Actual AWS cost incurred by this project:** **$0.00**
 
-Phase 9A performed local documentation and pricing research only. No AWS CLI, SDK, Console, infrastructure-as-code deployment, or AWS service API operation was executed.
+The planning work used local documentation and pricing research only. No AWS CLI, SDK, Console, infrastructure-as-code deployment, or AWS service API operation was executed.
 
 ## Approved cost-control boundary
 
@@ -51,11 +51,11 @@ Each cloud execution must append a row after billing data becomes available.
 
 | Gate | Start/end UTC | Estimate | Accrued | Final gross | Credits | Net | Teardown verified | Evidence |
 |---|---|---:|---:|---:|---:|---:|---|---|
-| Phase 9A plan | 2026-08-10 | $0.00 | $0.00 | $0.00 | $0.00 | $0.00 | Not applicable; nothing created | `docs/phase_9/PHASE_9A_AWS_EXECUTION_PLAN.md` |
+| AWS design | 2026-08-10 | $0.00 | $0.00 | $0.00 | $0.00 | $0.00 | Not applicable; nothing created | [AWS design](AWS_DESIGN.md) |
 
 No future row may be marked final until Cost Explorer data has settled and the project-tagged resource inventory confirms that no unapproved hourly resource remains.
 
-## Phase 9B local foundation checkpoint
+## Local infrastructure-definition checkpoint
 
 **Actual AWS resources created:** 0
 
@@ -69,4 +69,4 @@ The committed template fixes the monthly budget at $50 and defines $25/$40 billi
 
 | Gate | Start/end UTC | Estimate | Accrued | Final gross | Credits | Net | Teardown verified | Evidence |
 |---|---|---:|---:|---:|---:|---:|---|---|
-| Phase 9B local definition | 2026-08-10 | $0.00 local | $0.00 | $0.00 | $0.00 | $0.00 | Not applicable; nothing created | `reports/quality/PHASE_9B_AWS_FOUNDATION_GATE.md` |
+| Local infrastructure definition | 2026-08-10 | $0.00 local | $0.00 | $0.00 | $0.00 | $0.00 | Not applicable; nothing created | [Infrastructure evidence](../reports/quality/PHASE_9B_AWS_FOUNDATION_GATE.md) |
